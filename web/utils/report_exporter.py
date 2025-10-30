@@ -62,8 +62,27 @@ try:
 
     # 检查pandoc是否可用，如果不可用则尝试下载
     try:
-        pypandoc.get_pandoc_version()
-        PANDOC_AVAILABLE = True
+        # 优先检查系统PATH中的pandoc
+        import subprocess
+        try:
+            result = subprocess.run(['which', 'pandoc'], capture_output=True, text=True, timeout=2)
+            if result.returncode == 0:
+                pandoc_path = result.stdout.strip()
+                logger.info(f"✅ 找到pandoc路径: {pandoc_path}")
+                # 验证pandoc可用
+                result = subprocess.run([pandoc_path, '--version'], capture_output=True, text=True, timeout=2)
+                if result.returncode == 0:
+                    version = result.stdout.split('\n')[0]
+                    logger.info(f"✅ pandoc可用: {version}")
+                    PANDOC_AVAILABLE = True
+                else:
+                    raise OSError("pandoc命令执行失败")
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+            logger.warning(f"⚠️ 系统PATH中未找到pandoc: {e}")
+            # 尝试使用pypandoc检测
+            pypandoc.get_pandoc_version()
+            PANDOC_AVAILABLE = True
+            logger.info(f"✅ 通过pypandoc检测到pandoc")
     except OSError:
         logger.warning(f"⚠️ 未找到pandoc，正在尝试自动下载...")
         try:
@@ -72,7 +91,20 @@ try:
             logger.info(f"✅ pandoc下载成功！")
         except Exception as download_error:
             logger.error(f"❌ pandoc下载失败: {download_error}")
-            PANDOC_AVAILABLE = False
+            # 最后尝试检查Homebrew路径
+            homebrew_pandoc = "/opt/homebrew/bin/pandoc"
+            if os.path.exists(homebrew_pandoc):
+                try:
+                    result = subprocess.run([homebrew_pandoc, '--version'], capture_output=True, text=True, timeout=2)
+                    if result.returncode == 0:
+                        logger.info(f"✅ 在Homebrew路径找到pandoc: {homebrew_pandoc}")
+                        PANDOC_AVAILABLE = True
+                    else:
+                        PANDOC_AVAILABLE = False
+                except Exception:
+                    PANDOC_AVAILABLE = False
+            else:
+                PANDOC_AVAILABLE = False
 
     EXPORT_AVAILABLE = True
 
@@ -456,12 +488,43 @@ class ReportExporter:
         md_content = self.generate_markdown_report(results)
         logger.info(f"✅ Markdown内容生成完成，长度: {len(md_content)} 字符")
 
-        # 简化的PDF引擎列表，优先使用最可能成功的
-        pdf_engines = [
-            ('wkhtmltopdf', 'HTML转PDF引擎，推荐安装'),
-            ('weasyprint', '现代HTML转PDF引擎'),
-            (None, '使用pandoc默认引擎')  # 不指定引擎，让pandoc自己选择
-        ]
+        # PDF引擎列表，按优先级尝试
+        # 检测可用的PDF引擎
+        available_engines = []
+        
+        # 检查pdflatex/xelatex/lualatex
+        import subprocess
+        latex_engines = ['xelatex', 'lualatex', 'pdflatex']
+        for engine in latex_engines:
+            try:
+                result = subprocess.run(['which', engine], capture_output=True, text=True, timeout=1)
+                if result.returncode == 0:
+                    available_engines.append((engine, f'LaTeX引擎: {engine}'))
+                    logger.info(f"✅ 检测到PDF引擎: {engine}")
+            except:
+                pass
+        
+        # 检查weasyprint
+        try:
+            result = subprocess.run(['which', 'weasyprint'], capture_output=True, text=True, timeout=1)
+            if result.returncode == 0:
+                available_engines.append(('weasyprint', '现代HTML转PDF引擎'))
+                logger.info(f"✅ 检测到PDF引擎: weasyprint")
+        except:
+            pass
+        
+        # 如果没有找到任何引擎，使用默认列表
+        if not available_engines:
+            pdf_engines = [
+                ('xelatex', 'LaTeX引擎（对中文支持好）'),
+                ('lualatex', 'LaTeX引擎'),
+                ('pdflatex', 'LaTeX引擎'),
+                (None, '使用pandoc默认引擎')
+            ]
+            logger.warning("⚠️ 未检测到PDF引擎，将尝试常见引擎")
+        else:
+            pdf_engines = available_engines + [(None, '使用pandoc默认引擎')]
+            logger.info(f"📋 将尝试以下PDF引擎: {[e[0] for e in pdf_engines]}")
 
         last_error = None
 
@@ -472,14 +535,74 @@ class ReportExporter:
                 with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_file:
                     output_file = tmp_file.name
 
-                # 使用禁用YAML解析的参数（与Word导出一致）
-                extra_args = ['--from=markdown-yaml_metadata_block']
-
-                # 如果指定了引擎，添加引擎参数
-                if engine:
+                # 如果指定了引擎，添加引擎参数和中文支持
+                if engine == 'xelatex':
+                    # xelatex是最佳选择，原生支持UTF-8和中文
+                    # 使用-H参数添加xeCJK包支持中文
+                    header_includes = r'''\usepackage{xeCJK}
+\setCJKmainfont{PingFang SC}
+\setCJKsansfont{PingFang SC}
+\setCJKmonofont{PingFang SC}
+\usepackage{fontspec}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt'''
+                    
+                    # 创建临时文件包含中文支持的LaTeX代码
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.tex', delete=False, encoding='utf-8') as header_file:
+                        header_file.write(header_includes)
+                        header_path = header_file.name
+                    
+                    # 构建参数：先-H（必须在前面），然后-V，最后引擎选项
+                    extra_args = [
+                        '--from=markdown',  # 使用基础markdown格式
+                        '-H', header_path,  # 使用-H参数包含LaTeX代码（必须在前面）
+                        f'--pdf-engine={engine}',
+                        '-V', 'geometry:margin=2cm',
+                        '--pdf-engine-opt=-interaction=nonstopmode',
+                        '--pdf-engine-opt=-file-line-error',
+                    ]
+                    
+                    logger.info(f"🔤 已配置xelatex中文支持（使用xeCJK和PingFang SC字体）")
+                    logger.info(f"🔧 Header文件路径: {header_path}")
+                    
+                    # 标记header文件以便稍后清理
+                    try:
+                        if not hasattr(self, '_temp_header_files'):
+                            self._temp_header_files = []
+                        self._temp_header_files.append(header_path)
+                    except:
+                        pass
+                        
+                elif engine == 'lualatex':
+                    # lualatex也支持UTF-8，使用luatexja包
+                    extra_args = ['--from=markdown-yaml_metadata_block']
+                    extra_args.append(f'--pdf-engine={engine}')
+                    extra_args.extend([
+                        '-V', 'CJKmainfont=PingFang SC',
+                        '--pdf-engine-opt=-interaction=nonstopmode',
+                        '--pdf-engine-opt=-file-line-error',
+                    ])
+                    logger.info(f"🔤 已配置lualatex中文支持")
+                    
+                elif engine == 'pdflatex':
+                    # pdflatex使用CJK包
+                    extra_args = ['--from=markdown-yaml_metadata_block']
+                    extra_args.append(f'--pdf-engine={engine}')
+                    extra_args.extend([
+                        '-V', 'CJKmainfont=STSong',  # 标准宋体
+                        '--pdf-engine-opt=-interaction=nonstopmode',
+                        '--pdf-engine-opt=-file-line-error',
+                    ])
+                    logger.info(f"🔤 已配置pdflatex中文支持")
+                    
+                elif engine:
+                    # 其他引擎使用标准配置
+                    extra_args = ['--from=markdown-yaml_metadata_block']
                     extra_args.append(f'--pdf-engine={engine}')
                     logger.info(f"🔧 使用PDF引擎: {engine}")
+                    
                 else:
+                    extra_args = ['--from=markdown-yaml_metadata_block']
                     logger.info(f"🔧 使用默认PDF引擎")
 
                 logger.info(f"🔧 PDF参数: {extra_args}")
@@ -504,6 +627,15 @@ class ReportExporter:
 
                     # 清理临时文件
                     os.unlink(output_file)
+                    
+                    # 清理header文件（如果存在）
+                    try:
+                        if hasattr(self, '_temp_header_files'):
+                            for header_file in self._temp_header_files:
+                                if os.path.exists(header_file):
+                                    os.unlink(header_file)
+                    except:
+                        pass
 
                     logger.info(f"✅ PDF生成成功，使用引擎: {engine or '默认'}")
                     return pdf_content

@@ -383,7 +383,7 @@ def render_analysis_results():
         analyst_filter = st.selectbox(
             "👥 分析师类型",
             ["全部", "market_analyst", "social_media_analyst", "news_analyst", "fundamental_analyst"],
-            help="注意：社交媒体分析师仅适用于美股和港股，A股分析中不包含此类型"
+            help="社交媒体分析师：A股使用东方财富股吧，美股/港股使用Reddit等平台"
         )
         
         if analyst_filter == "全部":

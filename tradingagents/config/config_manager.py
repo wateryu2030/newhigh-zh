@@ -119,9 +119,10 @@ class ConfigManager:
         验证OpenAI API密钥格式
         
         OpenAI API密钥格式规则：
-        1. 以 'sk-' 开头
-        2. 总长度通常为51个字符
-        3. 包含字母、数字和可能的特殊字符
+        1. 标准密钥：以 'sk-' 开头，长度51个字符
+        2. 项目密钥：以 'sk-proj-' 开头，长度通常更长
+        3. 组织密钥：以 'sk-org-' 开头
+        4. 包含字母、数字和可能的特殊字符
         
         Args:
             api_key: 要验证的API密钥
@@ -132,20 +133,32 @@ class ConfigManager:
         if not api_key or not isinstance(api_key, str):
             return False
         
-        # 检查是否以 'sk-' 开头
+        # 检查是否以 'sk-' 开头（包括标准密钥、项目密钥、组织密钥）
         if not api_key.startswith('sk-'):
             return False
         
-        # 检查长度（OpenAI密钥通常为51个字符）
-        if len(api_key) != 51:
-            return False
+        # 支持标准密钥格式：sk-xxxxxxxxxxxxxxxx (51个字符)
+        if api_key.startswith('sk-') and len(api_key) == 51:
+            pattern = r'^sk-[A-Za-z0-9]{48}$'
+            if re.match(pattern, api_key):
+                return True
         
-        # 检查格式：sk- 后面应该是48个字符的字母数字组合
-        pattern = r'^sk-[A-Za-z0-9]{48}$'
-        if not re.match(pattern, api_key):
-            return False
+        # 支持项目密钥格式：sk-proj-xxxxxxxxxxxxxxx (长度可变，通常更长)
+        if api_key.startswith('sk-proj-'):
+            # 项目密钥长度通常大于51，包含字母、数字、下划线和连字符
+            if len(api_key) >= 20:  # 最小长度检查
+                pattern = r'^sk-proj-[A-Za-z0-9_-]+$'
+                if re.match(pattern, api_key):
+                    return True
         
-        return True
+        # 支持组织密钥格式：sk-org-xxxxxxxxxxxxxxx
+        if api_key.startswith('sk-org-'):
+            if len(api_key) >= 20:
+                pattern = r'^sk-org-[A-Za-z0-9_-]+$'
+                if re.match(pattern, api_key):
+                    return True
+        
+        return False
     
     def _init_mongodb_storage(self):
         """初始化MongoDB存储"""

@@ -89,10 +89,21 @@ def create_social_media_analyst(llm, toolkit):
         company_name = _get_company_name_for_social_media(ticker, market_info)
         logger.info(f"[社交媒体分析师] 公司名称: {company_name}")
 
-        if toolkit.config["online_tools"]:
+        # 根据股票类型选择工具
+        if market_info['is_china']:
+            # A股：优先使用中国社交媒体数据（东方财富股吧等）
+            tools = [
+                toolkit.get_chinese_social_sentiment,
+            ]
+            if toolkit.config.get("online_tools", False):
+                # 在线模式：也可以使用OpenAI新闻分析
+                tools.append(toolkit.get_stock_news_openai)
+            logger.info(f"📊 [社交媒体分析师] A股{ticker}，使用中国社交媒体工具")
+        elif toolkit.config["online_tools"]:
+            # 非A股在线模式
             tools = [toolkit.get_stock_news_openai]
         else:
-            # 优先使用中国社交媒体数据，如果不可用则回退到Reddit
+            # 非A股离线模式：优先使用中国社交媒体数据，如果不可用则回退到Reddit
             tools = [
                 toolkit.get_chinese_social_sentiment,
                 toolkit.get_reddit_stock_info,

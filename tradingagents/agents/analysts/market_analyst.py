@@ -1,6 +1,37 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import create_react_agent, AgentExecutor
-from langchain import hub
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+try:
+    # LangChain 1.0+ 使用新的 API
+    from langchain.agents import create_agent
+    LANGCHAIN_V1 = True
+except ImportError:
+    # 兼容旧版本
+    from langchain.agents import create_react_agent, AgentExecutor
+    LANGCHAIN_V1 = False
+
+# 尝试导入 langchainhub Client（如果可用）
+HUB_AVAILABLE = False
+hub_client = None
+try:
+    from langchainhub import Client
+    hub_client = Client()
+    HUB_AVAILABLE = True
+    logger_temp = None
+    try:
+        from tradingagents.utils.logging_init import get_logger
+        logger_temp = get_logger("default")
+        if logger_temp:
+            logger_temp.debug("✅ 成功导入 langchainhub.Client")
+    except:
+        pass
+except ImportError:
+    HUB_AVAILABLE = False
+    try:
+        from tradingagents.utils.logging_init import get_logger
+        logger_temp = get_logger("default")
+        if logger_temp:
+            logger_temp.debug("⚠️ langchainhub 不可用，将使用默认 prompt")
+    except:
+        pass
 import time
 import json
 import traceback
@@ -15,6 +46,36 @@ logger = get_logger("default")
 # 导入Google工具调用处理器
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
+
+def _get_default_react_prompt():
+    """
+    获取默认的 ReAct prompt 模板
+    这是一个可配置的 prompt，当 langchain hub 不可用时使用
+    基于标准的 hwchase17/react prompt 设计
+    """
+    return PromptTemplate.from_template("""
+You are a helpful assistant that can use tools to answer questions.
+
+You have access to the following tools:
+
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
+
+Question: {input}
+Thought: {agent_scratchpad}
+""")
 
 def _get_company_name(ticker: str, market_info: dict) -> str:
     """
@@ -229,21 +290,72 @@ def create_market_analyst_react(llm, toolkit):
 
             try:
                 # 创建ReAct Agent
-                prompt = hub.pull("hwchase17/react")
-                agent = create_react_agent(llm, tools, prompt)
-                agent_executor = AgentExecutor(
-                    agent=agent,
-                    tools=tools,
-                    verbose=True,
-                    handle_parsing_errors=True,
-                    max_iterations=10,  # 增加到10次迭代，确保有足够时间完成分析
-                    max_execution_time=180  # 增加到3分钟，给更多时间生成详细报告
-                )
-
-                logger.debug(f"📈 [DEBUG] 执行ReAct Agent查询...")
-                result = agent_executor.invoke({'input': query})
-
-                report = result['output']
+                if LANGCHAIN_V1:
+                    # LangChain 1.0+ 使用新的 create_agent API
+                    # 创建系统提示
+                    system_prompt = """You are a helpful assistant that can answer questions using available tools.
+                    Use the tools to gather information and provide detailed analysis.
+                    When you have enough information, provide a comprehensive report."""
+                    
+                    agent = create_agent(
+                        model=llm,
+                        tools=tools,
+                        system_prompt=system_prompt,
+                        debug=True
+                    )
+                    
+                    logger.debug(f"📈 [DEBUG] 执行ReAct Agent查询 (LangChain 1.0+)...")
+                    
+                    # LangChain 1.0 使用 messages 格式
+                    from langchain_core.messages import HumanMessage
+                    result = agent.invoke({"messages": [HumanMessage(content=query)]})
+                    
+                    # LangChain 1.0 返回格式不同
+                    if isinstance(result, dict) and "messages" in result:
+                        # 提取最后一条消息作为输出
+                        messages = result["messages"]
+                        if messages:
+                            last_message = messages[-1]
+                            if hasattr(last_message, 'content'):
+                                report = last_message.content
+                            elif isinstance(last_message, tuple):
+                                report = last_message[1] if len(last_message) > 1 else str(last_message)
+                            else:
+                                report = str(last_message)
+                        else:
+                            report = str(result)
+                    elif isinstance(result, dict) and "output" in result:
+                        report = result['output']
+                    else:
+                        report = str(result)
+                        
+                else:
+                    # 旧版本使用 create_react_agent
+                    # 尝试从 hub 获取 prompt，如果失败则使用默认的 ReAct prompt
+                    if HUB_AVAILABLE and hub_client is not None:
+                        try:
+                            prompt = hub_client.pull("hwchase17/react")
+                            logger.debug("✅ 从 hub 成功获取 ReAct prompt")
+                        except Exception as e:
+                            logger.warning(f"⚠️ 无法从 hub 获取 prompt: {e}，使用默认 ReAct prompt")
+                            prompt = _get_default_react_prompt()
+                    else:
+                        prompt = _get_default_react_prompt()
+                        logger.debug("⚠️ Hub 不可用，使用默认 ReAct prompt")
+                    agent = create_react_agent(llm, tools, prompt)
+                    agent_executor = AgentExecutor(
+                        agent=agent,
+                        tools=tools,
+                        verbose=True,
+                        handle_parsing_errors=True,
+                        max_iterations=10,
+                        max_execution_time=180
+                    )
+                    
+                    logger.debug(f"📈 [DEBUG] 执行ReAct Agent查询 (旧版本)...")
+                    result = agent_executor.invoke({'input': query})
+                    report = result['output']
+                
                 logger.info(f"📈 [市场分析师] ReAct Agent完成，报告长度: {len(report)}")
 
             except Exception as e:

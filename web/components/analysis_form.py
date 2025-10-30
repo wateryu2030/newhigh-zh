@@ -133,8 +133,8 @@ def render_analysis_form():
         # 如果市场类型发生变化，需要调整分析师选择
         if market_type_changed:
             if market_type == "A股":
-                # 切换到A股：移除社交媒体分析师
-                cached_analysts = [analyst for analyst in cached_analysts if analyst != 'social']
+                # 切换到A股：保留社交媒体分析师（现在A股也支持，使用东方财富股吧）
+                # 不需要移除，A股现在可以使用中国社交媒体数据
                 if len(cached_analysts) == 0:
                     cached_analysts = ['market', 'fundamentals']  # 确保至少有默认选择
             else:
@@ -149,22 +149,22 @@ def render_analysis_form():
                 help="专注于技术面分析、价格趋势、技术指标"
             )
 
-            # 始终显示社交媒体分析师checkbox，但在A股时禁用
+            # 社交媒体分析师 - A股和非A股都可用（A股使用东方财富股吧）
             if market_type == "A股":
-                # A股市场：显示但禁用社交媒体分析师
-                social_analyst = st.checkbox(
-                    "💭 社交媒体分析师",
-                    value=False,
-                    disabled=True,
-                    help="A股市场暂不支持社交媒体分析（国内数据源限制）"
-                )
-                st.info("💡 A股市场暂不支持社交媒体分析，因为国内数据源限制")
-            else:
-                # 非A股市场：正常显示社交媒体分析师
+                # A股市场：使用东方财富股吧等中国平台
                 social_analyst = st.checkbox(
                     "💭 社交媒体分析师",
                     value='social' in cached_analysts,
-                    help="分析社交媒体情绪、投资者情绪指标"
+                    help="分析东方财富股吧、雪球等中国投资社区的讨论和情绪（A股专用）"
+                )
+                if social_analyst:
+                    st.info("📊 A股社交媒体分析将使用东方财富股吧数据")
+            else:
+                # 非A股市场：使用Reddit等国际平台
+                social_analyst = st.checkbox(
+                    "💭 社交媒体分析师",
+                    value='social' in cached_analysts,
+                    help="分析社交媒体情绪、投资者情绪指标（Reddit、Twitter等）"
                 )
 
         with col2:

@@ -905,7 +905,7 @@ def main():
 
     page = st.sidebar.selectbox(
         "切换功能模块",
-        ["📊 股票分析", "⚙️ 配置管理", "💾 缓存管理", "💰 Token统计", "📋 操作日志", "📈 分析结果", "🔧 系统状态"],
+        ["📊 股票分析", "🔍 智能选股", "💹 量化交易", "⚙️ 配置管理", "💾 缓存管理", "💰 Token统计", "📋 操作日志", "📈 分析结果", "🔧 系统状态"],
         label_visibility="collapsed"
     )
     
@@ -926,7 +926,29 @@ def main():
     st.sidebar.markdown("---")
 
     # 根据选择的页面渲染不同内容
-    if page == "⚙️ 配置管理":
+    if page == "🔍 智能选股":
+        # 检查分析权限
+        if not require_permission("analysis"):
+            return
+        try:
+            from components.stock_screening import render_stock_screening
+            render_stock_screening()
+        except ImportError as e:
+            st.error(f"智能选股模块加载失败: {e}")
+            st.info("请确保已安装所有依赖包")
+        return
+    elif page == "💹 量化交易":
+        # 检查分析权限
+        if not require_permission("analysis"):
+            return
+        try:
+            from components.quantitative_trading import render_quantitative_trading
+            render_quantitative_trading()
+        except ImportError as e:
+            st.error(f"量化交易模块加载失败: {e}")
+            st.info("请确保已安装所有依赖包")
+        return
+    elif page == "⚙️ 配置管理":
         # 检查配置权限
         if not require_permission("config"):
             return
