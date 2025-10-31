@@ -22,9 +22,10 @@ def run_backtest() -> None:
         return
 
     strategies = ['momentum', 'mean_reversion']
-    engine = BacktestEngine(data, strategies)
+    engine = BacktestEngine(data, strategies, cost_bps=5, slippage_bps=5, init_capital=100000.0)
     engine.execute()
     print(f"Orders: {engine.orders}")
+    print("Metrics:", engine.metrics())
 
 
 if __name__ == "__main__":

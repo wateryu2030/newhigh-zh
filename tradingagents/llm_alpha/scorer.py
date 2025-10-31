@@ -1,6 +1,6 @@
-import os
+import os, json, re
 import pandas as pd
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict, Any
 
 try:
     from openai import OpenAI  # openai>=1.0
@@ -14,10 +14,20 @@ except Exception:  # pragma: no cover
     Anthropic = None  # type: ignore
 
 
+_STRUCT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "score": {"type": "number", "minimum": -1.0, "maximum": 1.0},
+        "rationale": {"type": "string"},
+        "event_type": {"type": "string"}
+    },
+    "required": ["score"]
+}
+
+
 class LLMScorer:
     def __init__(self, event_data: pd.DataFrame, llm_predict: Optional[Callable[[str], float]] = None):
         self.event_data = event_data.copy()
-        # 优先使用传入的预测函数；否则按环境变量自动选择OpenAI或Anthropic；再回退到mock
         self.llm_predict = llm_predict or self._auto_provider_predict() or self._mock_predict
 
     def _auto_provider_predict(self) -> Optional[Callable[[str], float]]:
@@ -27,13 +37,19 @@ class LLMScorer:
 
             def _predict_openai(text: str) -> float:
                 prompt = self._build_prompt(text)
+                # 尽量让模型返回JSON
+                sys_instr = (
+                    "You are a financial sentiment rater. Return ONLY a compact JSON that matches this schema: "
+                    f"{json.dumps(_STRUCT_SCHEMA)}."
+                )
                 resp = client.chat.completions.create(
                     model=model,
-                    messages=[{"role": "system", "content": "You are a financial sentiment rater."},
+                    messages=[{"role": "system", "content": sys_instr},
                               {"role": "user", "content": prompt}],
                     temperature=0.0,
                 )
-                val = self._extract_score(resp.choices[0].message.content or "0")
+                content = resp.choices[0].message.content or ""
+                val = self._extract_score(content)
                 return val
 
             return _predict_openai
@@ -43,10 +59,13 @@ class LLMScorer:
             model = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
 
             def _predict_anthropic(text: str) -> float:
-                prompt = self._build_prompt(text)
+                prompt = (
+                    "You are a financial sentiment rater. Return ONLY a compact JSON that matches this schema: "
+                    f"{json.dumps(_STRUCT_SCHEMA)}.\n" + self._build_prompt(text)
+                )
                 resp = client.messages.create(
                     model=model,
-                    max_tokens=64,
+                    max_tokens=128,
                     temperature=0.0,
                     messages=[{"role": "user", "content": prompt}],
                 )
@@ -60,29 +79,58 @@ class LLMScorer:
 
     def _build_prompt(self, event_text: str) -> str:
         return (
-            "你是金融情绪打分助手。请根据以下事件文本对个股短期影响进行量化评分，范围为[-1, 1]：\n\n"
-            f"事件：{event_text}\n\n"
-            "规则：\n"
-            "- 利好消息→正分，利空→负分，中性→0\n"
-            "- 返回唯一的数字（可包含小数），例如：0.35 或 -0.6\n"
-            "仅输出数字，不要解释。"
+            "请为以下事件对个股短期影响进行量化评分，范围[-1,1]。\n"
+            f"事件：{event_text}\n"
+            "严格输出JSON对象，如 {\"score\":0.35,\"rationale\":\"订单增长\",\"event_type\":\"earnings\"}"
         )
 
     @staticmethod
     def _extract_score(text: str) -> float:
+        # 优先尝试JSON解析
         try:
-            # 提取第一段可解析为float的文本
-            stripped = (text or "").strip().split()[0]
-            val = float(stripped)
-            return max(-1.0, min(1.0, val))
+            m = re.search(r"\{[\s\S]*\}", text)
+            if m:
+                obj = json.loads(m.group(0))
+                score = float(obj.get('score'))
+                return max(-1.0, min(1.0, score))
         except Exception:
-            # 兜底：基于关键字
+            pass
+        # 其次尝试直接float
+        try:
+            stripped = (text or "").strip().split()[0]
+            return max(-1.0, min(1.0, float(stripped)))
+        except Exception:
             return LLMScorer._mock_predict(text)
+
+    @staticmethod
+    def _extract_struct(text: str) -> Dict[str, Any]:
+        """Return {'score': float, 'rationale': str, 'event_type': str} if possible."""
+        out = {'score': 0.0, 'rationale': '', 'event_type': ''}
+        try:
+            m = re.search(r"\{[\s\S]*\}", text)
+            if m:
+                obj = json.loads(m.group(0))
+                if 'score' in obj:
+                    out['score'] = max(-1.0, min(1.0, float(obj['score'])))
+                out['rationale'] = str(obj.get('rationale', ''))
+                out['event_type'] = str(obj.get('event_type', ''))
+                return out
+        except Exception:
+            pass
+        # fallback
+        out['score'] = LLMScorer._mock_predict(text)
+        return out
 
     def score(self) -> pd.DataFrame:
         if 'event_text' not in self.event_data.columns:
             raise ValueError("event_data must contain 'event_text' column")
-        self.event_data['score'] = self.event_data['event_text'].astype(str).apply(self.llm_predict)
+        # 生成结构化列
+        structs = self.event_data['event_text'].astype(str).apply(
+            lambda t: {'score': self.llm_predict(t)} if self.llm_predict == self._mock_predict else self._extract_struct(self._build_prompt(t))
+        )
+        self.event_data['score'] = structs.apply(lambda d: d.get('score', 0.0))
+        self.event_data['rationale'] = structs.apply(lambda d: d.get('rationale', ''))
+        self.event_data['event_type'] = structs.apply(lambda d: d.get('event_type', ''))
         return self.event_data
 
     @staticmethod
