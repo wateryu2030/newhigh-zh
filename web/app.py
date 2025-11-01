@@ -717,22 +717,36 @@ def main():
         overflow-wrap: break-word !important;
     }
 
-    /* 隐藏侧边栏的隐藏按钮 - 更全面的选择器 */
-    button[kind="header"],
-    button[data-testid="collapsedControl"],
-    .css-1d391kg,
-    .css-1rs6os,
-    .css-17eq0hr,
-    .css-1lcbmhc,
-    .css-1y4p8pa,
-    button[aria-label="Close sidebar"],
-    button[aria-label="Open sidebar"],
-    [data-testid="collapsedControl"],
-    .stSidebar button[kind="header"] {
+    /* 隐藏侧边栏的隐藏按钮 - 更全面的选择器（但确保不影响侧边栏内容） */
+    section[data-testid="stSidebar"] button[kind="header"],
+    section[data-testid="stSidebar"] button[data-testid="collapsedControl"],
+    section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+    section[data-testid="stSidebar"] button[aria-label="Open sidebar"],
+    section[data-testid="stSidebar"] [data-testid="collapsedControl"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
+    }
+    
+    /* 确保侧边栏本身和内容可见 */
+    section[data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* 确保侧边栏内的所有内容元素可见 */
+    section[data-testid="stSidebar"] > div,
+    section[data-testid="stSidebar"] .element-container,
+    section[data-testid="stSidebar"] .stSelectbox,
+    section[data-testid="stSidebar"] .stMarkdown,
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     /* 隐藏侧边栏顶部区域的特定按钮（更精确的选择器，避免影响表单按钮） */
@@ -865,31 +879,42 @@ def main():
     </style>
 
     <script>
-    // JavaScript来强制隐藏侧边栏按钮
+    // JavaScript来强制隐藏侧边栏按钮（但确保不影响侧边栏内容）
     function hideSidebarButtons() {
-        // 隐藏所有可能的侧边栏控制按钮
+        // 只隐藏侧边栏内的控制按钮，不影响内容
+        const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        if (!sidebar) return;
+        
         const selectors = [
             'button[kind="header"]',
             'button[data-testid="collapsedControl"]',
             'button[aria-label="Close sidebar"]',
             'button[aria-label="Open sidebar"]',
-            '[data-testid="collapsedControl"]',
-            '.css-1d391kg',
-            '.css-1rs6os',
-            '.css-17eq0hr',
-            '.css-1lcbmhc button',
-            '.css-1y4p8pa button'
+            '[data-testid="collapsedControl"]'
         ];
 
         selectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
+            // 只在侧边栏内部查找
+            const elements = sidebar.querySelectorAll(selector);
             elements.forEach(el => {
-                el.style.display = 'none';
-                el.style.visibility = 'hidden';
-                el.style.opacity = '0';
-                el.style.pointerEvents = 'none';
+                // 确保不是selectbox或其他功能按钮
+                if (!el.closest('.stSelectbox') && 
+                    !el.closest('.stButton') && 
+                    !el.closest('.element-container')) {
+                    el.style.display = 'none';
+                    el.style.visibility = 'hidden';
+                    el.style.opacity = '0';
+                    el.style.pointerEvents = 'none';
+                }
             });
         });
+        
+        // 确保侧边栏本身和内容可见
+        if (sidebar) {
+            sidebar.style.display = 'block';
+            sidebar.style.visibility = 'visible';
+            sidebar.style.opacity = '1';
+        }
     }
 
     // 页面加载后执行
