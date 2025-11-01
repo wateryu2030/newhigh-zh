@@ -15,9 +15,10 @@ from tradingagents.agents.utils.agent_states import (
 class Propagator:
     """Handles state initialization and propagation through the graph."""
 
-    def __init__(self, max_recur_limit=100):
+    def __init__(self, max_recur_limit=300):
         """Initialize with configuration parameters."""
         self.max_recur_limit = max_recur_limit
+        logger.info(f"🔧 [Propagator] 初始化递归限制: {max_recur_limit}")
 
     def create_initial_state(
         self, company_name: str, trade_date: str
@@ -47,7 +48,11 @@ class Propagator:
 
     def get_graph_args(self) -> Dict[str, Any]:
         """Get arguments for the graph invocation."""
-        return {
+        args = {
             "stream_mode": "values",
-            "config": {"recursion_limit": self.max_recur_limit},
+            "config": {
+                "recursion_limit": self.max_recur_limit,
+            },
         }
+        logger.info(f"🔧 [Propagator] Graph配置 - recursion_limit: {self.max_recur_limit}")
+        return args

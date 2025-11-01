@@ -241,6 +241,11 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             logger.info(f"🔧 [配置] LLM模型未指定，使用默认: {llm_model}")
         config["deep_think_llm"] = llm_model
         config["quick_think_llm"] = llm_model
+        # 确保递归限制被正确设置（优先使用默认配置，但如果已设置则保持不变）
+        if "max_recur_limit" not in config:
+            config["max_recur_limit"] = DEFAULT_CONFIG.get("max_recur_limit", 300)
+            logger.info(f"🔧 [配置] 设置递归限制: {config['max_recur_limit']}")
+        
         # 根据研究深度调整配置
         if research_depth == 1:  # 1级 - 快速分析
             config["max_debate_rounds"] = 1

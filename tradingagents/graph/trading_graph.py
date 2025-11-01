@@ -272,8 +272,9 @@ class TradingAgentsGraph:
             getattr(self, 'react_llm', None),
         )
 
-        # 使用config中的max_recur_limit，如果没有则使用默认值200
-        max_recur_limit = self.config.get("max_recur_limit", 200)
+        # 使用config中的max_recur_limit，如果没有则使用默认值300
+        max_recur_limit = self.config.get("max_recur_limit", 300)
+        logger.info(f"🔧 [Graph] 设置递归限制: {max_recur_limit}")
         self.propagator = Propagator(max_recur_limit=max_recur_limit)
         self.reflector = Reflector(self.quick_thinking_llm)
         self.signal_processor = SignalProcessor(self.quick_thinking_llm)
