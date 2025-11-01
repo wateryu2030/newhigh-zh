@@ -203,8 +203,27 @@ class ReportExporter:
         state = results.get('state', {})
         is_demo = results.get('is_demo', False)
         
+        # 🔍 验证数据一致性：确保state中的股票代码与results中的一致
+        state_company = state.get('company_of_interest', '')
+        if state_company and state_company != stock_symbol:
+            logger.warning(f"⚠️ [数据验证] state中的股票代码({state_company})与results中的({stock_symbol})不一致！")
+            logger.warning(f"⚠️ [数据验证] 可能混入了之前股票的数据，将使用results中的stock_symbol: {stock_symbol}")
+            # 更新state中的company_of_interest为当前股票
+            state['company_of_interest'] = stock_symbol
+        
+        # 🧹 清理state中的旧数据：如果report内容中包含其他股票代码，进行验证和清理
+        expected_symbols = [stock_symbol]
+        # 处理可能的股票代码变体（如带后缀的）
+        if isinstance(stock_symbol, str):
+            # 移除可能的空格和特殊字符
+            clean_symbol = stock_symbol.strip().replace(' ', '').replace('.', '')
+            if clean_symbol != stock_symbol:
+                expected_symbols.append(clean_symbol)
+        
         # 生成时间戳
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        logger.info(f"📊 [报告生成] 开始生成报告 - 股票: {stock_symbol}, state.company_of_interest: {state.get('company_of_interest', 'N/A')}")
         
         # 清理关键数据
         action = self._clean_text_for_markdown(decision.get('action', 'N/A')).upper()
@@ -263,7 +282,26 @@ class ReportExporter:
             
             if key in state and state[key]:
                 content = state[key]
+                
+                # 🔍 验证内容是否属于当前股票：检查是否包含其他股票代码
                 if isinstance(content, str):
+                    # 检查内容中是否包含明显的其他股票代码（6位数字或字母代码）
+                    import re
+                    # 匹配6位数字的A股代码
+                    stock_patterns = re.findall(r'\b\d{6}\b', content)
+                    # 匹配3-5位字母的股票代码
+                    letter_patterns = re.findall(r'\b[A-Z]{3,5}\b', content)
+                    
+                    # 检查是否包含非当前股票的代码
+                    found_other_stocks = False
+                    for pattern in stock_patterns + letter_patterns:
+                        if pattern not in expected_symbols and len(pattern) >= 3:
+                            # 可能是其他股票代码，但需要排除常见词汇
+                            common_words = ['THE', 'AND', 'FOR', 'OUR', 'ALL', 'ANY', 'NEW', 'NOW']
+                            if pattern.upper() not in common_words:
+                                logger.warning(f"⚠️ [数据验证] 在{key}中发现可能的其他股票代码: {pattern}")
+                                # 不直接过滤，只是警告，因为可能是提到其他股票作为对比
+                    
                     md_content += f"{content}\n\n"
                 elif isinstance(content, dict):
                     for sub_key, sub_value in content.items():

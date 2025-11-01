@@ -880,10 +880,14 @@ def main():
 
     <script>
     // JavaScript来强制隐藏侧边栏按钮（但确保不影响侧边栏内容）
+    let sidebarButtonsHidden = false;
     function hideSidebarButtons() {
         // 只隐藏侧边栏内的控制按钮，不影响内容
         const sidebar = document.querySelector('section[data-testid="stSidebar"]');
         if (!sidebar) return;
+        
+        // 如果已经隐藏过，就不再执行，避免影响新添加的内容
+        if (sidebarButtonsHidden) return;
         
         const selectors = [
             'button[kind="header"]',
@@ -893,6 +897,7 @@ def main():
             '[data-testid="collapsedControl"]'
         ];
 
+        let hiddenCount = 0;
         selectors.forEach(selector => {
             // 只在侧边栏内部查找
             const elements = sidebar.querySelectorAll(selector);
@@ -900,28 +905,51 @@ def main():
                 // 确保不是selectbox或其他功能按钮
                 if (!el.closest('.stSelectbox') && 
                     !el.closest('.stButton') && 
-                    !el.closest('.element-container')) {
+                    !el.closest('.element-container') &&
+                    !el.closest('form')) {
                     el.style.display = 'none';
                     el.style.visibility = 'hidden';
                     el.style.opacity = '0';
                     el.style.pointerEvents = 'none';
+                    hiddenCount++;
                 }
             });
         });
         
         // 确保侧边栏本身和内容可见
-        if (sidebar) {
-            sidebar.style.display = 'block';
-            sidebar.style.visibility = 'visible';
-            sidebar.style.opacity = '1';
+        sidebar.style.display = 'block';
+        sidebar.style.visibility = 'visible';
+        sidebar.style.opacity = '1';
+        
+        // 确保侧边栏内的所有内容元素可见
+        const contentSelectors = [
+            '.stSelectbox',
+            '.stMarkdown',
+            'h1', 'h2', 'h3',
+            '.element-container',
+            'form'
+        ];
+        contentSelectors.forEach(sel => {
+            const elements = sidebar.querySelectorAll(sel);
+            elements.forEach(el => {
+                el.style.display = '';
+                el.style.visibility = 'visible';
+                el.style.opacity = '1';
+            });
+        });
+        
+        // 如果隐藏了按钮，标记为已隐藏
+        if (hiddenCount > 0) {
+            sidebarButtonsHidden = true;
         }
     }
 
-    // 页面加载后执行
-    document.addEventListener('DOMContentLoaded', hideSidebarButtons);
-
-    // 定期检查并隐藏按钮（防止动态生成）
-    setInterval(hideSidebarButtons, 1000);
+    // 页面加载后执行（只执行一次）
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hideSidebarButtons);
+    } else {
+        hideSidebarButtons();
+    }
 
     // 强制修改页面边距为8px
     function forceOptimalPadding() {
