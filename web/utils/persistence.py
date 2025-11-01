@@ -44,10 +44,18 @@ class ModelPersistence:
         try:
             query_params = st.query_params
             if 'provider' in query_params:
+                provider = query_params.get('provider', 'dashscope')
+                # 如果provider是空字符串或无效，使用dashscope
+                if not provider or provider not in ['dashscope', 'deepseek', 'google', 'openai', 'openrouter', 'siliconflow', 'custom_openai', 'qianfan']:
+                    provider = 'dashscope'
+                model = query_params.get('model', '')
+                # 如果provider是dashscope且model为空，使用默认模型
+                if provider == 'dashscope' and not model:
+                    model = 'qwen-plus-latest'
                 config = {
-                    'provider': query_params.get('provider', 'dashscope'),
+                    'provider': provider,
                     'category': query_params.get('category', 'openai'),
-                    'model': query_params.get('model', '')
+                    'model': model
                 }
                 logger.debug(f"📥 [Persistence] 从URL加载配置: {config}")
                 return config
@@ -60,11 +68,11 @@ class ModelPersistence:
             logger.debug(f"📥 [Persistence] 从Session State加载配置: {config}")
             return config
         
-        # 返回默认配置
+        # 返回默认配置 - Dashscope作为默认提供商
         default_config = {
             'provider': 'dashscope',
             'category': 'openai',
-            'model': ''
+            'model': 'qwen-plus-latest'  # Dashscope默认模型
         }
         logger.debug(f"📥 [Persistence] 使用默认配置: {default_config}")
         return default_config

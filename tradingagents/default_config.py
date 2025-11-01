@@ -8,15 +8,15 @@ DEFAULT_CONFIG = {
         os.path.abspath(os.path.join(os.path.dirname(__file__), ".")),
         "dataflows/data_cache",
     ),
-    # LLM settings
-    "llm_provider": "openai",
-    "deep_think_llm": "o4-mini",
-    "quick_think_llm": "gpt-4o-mini",
-    "backend_url": "https://api.openai.com/v1",
+    # LLM settings - 默认使用Dashscope（阿里百炼）
+    "llm_provider": "dashscope",
+    "deep_think_llm": "qwen-plus-latest",
+    "quick_think_llm": "qwen-turbo",
+    "backend_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     # Debate and discussion settings
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
-    "max_recur_limit": 100,
+    "max_recur_limit": 200,  # 增加递归限制，避免递归超限错误
     # Tool settings - 从环境变量读取，提供默认值
     "online_tools": os.getenv("ONLINE_TOOLS_ENABLED", "false").lower() == "true",
     "online_news": os.getenv("ONLINE_NEWS_ENABLED", "true").lower() == "true", 

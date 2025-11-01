@@ -197,16 +197,24 @@ def render_sidebar():
         # 从持久化存储加载配置
         saved_config = load_model_selection()
 
-        # 初始化session state，优先使用保存的配置
+        # 初始化session state，优先使用保存的配置，如果没有则默认使用Dashscope
         if 'llm_provider' not in st.session_state:
-            st.session_state.llm_provider = saved_config['provider']
-            logger.debug(f"🔧 [Persistence] 恢复 llm_provider: {st.session_state.llm_provider}")
+            # 如果保存的配置不是dashscope，或者没有保存配置，则使用dashscope
+            default_provider = saved_config.get('provider', 'dashscope')
+            if default_provider == '' or default_provider not in ['dashscope', 'deepseek', 'google', 'openai', 'openrouter', 'siliconflow', 'custom_openai', 'qianfan']:
+                default_provider = 'dashscope'
+            st.session_state.llm_provider = default_provider
+            logger.debug(f"🔧 [Persistence] 恢复/默认 llm_provider: {st.session_state.llm_provider}")
         if 'model_category' not in st.session_state:
-            st.session_state.model_category = saved_config['category']
+            st.session_state.model_category = saved_config.get('category', 'openai')
             logger.debug(f"🔧 [Persistence] 恢复 model_category: {st.session_state.model_category}")
         if 'llm_model' not in st.session_state:
-            st.session_state.llm_model = saved_config['model']
-            logger.debug(f"🔧 [Persistence] 恢复 llm_model: {st.session_state.llm_model}")
+            # 如果提供商是dashscope且没有保存的模型，默认使用qwen-plus-latest
+            default_model = saved_config.get('model', '')
+            if not default_model and st.session_state.llm_provider == 'dashscope':
+                default_model = 'qwen-plus-latest'
+            st.session_state.llm_model = default_model
+            logger.debug(f"🔧 [Persistence] 恢复/默认 llm_model: {st.session_state.llm_model}")
 
         # 显示当前session state状态（调试用）
         logger.debug(f"🔍 [Session State] 当前状态 - provider: {st.session_state.llm_provider}, category: {st.session_state.model_category}, model: {st.session_state.llm_model}")
@@ -214,11 +222,16 @@ def render_sidebar():
         # AI模型配置
         st.markdown("### 🧠 AI模型配置")
 
-        # LLM提供商选择
+        # LLM提供商选择 - Dashscope作为第一个选项（默认）
+        provider_options = ["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"]
+        # 如果当前选择的提供商不在列表中，默认使用dashscope
+        current_provider = st.session_state.llm_provider if st.session_state.llm_provider in provider_options else "dashscope"
+        provider_index = provider_options.index(current_provider) if current_provider in provider_options else 0
+        
         llm_provider = st.selectbox(
             "LLM提供商",
-            options=["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"],
-            index=["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"].index(st.session_state.llm_provider) if st.session_state.llm_provider in ["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"] else 0,
+            options=provider_options,
+            index=provider_index,
             format_func=lambda x: {
                 "dashscope": "🇨🇳 阿里百炼",
                 "deepseek": "🚀 DeepSeek V3",
