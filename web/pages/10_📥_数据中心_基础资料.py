@@ -27,6 +27,54 @@ DATA_PATH = project_root / DATA_PATH if not DATA_PATH.is_absolute() else DATA_PA
 st.title("📥 数据中心 - A股基础资料")
 st.markdown("---")
 
+# 检查Tushare配置状态
+try:
+    from dotenv import load_dotenv
+    import os
+    load_dotenv()
+    
+    tushare_token = os.getenv('TUSHARE_TOKEN', '')
+    tushare_enabled = os.getenv('TUSHARE_ENABLED', 'false').lower() == 'true'
+    
+    if tushare_token:
+        # 验证Token
+        try:
+            import tushare as ts
+            ts.set_token(tushare_token)
+            pro = ts.pro_api()
+            # 简单测试
+            test = pro.stock_basic(exchange='', list_status='L', fields='ts_code', limit=1)
+            if not test.empty:
+                st.success("✅ Tushare已配置且可用 - 将优先使用Tushare获取完整数据（PE、PB、市值等）")
+            else:
+                st.warning("⚠️ Tushare Token可能无效或权限不足 - 将使用AKShare作为备用")
+        except Exception as e:
+            error_msg = str(e)
+            if 'token' in error_msg.lower():
+                st.error("❌ Tushare Token无效 - 请检查Token或访问 https://tushare.pro 重新获取")
+                with st.expander("🔧 如何获取有效的Token"):
+                    st.markdown("""
+                    1. 访问 https://tushare.pro
+                    2. 登录您的账号
+                    3. 进入"接口TOKEN"页面
+                    4. 复制最新的Token
+                    5. 更新到`.env`文件的`TUSHARE_TOKEN`
+                    """)
+            else:
+                st.warning(f"⚠️ Tushare配置检查失败: {error_msg[:100]}")
+                st.info("💡 系统将使用AKShare作为备用数据源")
+    else:
+        st.info("ℹ️ Tushare未配置 - 将使用AKShare获取数据（可能不完整）")
+        st.markdown("""
+        💡 **提示**: 配置Tushare可获取完整数据（PE、PB、市值等）
+        - 访问 https://tushare.pro 注册并获取Token
+        - 完成实名认证后可使用完整功能
+        """)
+except ImportError:
+    st.warning("⚠️ 无法检查Tushare配置（tushare库可能未安装）")
+
+st.markdown("---")
+
 # 检查数据文件是否存在
 data_exists = DATA_PATH.exists()
 
@@ -135,6 +183,25 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
                     1. 等待 1-2 分钟后重试
                     2. 数据源可能有访问频率限制
                     """)
+                elif "token" in error_output.lower() or "权限" in error_output.lower() or "积分" in error_output.lower():
+                    st.warning("🔑 **Tushare权限问题**")
+                    st.info("""
+                    **问题分析**: Tushare Token可能无效或权限不足
+                    
+                    **解决方案：**
+                    1. **检查Token**: 访问 https://tushare.pro 确认Token是否正确
+                    2. **完成实名认证**: 免费用户需要实名认证才能使用接口
+                    3. **查看积分**: 部分接口需要积分，检查账号积分余额
+                    4. **使用AKShare**: 系统已自动降级使用AKShare作为备用
+                    
+                    **注意**: 如果权限不足，系统会自动降级，至少能获取基础信息（代码+名称）
+                    """)
+                    with st.expander("📚 查看Tushare配置指南"):
+                        st.markdown("""
+                        - **数据源指南**: `docs/DATA_SOURCES_GUIDE.md`
+                        - **Token获取教程**: `docs/HOW_TO_GET_TUSHARE_TOKEN.md`
+                        - **权限问题解决**: `docs/TUSHARE_PERMISSION_FIX.md`
+                        """)
                 
                 # 显示详细错误信息（可折叠）
                 with st.expander("🔍 查看详细错误信息"):
