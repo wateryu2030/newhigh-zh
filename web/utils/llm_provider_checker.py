@@ -72,6 +72,18 @@ class LLMProviderChecker:
             'models': ['gpt-4o', 'gpt-4o-mini']
         })
         
+        # Google (Gemini)
+        google_key = os.getenv("GOOGLE_API_KEY")
+        providers.append({
+            'id': 'google',
+            'name': '🌟 Google AI',
+            'display_name': 'Google AI (Gemini)',
+            'api_key': google_key,
+            'configured': bool(google_key and google_key not in ['your_google_api_key_here', '']),
+            'recommended': False,
+            'models': ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+        })
+        
         return providers
     
     @staticmethod
