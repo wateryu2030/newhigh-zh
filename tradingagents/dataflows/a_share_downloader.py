@@ -154,6 +154,54 @@ class AShareDownloader:
             logger.error(f"❌ 下载失败: {e}", exc_info=True)
             return self._download_fallback()
 
+    def _disable_proxy_for_requests(self):
+        """临时禁用代理设置"""
+        import os
+        proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 
+                      'ALL_PROXY', 'all_proxy']
+        saved = {}
+        for var in proxy_vars:
+            if var in os.environ:
+                saved[var] = os.environ[var]
+                del os.environ[var]
+        return saved
+    
+    def _restore_proxy_for_requests(self, saved):
+        """恢复代理设置"""
+        import os
+        for var, value in saved.items():
+            os.environ[var] = value
+    
+    def _call_akshare_without_proxy(self, func, *args, **kwargs):
+        """调用akshare函数时禁用代理"""
+        # 禁用代理环境变量
+        saved_proxy = self._disable_proxy_for_requests()
+        
+        # 如果akshare使用requests，也禁用代理
+        try:
+            import requests
+            # 临时修改requests以禁用代理
+            original_request = requests.Session.request
+            def no_proxy_request(self, method, url, **kwargs):
+                kwargs['proxies'] = {'http': None, 'https': None}
+                return original_request(self, method, url, **kwargs)
+            requests.Session.request = no_proxy_request
+        except:
+            pass
+        
+        try:
+            result = func(*args, **kwargs)
+            return result
+        finally:
+            # 恢复代理设置
+            self._restore_proxy_for_requests(saved_proxy)
+            # 恢复原始方法
+            try:
+                import requests
+                requests.Session.request = original_request
+            except:
+                pass
+
     def _download_fallback(self) -> pd.DataFrame:
         """
         备用下载方法（使用AKShare等）
@@ -166,13 +214,14 @@ class AShareDownloader:
             # 方法1：尝试使用 spot_em 接口（更快，一次性获取所有A股实时数据）
             try:
                 logger.info("📊 尝试使用 ak.stock_zh_a_spot_em() 批量获取...")
-                # 添加重试机制
+                # 添加重试机制，并禁用代理
                 max_retries = 3
                 delay = 2
                 stock_spot = None
                 for attempt in range(max_retries):
                     try:
-                        stock_spot = ak.stock_zh_a_spot_em()
+                        # 使用禁用代理的包装函数
+                        stock_spot = self._call_akshare_without_proxy(ak.stock_zh_a_spot_em)
                         break
                     except Exception as e:
                         if attempt < max_retries - 1:
@@ -250,13 +299,14 @@ class AShareDownloader:
             
             # 方法2：降级到基础接口
             logger.info("📊 使用基础接口 ak.stock_info_a_code_name()...")
-            # 添加重试机制
+            # 添加重试机制，并禁用代理
             max_retries = 3
             delay = 2
             stock_info = None
             for attempt in range(max_retries):
                 try:
-                    stock_info = ak.stock_info_a_code_name()
+                    # 使用禁用代理的包装函数
+                    stock_info = self._call_akshare_without_proxy(ak.stock_info_a_code_name)
                     break
                 except Exception as e:
                     if attempt < max_retries - 1:
@@ -314,11 +364,14 @@ class AShareDownloader:
             logger.info("💡 建议: 检查网络连接，或稍后重试")
             return pd.DataFrame()
         except Exception as e:
-            error_msg = str(e)
-            if "connection" in error_msg.lower() or "timeout" in error_msg.lower():
+            error_msg = str(e).lower()
+            if "proxy" in error_msg or "代理" in error_msg:
+                logger.error(f"❌ 代理连接错误: {e}")
+                logger.info("💡 建议: 系统检测到代理配置问题，已自动禁用代理。如仍有问题，请检查系统代理设置")
+            elif "connection" in error_msg or "timeout" in error_msg:
                 logger.error(f"❌ 网络连接错误: {e}")
                 logger.info("💡 建议: 检查网络连接是否稳定，或稍后重试")
-            elif "rate limit" in error_msg.lower() or "频率" in error_msg:
+            elif "rate limit" in error_msg or "频率" in error_msg:
                 logger.error(f"❌ 请求频率过高: {e}")
                 logger.info("💡 建议: 等待一段时间后重试")
             else:

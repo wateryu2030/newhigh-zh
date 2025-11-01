@@ -91,7 +91,27 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
                 
                 # 分析错误类型并给出友好提示
                 error_output = result.stderr if result.stderr else result.stdout
-                if "connection" in error_output.lower() or "Connection" in error_output:
+                if "proxy" in error_output.lower() or "ProxyError" in error_output:
+                    st.warning("🔧 **代理配置问题**")
+                    st.info("""
+                    **问题诊断**: 系统检测到代理连接错误
+                    
+                    **可能的解决方案：**
+                    1. 系统已自动尝试禁用代理，请重试
+                    2. 如果仍有问题，检查系统代理设置：
+                       - macOS: 系统设置 → 网络 → 代理
+                       - 检查是否有无效的代理配置
+                    3. 临时禁用代理环境变量：
+                       ```bash
+                       unset HTTP_PROXY
+                       unset HTTPS_PROXY
+                       unset http_proxy
+                       unset https_proxy
+                       ```
+                    4. 如果确实需要代理，请确保代理服务器正常运行
+                    """)
+                    st.success("💡 **提示**: 下载脚本已自动禁用代理，请点击按钮重试")
+                elif "connection" in error_output.lower() or "Connection" in error_output:
                     st.warning("🌐 **网络连接问题**")
                     st.info("""
                     **可能的解决方案：**

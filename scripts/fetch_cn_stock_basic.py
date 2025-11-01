@@ -14,8 +14,35 @@ import time
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# 禁用代理（避免代理连接错误）
+def disable_proxy():
+    """临时禁用代理设置"""
+    proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 
+                  'ALL_PROXY', 'all_proxy', 'NO_PROXY', 'no_proxy']
+    saved_proxy = {}
+    for var in proxy_vars:
+        if var in os.environ:
+            saved_proxy[var] = os.environ[var]
+            del os.environ[var]
+    return saved_proxy
+
+def restore_proxy(saved_proxy):
+    """恢复代理设置"""
+    for var, value in saved_proxy.items():
+        os.environ[var] = value
+
+# 临时禁用代理
+saved_proxy_env = disable_proxy()
+
 try:
     import akshare as ak
+    # 如果akshare内部使用requests，也禁用代理
+    try:
+        import requests
+        # 保存原始的get方法
+        original_get = requests.Session.get if hasattr(requests.Session, 'get') else None
+    except:
+        pass
 except ImportError:
     print("❌ 错误: 未安装 akshare，请运行: pip install akshare")
     sys.exit(1)
@@ -35,17 +62,51 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
     
     # 重试装饰器
     def retry_on_error(func, max_retries=3, delay=2):
-        """重试机制"""
+        """重试机制（自动处理代理错误）"""
         for attempt in range(max_retries):
             try:
-                return func()
+                # 确保代理已禁用
+                disable_proxy()
+                # 如果akshare使用requests，强制禁用代理
+                try:
+                    import requests
+                    # 临时修改requests的Session以禁用代理
+                    original_get = requests.Session.request
+                    def no_proxy_request(self, method, url, **kwargs):
+                        kwargs['proxies'] = {'http': None, 'https': None}
+                        return original_get(self, method, url, **kwargs)
+                    requests.Session.request = no_proxy_request
+                except:
+                    pass
+                
+                result = func()
+                
+                # 恢复原始方法
+                try:
+                    import requests
+                    requests.Session.request = original_get
+                except:
+                    pass
+                
+                return result
             except Exception as e:
+                error_msg = str(e).lower()
                 if attempt < max_retries - 1:
-                    print(f"  ⚠️ 第 {attempt + 1} 次尝试失败: {e}")
-                    print(f"  🔄 {delay} 秒后重试...")
+                    if "proxy" in error_msg or "连接" in error_msg:
+                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败（代理/网络问题）: {e}")
+                        print(f"  🔄 {delay} 秒后重试（已禁用代理）...")
+                    else:
+                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败: {e}")
+                        print(f"  🔄 {delay} 秒后重试...")
                     time.sleep(delay)
                     delay *= 2  # 指数退避
                 else:
+                    # 恢复原始方法
+                    try:
+                        import requests
+                        requests.Session.request = original_get
+                    except:
+                        pass
                     raise
     
     try:
@@ -182,8 +243,13 @@ if __name__ == "__main__":
         
     except KeyboardInterrupt:
         print("\n⚠️ 用户中断下载")
+        restore_proxy(saved_proxy_env)
         sys.exit(1)
     except Exception as e:
+        restore_proxy(saved_proxy_env)
         print(f"\n❌ 执行失败: {e}")
         sys.exit(1)
+    finally:
+        # 确保恢复代理设置
+        restore_proxy(saved_proxy_env)
 
