@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import sys
 import os
+import time
 
 # 添加项目根目录到路径
 project_root = Path(__file__).parent.parent
@@ -32,15 +33,38 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
     """
     print("📥 开始拉取A股基础资料...")
     
+    # 重试装饰器
+    def retry_on_error(func, max_retries=3, delay=2):
+        """重试机制"""
+        for attempt in range(max_retries):
+            try:
+                return func()
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    print(f"  ⚠️ 第 {attempt + 1} 次尝试失败: {e}")
+                    print(f"  🔄 {delay} 秒后重试...")
+                    time.sleep(delay)
+                    delay *= 2  # 指数退避
+                else:
+                    raise
+    
     try:
-        # 获取股票代码与名称
+        # 获取股票代码与名称（带重试）
         print("  - 获取股票代码与名称...")
-        code_name = ak.stock_info_a_code_name()
+        code_name = retry_on_error(
+            lambda: ak.stock_info_a_code_name(),
+            max_retries=3,
+            delay=2
+        )
         print(f"  ✅ 获取到 {len(code_name)} 条股票代码")
         
-        # 获取实时股票信息，包括最新价、市值等
+        # 获取实时股票信息，包括最新价、市值等（带重试）
         print("  - 获取实时股票信息...")
-        spot = ak.stock_zh_a_spot_em()
+        spot = retry_on_error(
+            lambda: ak.stock_zh_a_spot_em(),
+            max_retries=3,
+            delay=2
+        )
         print(f"  ✅ 获取到 {len(spot)} 条实时信息")
         
         # 合并数据
@@ -115,8 +139,30 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
         print(f"  ✅ 数据清洗完成，共 {len(df)} 条有效记录")
         return df
         
+    except ConnectionError as e:
+        print(f"❌ 网络连接错误: {e}")
+        print("💡 建议:")
+        print("  1. 检查网络连接")
+        print("  2. 检查是否需要代理/VPN")
+        print("  3. 稍后重试（可能是数据源服务器临时不可用）")
+        import traceback
+        traceback.print_exc()
+        raise
     except Exception as e:
-        print(f"❌ 下载失败: {e}")
+        error_msg = str(e)
+        if "connection" in error_msg.lower() or "timeout" in error_msg.lower():
+            print(f"❌ 网络连接错误: {e}")
+            print("💡 建议:")
+            print("  1. 检查网络连接是否稳定")
+            print("  2. 检查防火墙/代理设置")
+            print("  3. 稍后重试（可能是数据源服务器繁忙）")
+        elif "rate limit" in error_msg.lower() or "频率" in error_msg:
+            print(f"❌ 请求频率过高: {e}")
+            print("💡 建议:")
+            print("  1. 等待一段时间后重试")
+            print("  2. 数据源可能有访问频率限制")
+        else:
+            print(f"❌ 下载失败: {e}")
         import traceback
         traceback.print_exc()
         raise

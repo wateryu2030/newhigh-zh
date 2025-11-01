@@ -88,7 +88,37 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
             
             if result.returncode != 0:
                 st.error(f"❌ 下载失败")
-                st.code(result.stderr, language="bash")
+                
+                # 分析错误类型并给出友好提示
+                error_output = result.stderr if result.stderr else result.stdout
+                if "connection" in error_output.lower() or "Connection" in error_output:
+                    st.warning("🌐 **网络连接问题**")
+                    st.info("""
+                    **可能的解决方案：**
+                    1. 检查网络连接是否稳定
+                    2. 检查是否需要配置代理/VPN
+                    3. 稍后重试（数据源服务器可能临时不可用）
+                    4. 尝试在网络较好的环境下重试
+                    """)
+                elif "timeout" in error_output.lower():
+                    st.warning("⏱️ **请求超时**")
+                    st.info("""
+                    **可能的解决方案：**
+                    1. 数据源服务器响应较慢，请稍后重试
+                    2. 检查网络连接速度
+                    3. 如果是首次下载，数据量较大，可能需要更长时间
+                    """)
+                elif "rate limit" in error_output.lower() or "频率" in error_output:
+                    st.warning("🚦 **请求频率过高**")
+                    st.info("""
+                    **可能的解决方案：**
+                    1. 等待 1-2 分钟后重试
+                    2. 数据源可能有访问频率限制
+                    """)
+                
+                # 显示详细错误信息（可折叠）
+                with st.expander("🔍 查看详细错误信息"):
+                    st.code(error_output, language="bash")
             else:
                 st.success("✅ 下载完成！")
                 if result.stdout:

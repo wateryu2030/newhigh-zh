@@ -166,7 +166,21 @@ class AShareDownloader:
             # 方法1：尝试使用 spot_em 接口（更快，一次性获取所有A股实时数据）
             try:
                 logger.info("📊 尝试使用 ak.stock_zh_a_spot_em() 批量获取...")
-                stock_spot = ak.stock_zh_a_spot_em()
+                # 添加重试机制
+                max_retries = 3
+                delay = 2
+                stock_spot = None
+                for attempt in range(max_retries):
+                    try:
+                        stock_spot = ak.stock_zh_a_spot_em()
+                        break
+                    except Exception as e:
+                        if attempt < max_retries - 1:
+                            logger.warning(f"⚠️ 第 {attempt + 1} 次尝试失败: {e}, {delay}秒后重试...")
+                            time.sleep(delay)
+                            delay *= 2
+                        else:
+                            raise
                 
                 if not stock_spot.empty:
                     logger.info(f"✅ 通过spot接口获取到 {len(stock_spot)} 只股票")
@@ -236,7 +250,21 @@ class AShareDownloader:
             
             # 方法2：降级到基础接口
             logger.info("📊 使用基础接口 ak.stock_info_a_code_name()...")
-            stock_info = ak.stock_info_a_code_name()
+            # 添加重试机制
+            max_retries = 3
+            delay = 2
+            stock_info = None
+            for attempt in range(max_retries):
+                try:
+                    stock_info = ak.stock_info_a_code_name()
+                    break
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"⚠️ 第 {attempt + 1} 次尝试失败: {e}, {delay}秒后重试...")
+                        time.sleep(delay)
+                        delay *= 2
+                    else:
+                        raise
             
             if stock_info.empty:
                 logger.error("❌ AKShare基础接口也返回空数据")
@@ -281,8 +309,20 @@ class AShareDownloader:
         except ImportError:
             logger.error("❌ AKShare未安装，请运行: pip install akshare")
             return pd.DataFrame()
+        except ConnectionError as e:
+            logger.error(f"❌ 网络连接错误: {e}")
+            logger.info("💡 建议: 检查网络连接，或稍后重试")
+            return pd.DataFrame()
         except Exception as e:
-            logger.error(f"❌ 备用下载方法失败: {e}", exc_info=True)
+            error_msg = str(e)
+            if "connection" in error_msg.lower() or "timeout" in error_msg.lower():
+                logger.error(f"❌ 网络连接错误: {e}")
+                logger.info("💡 建议: 检查网络连接是否稳定，或稍后重试")
+            elif "rate limit" in error_msg.lower() or "频率" in error_msg:
+                logger.error(f"❌ 请求频率过高: {e}")
+                logger.info("💡 建议: 等待一段时间后重试")
+            else:
+                logger.error(f"❌ 备用下载方法失败: {e}", exc_info=True)
             return pd.DataFrame()
 
     def save_to_db(self, data: pd.DataFrame):
