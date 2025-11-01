@@ -51,14 +51,35 @@ OUT = Path("data/stock_basic.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 
-def fetch_cn_stock_basic() -> pd.DataFrame:
+def fetch_cn_stock_basic(use_tushare: bool = True) -> pd.DataFrame:
     """
     获取A股股票基本信息
+    
+    Args:
+        use_tushare: 是否优先使用Tushare（需要配置TUSHARE_TOKEN）
     
     Returns:
         pd.DataFrame: 包含股票代码、名称、最新价、市值等信息
     """
     print("📥 开始拉取A股基础资料...")
+    
+    # 方法1：尝试使用Tushare（如果配置了Token）
+    if use_tushare:
+        try:
+            from tradingagents.dataflows.tushare_adapter import get_tushare_adapter
+            adapter = get_tushare_adapter()
+            
+            if adapter.provider and adapter.provider.connected:
+                print("  ✅ 检测到Tushare配置，使用Tushare获取完整数据...")
+                return _fetch_with_tushare(adapter)
+            else:
+                print("  ⚠️  Tushare未配置或连接失败，使用AKShare作为备用...")
+        except Exception as e:
+            print(f"  ⚠️  Tushare初始化失败: {e}")
+            print("  💡 使用AKShare作为备用数据源...")
+    
+    # 方法2：使用AKShare（备用方案）
+    print("  📊 使用AKShare获取数据...")
     
     # 更彻底的代理禁用（修改requests和urllib3的全局配置）
     def setup_no_proxy_requests():
@@ -362,9 +383,121 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
         raise
 
 
+def _fetch_with_tushare(adapter) -> pd.DataFrame:
+    """
+    使用Tushare获取A股完整数据
+    
+    Args:
+        adapter: TushareDataAdapter实例
+    
+    Returns:
+        pd.DataFrame: 包含完整数据的DataFrame
+    """
+    try:
+        from datetime import datetime
+        import pandas as pd
+        
+        pro = adapter.provider.pro_api
+        today = datetime.now().strftime('%Y%m%d')
+        
+        print("  - 获取股票列表...")
+        # 获取股票基本信息
+        stock_list = pro.stock_basic(
+            exchange='', 
+            list_status='L', 
+            fields='ts_code,symbol,name,area,industry,market,list_date'
+        )
+        
+        if stock_list.empty:
+            print("  ❌ 未获取到股票列表")
+            return pd.DataFrame()
+        
+        print(f"  ✅ 获取到 {len(stock_list)} 只股票基本信息")
+        
+        print("  - 获取每日指标数据（PE、PB、市值）...")
+        # 分批获取每日指标（包含PE、PB、市值）
+        all_data = []
+        batch_size = 500
+        today = datetime.now().strftime('%Y%m%d')
+        
+        for i in range(0, len(stock_list), batch_size):
+            batch = stock_list.iloc[i:i+batch_size]
+            ts_codes = ','.join(batch['ts_code'].tolist())
+            
+            try:
+                # 获取每日指标
+                daily_basic = pro.daily_basic(
+                    trade_date=today,
+                    ts_code=ts_codes,
+                    fields='ts_code,pe,pb,ps,total_mv,circ_mv'
+                )
+                
+                # 合并数据
+                merged = batch.merge(daily_basic, on='ts_code', how='left')
+                all_data.append(merged)
+                
+                # 控制请求频率（Tushare有频率限制）
+                if (i + batch_size) % 1000 == 0:
+                    print(f"  ⏳ 已处理 {i + batch_size}/{len(stock_list)} 只股票")
+                    time.sleep(0.5)  # 每1000只股票等待0.5秒
+                    
+            except Exception as e:
+                print(f"  ⚠️  批次 {i//batch_size + 1} 获取失败: {e}")
+                # 即使失败也保存基本信息
+                all_data.append(batch)
+                time.sleep(1)  # 失败后等待更长时间
+        
+        # 合并所有数据
+        if all_data:
+            result = pd.concat(all_data, ignore_index=True)
+            
+            # 映射字段名
+            column_mapping = {
+                'ts_code': 'ts_code',
+                'symbol': 'code',
+                'name': 'name',
+                'industry': 'industry',
+                'pe': 'pe',
+                'pb': 'pb',
+                'ps': 'ps',
+                'total_mv': 'market_cap',  # 总市值（万元）
+                'circ_mv': 'float_cap',     # 流通市值（万元）
+            }
+            
+            # 重命名列
+            result = result.rename(columns=column_mapping)
+            
+            # 转换市值单位（Tushare返回的是万元，转换为元）
+            if 'market_cap' in result.columns:
+                result['market_cap'] = result['market_cap'] * 10000
+            if 'float_cap' in result.columns:
+                result['float_cap'] = result['float_cap'] * 10000
+            
+            # 填充缺失字段（为了与AKShare格式一致）
+            for col in ['price', 'change_pct', 'volume', 'turnover', 'pcf']:
+                if col not in result.columns:
+                    result[col] = None
+            
+            print(f"  ✅ Tushare数据获取完成，共 {len(result)} 条记录")
+            print(f"  📊 数据完整性：")
+            print(f"     - 有PE数据: {result['pe'].notna().sum()} 只")
+            print(f"     - 有PB数据: {result['pb'].notna().sum()} 只")
+            print(f"     - 有市值数据: {result['market_cap'].notna().sum()} 只")
+            
+            return result
+        else:
+            return pd.DataFrame()
+            
+    except Exception as e:
+        print(f"  ❌ Tushare获取数据失败: {e}")
+        print(f"  💡 将使用AKShare作为备用...")
+        raise
+
+
 if __name__ == "__main__":
     try:
-        df = fetch_cn_stock_basic()
+        # 尝试使用Tushare，如果失败则使用AKShare
+        df = fetch_cn_stock_basic(use_tushare=True)
         
         # 保存到CSV
         df.to_csv(OUT, index=False, encoding="utf-8-sig")  # 使用utf-8-sig确保Excel能正确打开
