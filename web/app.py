@@ -507,8 +507,49 @@ def inject_frontend_cache_check():
         console.log('📍 当前URL:', window.location.href);
         
         try {
+            // 检测是否在iframe或特殊上下文中（如about:srcdoc）
+            const isInIframe = window.self !== window.top || window.location.protocol === 'about:';
+            const isInvalidContext = !window.location.origin || !window.location.pathname || window.location.href === 'about:srcdoc';
+            
+            if (isInIframe || isInvalidContext) {
+                console.log('⚠️ 检测到iframe或特殊上下文，跳过URL跳转方式');
+                // 在iframe中，无法使用URL跳转，改为使用Streamlit的后端恢复方式
+                // 这里只更新localStorage中的活动时间，后端会通过session state恢复
+                const authData = localStorage.getItem('tradingagents_auth');
+                if (authData) {
+                    try {
+                        const data = JSON.parse(authData);
+                        const now = Date.now();
+                        const timeout = 10 * 60 * 1000; // 10分钟
+                        
+                        // 检查是否超时
+                        if (data.lastActivity && (now - data.lastActivity) > timeout) {
+                            localStorage.removeItem('tradingagents_auth');
+                            console.log('⏰ 登录状态已过期，清除缓存');
+                            return;
+                        }
+                        
+                        // 更新最后活动时间
+                        data.lastActivity = now;
+                        localStorage.setItem('tradingagents_auth', JSON.stringify(data));
+                        console.log('🔄 更新最后活动时间（iframe模式）');
+                    } catch (e) {
+                        console.warn('⚠️ 更新localStorage失败:', e);
+                    }
+                }
+                return; // iframe中不执行URL跳转
+            }
+            
+            // 正常上下文下的处理
+            let currentUrl;
+            try {
+                currentUrl = new URL(window.location.href);
+            } catch (e) {
+                console.warn('⚠️ 无法解析当前URL，跳过前端检查:', e);
+                return;
+            }
+            
             // 检查URL中是否已经有restore_auth参数
-            const currentUrl = new URL(window.location);
             if (currentUrl.searchParams.has('restore_auth')) {
                 console.log('🔄 URL中已有restore_auth参数，跳过前端检查');
                 return;
@@ -534,11 +575,11 @@ def inject_frontend_cache_check():
             
             const now = Date.now();
             const timeout = 10 * 60 * 1000; // 10分钟
-            const timeSinceLastActivity = now - data.lastActivity;
+            const timeSinceLastActivity = now - (data.lastActivity || now);
             
             console.log('⏰ 时间检查:', {
                 now: new Date(now).toLocaleString(),
-                lastActivity: new Date(data.lastActivity).toLocaleString(),
+                lastActivity: new Date(data.lastActivity || now).toLocaleString(),
                 timeSinceLastActivity: Math.round(timeSinceLastActivity / 1000) + '秒',
                 timeout: Math.round(timeout / 1000) + '秒'
             });
@@ -557,8 +598,13 @@ def inject_frontend_cache_check():
             
             console.log('✅ 从前端缓存恢复登录状态:', data.userInfo.username);
             
+            // 验证URL属性有效性
+            if (!currentUrl.origin || currentUrl.origin === 'null' || !currentUrl.pathname) {
+                console.warn('⚠️ URL属性无效，跳过跳转');
+                return;
+            }
+            
             // 保留现有的URL参数，只添加restore_auth参数
-            // 传递完整的认证数据，包括原始登录时间
             const restoreData = {
                 userInfo: data.userInfo,
                 loginTime: data.loginTime
@@ -571,15 +617,25 @@ def inject_frontend_cache_check():
             existingParams.set('restore_auth', restoreParam);
             
             // 构建新URL，保留现有参数
-            const newUrl = currentUrl.origin + currentUrl.pathname + '?' + existingParams.toString();
-            console.log('🔗 准备跳转到:', newUrl);
-            console.log('📋 保留的URL参数:', Object.fromEntries(existingParams));
+            const pathname = currentUrl.pathname || '/';
+            const newUrl = currentUrl.origin + pathname + '?' + existingParams.toString();
             
-            window.location.href = newUrl;
+            // 再次验证URL有效性
+            try {
+                const testUrl = new URL(newUrl);
+                console.log('🔗 准备跳转到:', newUrl);
+                console.log('📋 保留的URL参数:', Object.fromEntries(existingParams));
+                window.location.href = newUrl;
+            } catch (urlError) {
+                console.error('❌ 构建的URL无效，跳过跳转:', urlError);
+            }
             
         } catch (e) {
             console.error('❌ 前端缓存恢复失败:', e);
-            localStorage.removeItem('tradingagents_auth');
+            // 只在严重错误时清除缓存
+            if (e.message && e.message.includes('JSON')) {
+                localStorage.removeItem('tradingagents_auth');
+            }
         }
     }
     
