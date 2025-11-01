@@ -750,25 +750,65 @@ def main():
         justify-content: center !important;
     }
     
-    /* 确保侧边栏本身和内容可见 */
-    section[data-testid="stSidebar"] {
+    /* 确保侧边栏本身和内容可见 - 使用更强的优先级 */
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"]:not(.css-1d391kg) {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
         width: 320px !important;
         min-width: 320px !important;
         max-width: 320px !important;
+        transform: translateX(0) !important;
+        left: 0 !important;
+        position: relative !important;
     }
     
-    /* 确保侧边栏内的所有内容元素可见 */
+    /* 确保侧边栏内的所有内容元素可见 - 包括所有可能的子元素 */
+    section[data-testid="stSidebar"] > *,
     section[data-testid="stSidebar"] > div,
+    section[data-testid="stSidebar"] > div > *,
     section[data-testid="stSidebar"] .element-container,
+    section[data-testid="stSidebar"] .element-container > *,
     section[data-testid="stSidebar"] .stSelectbox,
+    section[data-testid="stSidebar"] .stSelectbox > *,
     section[data-testid="stSidebar"] .stMarkdown,
+    section[data-testid="stSidebar"] .stMarkdown > *,
+    section[data-testid="stSidebar"] .stButton,
+    section[data-testid="stSidebar"] .stButton > *,
+    section[data-testid="stSidebar"] .stCheckbox,
+    section[data-testid="stSidebar"] .stCheckbox > *,
     section[data-testid="stSidebar"] h1,
     section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] h3 {
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4,
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] input,
+    section[data-testid="stSidebar"] select,
+    section[data-testid="stSidebar"] button,
+    section[data-testid="stSidebar"] hr {
         display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* 特别确保selectbox和按钮可见 */
+    section[data-testid="stSidebar"] .stSelectbox > div,
+    section[data-testid="stSidebar"] .stSelectbox > div > div,
+    section[data-testid="stSidebar"] .stButton > button {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* 确保内联元素也可见 */
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] strong,
+    section[data-testid="stSidebar"] em,
+    section[data-testid="stSidebar"] b,
+    section[data-testid="stSidebar"] i {
+        display: inline !important;
         visibility: visible !important;
         opacity: 1 !important;
     }
@@ -922,19 +962,44 @@ def main():
             
             // 强制显示侧边栏（如果不是折叠状态）
             const computedStyle = window.getComputedStyle(sidebar);
+            const width = computedStyle.width;
             const isCollapsed = sidebar.classList.contains('css-1d391kg') || 
-                               computedStyle.width === '0px' ||
-                               sidebar.offsetWidth === 0;
+                               width === '0px' ||
+                               parseInt(width) === 0 ||
+                               sidebar.offsetWidth === 0 ||
+                               sidebar.offsetWidth < 10;
             
-            // 确保侧边栏容器可见
-            sidebar.style.display = 'block';
-            sidebar.style.visibility = 'visible';
-            sidebar.style.opacity = '1';
+            console.log('确保侧边栏可见 - 检查:', {
+                hasClass: sidebar.classList.contains('css-1d391kg'),
+                width: width,
+                offsetWidth: sidebar.offsetWidth,
+                isCollapsed: isCollapsed
+            });
+            
+            // 确保侧边栏容器可见 - 强制设置样式
+            sidebar.style.setProperty('display', 'block', 'important');
+            sidebar.style.setProperty('visibility', 'visible', 'important');
+            sidebar.style.setProperty('opacity', '1', 'important');
+            sidebar.style.setProperty('transform', 'translateX(0)', 'important');
+            sidebar.style.setProperty('left', '0', 'important');
             
             // 如果不是折叠状态，确保宽度正确
             if (!isCollapsed) {
-                sidebar.style.width = '320px';
-                sidebar.style.minWidth = '320px';
+                sidebar.style.setProperty('width', '320px', 'important');
+                sidebar.style.setProperty('min-width', '320px', 'important');
+                sidebar.style.setProperty('max-width', '320px', 'important');
+                
+                // 确保所有子元素可见
+                const children = sidebar.querySelectorAll('*');
+                children.forEach(child => {
+                    child.style.setProperty('display', getComputedStyle(child).display === 'none' ? 'block' : '', 'important');
+                    child.style.setProperty('visibility', 'visible', 'important');
+                    child.style.setProperty('opacity', '1', 'important');
+                });
+                
+                console.log('✅ 侧边栏已强制设置为可见，宽度: 320px, 子元素数量:', children.length);
+            } else {
+                console.log('⚠️ 侧边栏被检测为折叠状态，跳过宽度设置');
             }
         }
         
