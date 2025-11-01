@@ -124,10 +124,12 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
             return False
     
     # 重试装饰器
-    def retry_on_error(func, max_retries=3, delay=2):
-        """重试机制（自动处理代理错误）"""
+    def retry_on_error(func, max_retries=5, initial_delay=2):
+        """重试机制（自动处理网络错误）"""
         # 设置无代理模式
         setup_no_proxy_requests()
+        
+        delay = initial_delay
         
         for attempt in range(max_retries):
             try:
@@ -135,37 +137,70 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
                 return result
             except Exception as e:
                 error_msg = str(e).lower()
-                if attempt < max_retries - 1:
-                    if "proxy" in error_msg or "连接" in error_msg or "disconnected" in error_msg:
-                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败（代理/网络问题）: {str(e)[:100]}")
-                        print(f"  🔄 {delay} 秒后重试（已禁用代理）...")
-                        # 再次确保代理已禁用
+                error_type = type(e).__name__
+                
+                # 判断是否是可重试的错误
+                is_retryable = (
+                    "connection" in error_msg or
+                    "disconnected" in error_msg or
+                    "aborted" in error_msg or
+                    "timeout" in error_msg or
+                    "proxy" in error_msg or
+                    "连接" in error_msg or
+                    "RemoteDisconnected" in error_type or
+                    "ConnectionError" in error_type or
+                    "ProtocolError" in error_type
+                )
+                
+                if attempt < max_retries - 1 and is_retryable:
+                    # 根据错误类型显示不同的消息
+                    if "disconnected" in error_msg or "aborted" in error_msg:
+                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（连接中断）: {str(e)[:80]}")
+                        print(f"  💡 可能是数据源服务器临时关闭连接，或网络不稳定")
+                    elif "timeout" in error_msg:
+                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（请求超时）: {str(e)[:80]}")
+                    elif "proxy" in error_msg:
+                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（代理问题）: {str(e)[:80]}")
                         disable_proxy()
                         setup_no_proxy_requests()
                     else:
-                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败: {str(e)[:100]}")
-                        print(f"  🔄 {delay} 秒后重试...")
+                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（网络问题）: {str(e)[:80]}")
+                    
+                    # 指数退避：2秒、4秒、8秒、16秒、32秒
+                    print(f"  🔄 等待 {delay} 秒后重试...")
                     time.sleep(delay)
-                    delay *= 2  # 指数退避
+                    delay = min(delay * 2, 32)  # 最大延迟32秒
+                    
+                    # 对于连接中断，增加额外等待
+                    if "disconnected" in error_msg or "aborted" in error_msg:
+                        print(f"  💤 连接中断，额外等待 3 秒...")
+                        time.sleep(3)
                 else:
+                    # 最后一次尝试失败，或者不可重试的错误
+                    if not is_retryable:
+                        print(f"  ❌ 遇到不可重试的错误: {error_type}")
                     raise
     
     try:
-        # 获取股票代码与名称（带重试）
+        # 获取股票代码与名称（带重试，最多5次）
         print("  - 获取股票代码与名称...")
         code_name = retry_on_error(
             lambda: ak.stock_info_a_code_name(),
-            max_retries=3,
-            delay=2
+            max_retries=5,
+            initial_delay=2
         )
         print(f"  ✅ 获取到 {len(code_name)} 条股票代码")
         
-        # 获取实时股票信息，包括最新价、市值等（带重试）
+        # 在两次API调用之间添加延迟，避免请求过快
+        print("  - 等待 2 秒后获取实时数据（避免请求过快）...")
+        time.sleep(2)
+        
+        # 获取实时股票信息，包括最新价、市值等（带重试，最多5次）
         print("  - 获取实时股票信息...")
         spot = retry_on_error(
             lambda: ak.stock_zh_a_spot_em(),
-            max_retries=3,
-            delay=2
+            max_retries=5,
+            initial_delay=3  # 对于大数据量请求，初始延迟更长
         )
         print(f"  ✅ 获取到 {len(spot)} 条实时信息")
         
@@ -242,29 +277,44 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
         return df
         
     except ConnectionError as e:
-        print(f"❌ 网络连接错误: {e}")
+        print(f"\n❌ 网络连接错误: {e}")
         print("💡 建议:")
-        print("  1. 检查网络连接")
-        print("  2. 检查是否需要代理/VPN")
-        print("  3. 稍后重试（可能是数据源服务器临时不可用）")
+        print("  1. 检查网络连接是否稳定")
+        print("  2. 数据源服务器可能临时不可用，请稍后重试")
+        print("  3. 如果是频繁的连接中断，可能是数据源限流，请等待5-10分钟后重试")
         import traceback
         traceback.print_exc()
         raise
     except Exception as e:
-        error_msg = str(e)
-        if "connection" in error_msg.lower() or "timeout" in error_msg.lower():
-            print(f"❌ 网络连接错误: {e}")
+        error_msg = str(e).lower()
+        error_type = type(e).__name__
+        
+        if "disconnected" in error_msg or "aborted" in error_msg:
+            print(f"\n❌ 连接中断: {e}")
+            print("💡 问题分析: 数据源服务器主动关闭了连接")
+            print("💡 可能原因:")
+            print("  1. 数据源服务器临时负载过高")
+            print("  2. 请求频率过快被限流")
+            print("  3. 网络不稳定导致连接中断")
+            print("💡 解决方案:")
+            print("  1. 等待5-10分钟后重试")
+            print("  2. 检查网络连接稳定性")
+            print("  3. 如果问题持续，可以尝试在非高峰时段下载")
+        elif "connection" in error_msg or "timeout" in error_msg:
+            print(f"\n❌ 网络连接错误: {e}")
             print("💡 建议:")
             print("  1. 检查网络连接是否稳定")
             print("  2. 检查防火墙/代理设置")
             print("  3. 稍后重试（可能是数据源服务器繁忙）")
-        elif "rate limit" in error_msg.lower() or "频率" in error_msg:
-            print(f"❌ 请求频率过高: {e}")
+        elif "rate limit" in error_msg or "频率" in error_msg:
+            print(f"\n❌ 请求频率过高: {e}")
             print("💡 建议:")
             print("  1. 等待一段时间后重试")
             print("  2. 数据源可能有访问频率限制")
         else:
-            print(f"❌ 下载失败: {e}")
+            print(f"\n❌ 下载失败: {e}")
+            print(f"💡 错误类型: {error_type}")
+            print("💡 请检查错误信息并重试")
         import traceback
         traceback.print_exc()
         raise
