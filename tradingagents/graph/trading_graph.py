@@ -272,9 +272,11 @@ class TradingAgentsGraph:
             getattr(self, 'react_llm', None),
         )
 
-        # 使用config中的max_recur_limit，如果没有则使用默认值300
-        max_recur_limit = self.config.get("max_recur_limit", 300)
+        # 使用config中的max_recur_limit，如果没有则使用默认值500
+        max_recur_limit = self.config.get("max_recur_limit", 500)
         logger.info(f"🔧 [Graph] 设置递归限制: {max_recur_limit}")
+        if max_recur_limit < 300:
+            logger.warning(f"⚠️ [Graph] 递归限制({max_recur_limit})可能过低，建议至少300")
         self.propagator = Propagator(max_recur_limit=max_recur_limit)
         self.reflector = Reflector(self.quick_thinking_llm)
         self.signal_processor = SignalProcessor(self.quick_thinking_llm)
@@ -353,6 +355,16 @@ class TradingAgentsGraph:
         logger.debug(f"🔍 [GRAPH DEBUG] 初始状态中的company_of_interest: '{init_agent_state.get('company_of_interest', 'NOT_FOUND')}'")
         logger.debug(f"🔍 [GRAPH DEBUG] 初始状态中的trade_date: '{init_agent_state.get('trade_date', 'NOT_FOUND')}'")
         args = self.propagator.get_graph_args()
+        
+        # 验证递归限制是否正确传递
+        recursion_limit = args.get("config", {}).get("recursion_limit", 100)
+        logger.info(f"🔧 [Graph] 实际传递给graph的递归限制: {recursion_limit}")
+        if recursion_limit < 300:
+            logger.error(f"❌ [Graph] 递归限制({recursion_limit})过低！这将导致分析失败")
+            logger.error(f"❌ [Graph] Propagator的max_recur_limit: {self.propagator.max_recur_limit}")
+            # 强制设置
+            args["config"]["recursion_limit"] = self.propagator.max_recur_limit
+            logger.warning(f"⚠️ [Graph] 已强制修正递归限制为: {self.propagator.max_recur_limit}")
 
         if self.debug:
             # Debug mode with tracing

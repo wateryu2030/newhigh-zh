@@ -242,9 +242,17 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         config["deep_think_llm"] = llm_model
         config["quick_think_llm"] = llm_model
         # 确保递归限制被正确设置（优先使用默认配置，但如果已设置则保持不变）
-        if "max_recur_limit" not in config:
-            config["max_recur_limit"] = DEFAULT_CONFIG.get("max_recur_limit", 300)
+        if "max_recur_limit" not in config or config.get("max_recur_limit", 0) < 300:
+            config["max_recur_limit"] = DEFAULT_CONFIG.get("max_recur_limit", 500)
             logger.info(f"🔧 [配置] 设置递归限制: {config['max_recur_limit']}")
+        else:
+            logger.info(f"🔧 [配置] 使用配置中的递归限制: {config.get('max_recur_limit')}")
+        
+        # 验证递归限制是否足够
+        if config.get("max_recur_limit", 0) < 300:
+            logger.warning(f"⚠️ [配置] 递归限制({config.get('max_recur_limit')})可能过低，建议至少300")
+            config["max_recur_limit"] = 500  # 强制设置为500
+            logger.info(f"🔧 [配置] 已自动将递归限制调整为: 500")
         
         # 根据研究深度调整配置
         if research_depth == 1:  # 1级 - 快速分析

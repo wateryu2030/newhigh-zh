@@ -15,10 +15,12 @@ from tradingagents.agents.utils.agent_states import (
 class Propagator:
     """Handles state initialization and propagation through the graph."""
 
-    def __init__(self, max_recur_limit=300):
+    def __init__(self, max_recur_limit=500):
         """Initialize with configuration parameters."""
         self.max_recur_limit = max_recur_limit
         logger.info(f"🔧 [Propagator] 初始化递归限制: {max_recur_limit}")
+        if max_recur_limit < 300:
+            logger.warning(f"⚠️ [Propagator] 递归限制({max_recur_limit})可能过低，建议至少300")
 
     def create_initial_state(
         self, company_name: str, trade_date: str
