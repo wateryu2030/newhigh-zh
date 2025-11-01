@@ -9,6 +9,9 @@ import pandas as pd
 from pathlib import Path
 import sys
 from typing import List, Dict
+from tradingagents.utils.logging_init import get_logger
+
+logger = get_logger('web.smart_selection')
 
 # 添加项目根目录到路径
 project_root = Path(__file__).parent.parent.parent
@@ -121,15 +124,24 @@ def simple_score(row) -> float:
     return float(base)
 
 
-def llm_rerank(candidates: pd.DataFrame, api_key: str, provider: str, strategy: str) -> List[Dict]:
+def llm_rerank(candidates: pd.DataFrame, api_key: str, provider: str, strategy: str, topk: int) -> List[Dict]:
     """
     LLM重新排序候选股票
     
-    TODO: 这里应该接入真实的LLM API进行智能分析
-    目前返回基于简单评分的排序结果
+    使用真实LLM API进行智能分析
     """
+    # 尝试使用LLM分析
+    if api_key:
+        try:
+            from web.utils.stock_llm_analyzer import StockLLMAnalyzer
+            analyzer = StockLLMAnalyzer(api_key=api_key, provider=provider)
+            results = analyzer.analyze_stocks(candidates, strategy, topk)
+            return results
+        except Exception as e:
+            st.warning(f"⚠️ LLM分析失败，使用简单评分排序: {e}")
+    
+    # 降级方案：简单评分排序
     if not api_key:
-        # 如果没有API密钥，使用简单排序
         st.warning("⚠️ 未配置LLM API Key，使用简单评分排序")
     
     results = []
@@ -139,8 +151,10 @@ def llm_rerank(candidates: pd.DataFrame, api_key: str, provider: str, strategy: 
             "name": r.get("name", "N/A"),
             "price": f"￥{r.get('price', 0):.2f}" if pd.notna(r.get("price")) else "N/A",
             "market_cap": f"{r.get('market_cap', 0) / 1e8:.2f}亿" if pd.notna(r.get("market_cap")) else "N/A",
+            "pe": f"{r.get('pe', 0):.2f}" if pd.notna(r.get("pe")) and r.get("pe", 0) > 0 else "N/A",
+            "pb": f"{r.get('pb', 0):.2f}" if pd.notna(r.get("pb")) and r.get("pb", 0) > 0 else "N/A",
             "score": r.get("score", 0),
-            "reason": f"{strategy}策略：基于市值和价格筛选"  # 占位理由
+            "reason": f"{strategy}策略：基于市值和价格筛选"
         })
     
     # 按评分排序
@@ -167,8 +181,30 @@ if st.button("🚀 生成选股建议", type="primary", use_container_width=True
             work["market_cap"] = pd.to_numeric(work["market_cap"], errors="coerce").fillna(0)
             work = work[work["market_cap"] >= min_mcap * 1e8]
         
-        # 计算评分
-        work["score"] = work.apply(simple_score, axis=1)
+        # 计算评分（包含财务指标）
+        def enhanced_score(row) -> float:
+            """增强评分函数，包含PE、PB等财务指标"""
+            base_score = simple_score(row)
+            
+            # PE评分（越低越好，但在合理范围内）
+            if pd.notna(row.get("pe")) and row.get("pe", 0) > 0:
+                pe = row.get("pe")
+                if 0 < pe < 30:  # 合理PE范围
+                    base_score += 1
+                elif pe < 50:
+                    base_score += 0.5
+            
+            # PB评分（越低越好，但在合理范围内）
+            if pd.notna(row.get("pb")) and row.get("pb", 0) > 0:
+                pb = row.get("pb")
+                if 0 < pb < 3:  # 合理PB范围
+                    base_score += 1
+                elif pb < 5:
+                    base_score += 0.5
+            
+            return base_score
+        
+        work["score"] = work.apply(enhanced_score, axis=1)
         
         # 过滤掉评分为0的股票
         work = work[work["score"] > 0]
@@ -181,15 +217,48 @@ if st.button("🚀 生成选股建议", type="primary", use_container_width=True
         
         # LLM重新排序
         with st.spinner("🤖 LLM智能排序中..."):
+            # 准备传递给LLM的数据（包含所有可用列）
+            columns_for_llm = ["code", "name", "price", "market_cap", "score"]
+            if "pe" in work.columns:
+                columns_for_llm.append("pe")
+            if "pb" in work.columns:
+                columns_for_llm.append("pb")
+            if "ps" in work.columns:
+                columns_for_llm.append("ps")
+            
             ranked = llm_rerank(
-                work[["code", "name", "price", "market_cap", "score"]],
+                work[columns_for_llm],
                 api_key,
                 provider,
-                strategy
+                strategy,
+                topk  # 传递topk参数
             )
         
         if ranked:
             st.success(f"✅ 已生成 {len(ranked)} 条候选建议")
+            
+            # 保存选股结果
+            try:
+                from web.utils.stock_selection_storage import get_storage
+                storage = get_storage()
+                selection_id = storage.save_selection(
+                    results=ranked,
+                    strategy=strategy,
+                    filter_conditions={
+                        "max_weight": max_weight,
+                        "min_mcap": min_mcap,
+                        "allow_st": allow_st,
+                        "total_candidates": len(work),
+                        "provider": provider
+                    },
+                    metadata={
+                        "topk": topk,
+                        "api_key_used": bool(api_key)
+                    }
+                )
+                st.session_state.last_selection_id = selection_id
+            except Exception as e:
+                logger.warning(f"保存选股结果失败: {e}")
             
             # 显示结果
             st.markdown("---")
@@ -214,7 +283,7 @@ if st.button("🚀 生成选股建议", type="primary", use_container_width=True
                 total_weight = len(ranked) * (max_weight / 100)
                 st.metric("预计组合权重", f"{min(total_weight, 1.0)*100:.1f}%")
             
-            # 导出功能
+            # 导出和保存功能
             st.markdown("---")
             st.subheader("💾 导出结果")
             
@@ -228,6 +297,9 @@ if st.button("🚀 生成选股建议", type="primary", use_container_width=True
                     mime="text/csv",
                     use_container_width=True
                 )
+            with col2:
+                if st.session_state.get("last_selection_id"):
+                    st.success(f"✅ 结果已自动保存（ID: {st.session_state.last_selection_id[:20]}...）")
         else:
             st.error("❌ 未能生成选股建议")
 

@@ -59,6 +59,13 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
             "最新价": "price",
             "总市值": "market_cap",
             "流通市值": "float_cap",
+            "市盈率": "pe",
+            "市净率": "pb",
+            "市销率": "ps",
+            "市现率": "pcf",
+            "涨跌幅": "change_pct",
+            "成交量": "volume",
+            "成交额": "turnover",
         }
         
         # 确保所需的列存在
@@ -72,6 +79,25 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
                 pass
         
         df = df.rename(columns=rename_dict)
+        
+        # 尝试获取财务指标（ROE等）
+        print("  - 尝试获取财务指标（ROE等）...")
+        try:
+            # 使用akshare获取基本面数据
+            for idx, row in df.head(100).iterrows():  # 先测试前100只股票
+                code = row.get("code", "")
+                if not code:
+                    continue
+                try:
+                    # 获取股票财务指标
+                    basic_info = ak.stock_individual_info_em(symbol=code)
+                    if not basic_info.empty and "净资产收益率" in basic_info.values:
+                        # 这里可以添加ROE等财务指标
+                        pass
+                except:
+                    pass
+        except Exception as e:
+            print(f"  ⚠️ 财务指标获取部分失败（不影响主流程）: {e}")
         
         # 选择需要的列
         columns_to_keep = [col for col in keep.values() if col in df.columns]
