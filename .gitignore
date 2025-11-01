@@ -125,4 +125,4 @@ COMMIT_SUMMARY.md
 *.tmp
 *.temp
 *.pyc.*
-*.pyo.*
+*.pyo.*.env.bak

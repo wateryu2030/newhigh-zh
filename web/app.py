@@ -717,16 +717,31 @@ def main():
         overflow-wrap: break-word !important;
     }
 
-    /* 隐藏侧边栏的隐藏按钮 - 更全面的选择器（但确保不影响侧边栏内容） */
+    /* 允许侧边栏折叠/展开按钮显示，但优化其样式 */
     section[data-testid="stSidebar"] button[kind="header"],
     section[data-testid="stSidebar"] button[data-testid="collapsedControl"],
-    section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
-    section[data-testid="stSidebar"] button[aria-label="Open sidebar"],
-    section[data-testid="stSidebar"] [data-testid="collapsedControl"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
+    button[aria-label="Close sidebar"],
+    button[aria-label="Open sidebar"],
+    [data-testid="collapsedControl"] {
+        /* 保留按钮可见，但优化样式 */
+        z-index: 1000 !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 4px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    }
+    
+    /* 当侧边栏折叠时，确保展开按钮在主内容区域可见 */
+    button[aria-label="Open sidebar"] {
+        position: fixed !important;
+        left: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 999 !important;
+        width: 40px !important;
+        height: 60px !important;
+        border-radius: 0 8px 8px 0 !important;
     }
     
     /* 确保侧边栏本身和内容可见 */
@@ -879,77 +894,107 @@ def main():
     </style>
 
     <script>
-    // JavaScript来强制隐藏侧边栏按钮（但确保不影响侧边栏内容）
-    let sidebarButtonsHidden = false;
-    function hideSidebarButtons() {
-        // 只隐藏侧边栏内的控制按钮，不影响内容
+    // 检测侧边栏状态并添加展开按钮
+    function initSidebarToggle() {
         const sidebar = document.querySelector('section[data-testid="stSidebar"]');
         if (!sidebar) return;
         
-        // 如果已经隐藏过，就不再执行，避免影响新添加的内容
-        if (sidebarButtonsHidden) return;
-        
-        const selectors = [
-            'button[kind="header"]',
-            'button[data-testid="collapsedControl"]',
-            'button[aria-label="Close sidebar"]',
-            'button[aria-label="Open sidebar"]',
-            '[data-testid="collapsedControl"]'
-        ];
-
-        let hiddenCount = 0;
-        selectors.forEach(selector => {
-            // 只在侧边栏内部查找
-            const elements = sidebar.querySelectorAll(selector);
-            elements.forEach(el => {
-                // 确保不是selectbox或其他功能按钮
-                if (!el.closest('.stSelectbox') && 
-                    !el.closest('.stButton') && 
-                    !el.closest('.element-container') &&
-                    !el.closest('form')) {
-                    el.style.display = 'none';
-                    el.style.visibility = 'hidden';
-                    el.style.opacity = '0';
-                    el.style.pointerEvents = 'none';
-                    hiddenCount++;
+        // 检测侧边栏是否折叠
+        function checkSidebarState() {
+            const isCollapsed = sidebar.classList.contains('css-1d391kg') || 
+                               sidebar.style.width === '0px' ||
+                               getComputedStyle(sidebar).width === '0px' ||
+                               sidebar.offsetWidth === 0;
+            
+            // 查找或创建展开按钮
+            let expandButton = document.getElementById('sidebar-expand-button');
+            
+            if (isCollapsed) {
+                // 侧边栏被折叠，显示展开按钮
+                if (!expandButton) {
+                    expandButton = document.createElement('button');
+                    expandButton.id = 'sidebar-expand-button';
+                    expandButton.innerHTML = '☰';
+                    expandButton.title = '展开侧边栏';
+                    expandButton.style.cssText = `
+                        position: fixed;
+                        left: 0;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        z-index: 999;
+                        width: 40px;
+                        height: 60px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 0 8px 8px 0;
+                        cursor: pointer;
+                        font-size: 20px;
+                        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    `;
+                    expandButton.onmouseover = function() {
+                        this.style.width = '50px';
+                        this.style.background = 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)';
+                    };
+                    expandButton.onmouseout = function() {
+                        this.style.width = '40px';
+                        this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    };
+                    expandButton.onclick = function() {
+                        // 触发侧边栏展开
+                        const toggleButton = document.querySelector('button[data-testid="collapsedControl"], button[kind="header"]');
+                        if (toggleButton) {
+                            toggleButton.click();
+                        } else {
+                            // 如果没有找到按钮，直接修改侧边栏样式
+                            sidebar.style.width = '';
+                            sidebar.style.display = '';
+                            sidebar.classList.remove('css-1d391kg');
+                        }
+                    };
+                    document.body.appendChild(expandButton);
                 }
-            });
-        });
-        
-        // 确保侧边栏本身和内容可见
-        sidebar.style.display = 'block';
-        sidebar.style.visibility = 'visible';
-        sidebar.style.opacity = '1';
-        
-        // 确保侧边栏内的所有内容元素可见
-        const contentSelectors = [
-            '.stSelectbox',
-            '.stMarkdown',
-            'h1', 'h2', 'h3',
-            '.element-container',
-            'form'
-        ];
-        contentSelectors.forEach(sel => {
-            const elements = sidebar.querySelectorAll(sel);
-            elements.forEach(el => {
-                el.style.display = '';
-                el.style.visibility = 'visible';
-                el.style.opacity = '1';
-            });
-        });
-        
-        // 如果隐藏了按钮，标记为已隐藏
-        if (hiddenCount > 0) {
-            sidebarButtonsHidden = true;
+                expandButton.style.display = 'flex';
+            } else {
+                // 侧边栏展开，隐藏展开按钮
+                if (expandButton) {
+                    expandButton.style.display = 'none';
+                }
+            }
         }
+        
+        // 初始检查
+        checkSidebarState();
+        
+        // 监听侧边栏变化（使用MutationObserver）
+        const observer = new MutationObserver(checkSidebarState);
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class', 'style'],
+            childList: false,
+            subtree: false
+        });
+        
+        // 定期检查（作为备用）
+        setInterval(checkSidebarState, 500);
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', checkSidebarState);
     }
 
-    // 页面加载后执行（只执行一次）
+    // 页面加载后初始化
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', hideSidebarButtons);
+        document.addEventListener('DOMContentLoaded', initSidebarToggle);
     } else {
-        hideSidebarButtons();
+        initSidebarToggle();
     }
+    
+    // 延迟执行以确保侧边栏已渲染
+    setTimeout(initSidebarToggle, 1000);
 
     // 强制修改页面边距为8px
     function forceOptimalPadding() {
