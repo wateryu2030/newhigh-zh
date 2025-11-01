@@ -595,6 +595,35 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
                         'event_type': 'web_analysis_error'
                     }, exc_info=True)
 
+        # 提取错误代码和详细信息
+        error_str = str(e)
+        error_code = None
+        error_details = {}
+        
+        # 尝试解析JSON错误（如OpenAI API错误）
+        try:
+            import json
+            if "error code:" in error_str.lower():
+                # 提取错误代码
+                parts = error_str.split("error code:", 1)
+                if len(parts) > 1:
+                    code_part = parts[1].strip().split()[0]
+                    error_code = code_part
+                
+                # 尝试提取JSON部分
+                if "{" in error_str and "}" in error_str:
+                    json_start = error_str.find("{")
+                    json_end = error_str.rfind("}") + 1
+                    json_str = error_str[json_start:json_end]
+                    error_details = json.loads(json_str)
+        except:
+            pass
+        
+        # 构建详细的错误信息
+        error_reason = f"分析失败: {error_str}"
+        if error_code:
+            error_reason = f"分析失败 (错误代码: {error_code}): {error_str}"
+        
         # 如果真实分析失败，返回错误信息而不是误导性演示数据
         return {
             'stock_symbol': stock_symbol,
@@ -606,9 +635,11 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             'state': {},  # 空状态，将显示占位符
             'decision': {},  # 空决策
             'success': False,
-            'error': str(e),
+            'error': error_str,
+            'error_code': error_code,
+            'error_details': error_details,
             'is_demo': False,
-            'error_reason': f"分析失败: {str(e)}"
+            'error_reason': error_reason
         }
 
 def format_analysis_results(results):

@@ -56,7 +56,117 @@ def render_results(results):
     # 如果分析失败，显示错误信息
     if not success and error:
         st.error(f"❌ **分析失败**: {error}")
-        st.info("💡 **解决方案**: 请检查API密钥配置，确保网络连接正常，然后重新运行分析。")
+        
+        # 根据错误类型提供针对性的解决方案
+        error_lower = error.lower() if error else ""
+        
+        # 402错误：余额不足
+        if "402" in error or "insufficient balance" in error_lower or "余额不足" in error:
+            st.warning("""
+            ⚠️ **API余额不足**
+            
+            您的OpenAI账户余额不足，无法继续使用该服务。
+            """)
+            
+            with st.expander("🔧 解决方案", expanded=True):
+                st.markdown("""
+                ### 方案1：充值OpenAI账户（推荐）
+                1. 访问 [OpenAI Platform](https://platform.openai.com/)
+                2. 登录您的账户
+                3. 进入 **Billing** → **Payment methods**
+                4. 添加支付方式并充值
+                5. 等待几分钟后重试
+                
+                ### 方案2：使用备用LLM提供商
+                系统支持多个LLM提供商，可以在侧边栏切换：
+                
+                **可用提供商：**
+                - ✅ **阿里百炼 (Dashscope)** - 推荐，国内稳定
+                  - 模型：`qwen-plus`, `qwen-max`
+                  - 配置：`.env` 文件中的 `DASHSCOPE_API_KEY`
+                
+                - ✅ **Anthropic Claude**
+                  - 模型：`claude-3-5-sonnet`
+                  - 配置：`.env` 文件中的 `ANTHROPIC_API_KEY`
+                
+                - ✅ **DeepSeek** - 国产替代
+                  - 配置：`.env` 文件中的 `DEEPSEEK_API_KEY`
+                
+                **切换方法：**
+                1. 在侧边栏找到 **"AI模型配置"**
+                2. 选择 **"LLM提供商"** → 选择其他提供商（如：Dashscope）
+                3. 选择对应的模型
+                4. 重新运行分析
+                
+                ### 方案3：检查其他配置
+                - 确认 `.env` 文件中的其他API密钥配置正确
+                - 检查网络连接
+                - 查看控制台日志获取详细错误信息
+                """)
+            
+            # 显示当前API状态
+            try:
+                import os
+                providers = []
+                if os.getenv("DASHSCOPE_API_KEY"):
+                    providers.append("✅ 阿里百炼 (Dashscope)")
+                if os.getenv("ANTHROPIC_API_KEY"):
+                    providers.append("✅ Anthropic Claude")
+                if os.getenv("DEEPSEEK_API_KEY"):
+                    providers.append("✅ DeepSeek")
+                
+                if providers:
+                    st.info(f"""
+                    💡 **检测到其他可用的LLM提供商：**
+                    {chr(10).join(providers)}
+                    
+                    请切换到这些提供商继续使用服务。
+                    """)
+                else:
+                    st.warning("⚠️ 未检测到其他LLM提供商配置，建议配置备用提供商。")
+            except:
+                pass
+            
+        # 401错误：密钥无效
+        elif "401" in error or "unauthorized" in error_lower or "invalid api key" in error_lower:
+            st.warning("""
+            ⚠️ **API密钥无效或已过期**
+            
+            **解决方案：**
+            1. 检查 `.env` 文件中的 `OPENAI_API_KEY` 是否正确
+            2. 确认API密钥未过期
+            3. 在 [OpenAI Platform](https://platform.openai.com/api-keys) 重新生成密钥
+            4. 更新 `.env` 文件并重启应用
+            """)
+        
+        # 429错误：频率限制
+        elif "429" in error or "rate limit" in error_lower or "too many requests" in error_lower:
+            st.warning("""
+            ⚠️ **API请求频率限制**
+            
+            **解决方案：**
+            1. 等待1-5分钟后重试
+            2. 减少请求频率
+            3. 升级OpenAI账户获取更高配额
+            4. 切换到其他LLM提供商
+            """)
+        
+        # 其他错误：通用提示
+        else:
+            st.info("""
+            💡 **通用解决方案：**
+            1. 检查API密钥配置（`.env` 文件）
+            2. 确保网络连接正常
+            3. 查看控制台日志获取详细错误
+            4. 尝试切换其他LLM提供商
+            5. 等待几分钟后重试
+            
+            **如果问题持续存在：**
+            - 查看 `logs/` 目录下的日志文件
+            - 检查API提供商的服务状态页面
+            - 联系技术支持
+            """)
+        
         return
 
     # 投资决策摘要
