@@ -10,8 +10,8 @@ from tradingagents.selection.scorer import calculate_alpha
 from tradingagents.portfolio.optimizer import PortfolioOptimizer
 from tradingagents.dataflows.stock_search import get_searcher
 
-st.set_page_config(page_title="智能选股", page_icon="🧠")
-st.title("🧠 智能选股系统")
+st.set_page_config(page_title="智能选股_量化版", page_icon="🧠")
+st.title("🧠 智能选股系统（量化分析版）")
 
 # 参数
 colA, colB, colC = st.columns(3)

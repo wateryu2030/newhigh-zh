@@ -18,7 +18,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 st.set_page_config(
-    page_title="智能选股（简化版）",
+    page_title="智能选股_简化版",
     page_icon="🧠",
     layout="wide"
 )
