@@ -400,6 +400,23 @@ def _fetch_with_tushare(adapter) -> pd.DataFrame:
         pro = adapter.provider.pro_api
         today = datetime.now().strftime('%Y%m%d')
         
+        print("  - 测试Tushare接口权限...")
+        
+        # 先测试基础接口是否可用
+        try:
+            test_basic = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name', limit=5)
+            if test_basic.empty:
+                raise Exception("stock_basic接口返回空数据")
+            print("  ✅ stock_basic接口可用")
+        except Exception as e:
+            error_msg = str(e)
+            if '权限' in error_msg or '积分' in error_msg:
+                print(f"  ⚠️  Tushare权限不足: {error_msg[:80]}")
+                print(f"  💡 请访问 https://tushare.pro 完成实名认证获取积分")
+                raise Exception("Tushare权限不足，需要实名认证")
+            else:
+                raise
+        
         print("  - 获取股票列表...")
         # 获取股票基本信息
         stock_list = pro.stock_basic(
@@ -414,38 +431,65 @@ def _fetch_with_tushare(adapter) -> pd.DataFrame:
         
         print(f"  ✅ 获取到 {len(stock_list)} 只股票基本信息")
         
-        print("  - 获取每日指标数据（PE、PB、市值）...")
+        print("  - 尝试获取每日指标数据（PE、PB、市值）...")
+        # 测试daily_basic接口是否可用
+        daily_basic_available = False
+        try:
+            test_daily = pro.daily_basic(trade_date=today, fields='ts_code,pe,pb', limit=5)
+            if not test_daily.empty:
+                daily_basic_available = True
+                print("  ✅ daily_basic接口可用，可以获取PE、PB、市值等数据")
+        except Exception as e:
+            error_msg = str(e)
+            if '权限' in error_msg or '积分' in error_msg:
+                print(f"  ⚠️  daily_basic接口需要更高权限或积分")
+                print(f"  💡 将只使用基础信息（代码和名称），PE、PB等数据将留空")
+                print(f"  💡 完成实名认证后可获取完整数据，访问：https://tushare.pro")
+            else:
+                print(f"  ⚠️  daily_basic接口测试失败: {error_msg[:80]}")
+        
         # 分批获取每日指标（包含PE、PB、市值）
         all_data = []
         batch_size = 500
-        today = datetime.now().strftime('%Y%m%d')
         
-        for i in range(0, len(stock_list), batch_size):
-            batch = stock_list.iloc[i:i+batch_size]
-            ts_codes = ','.join(batch['ts_code'].tolist())
-            
-            try:
-                # 获取每日指标
-                daily_basic = pro.daily_basic(
-                    trade_date=today,
-                    ts_code=ts_codes,
-                    fields='ts_code,pe,pb,ps,total_mv,circ_mv'
-                )
+        if daily_basic_available:
+            for i in range(0, len(stock_list), batch_size):
+                batch = stock_list.iloc[i:i+batch_size]
+                ts_codes = ','.join(batch['ts_code'].tolist())
                 
-                # 合并数据
-                merged = batch.merge(daily_basic, on='ts_code', how='left')
-                all_data.append(merged)
-                
-                # 控制请求频率（Tushare有频率限制）
-                if (i + batch_size) % 1000 == 0:
-                    print(f"  ⏳ 已处理 {i + batch_size}/{len(stock_list)} 只股票")
-                    time.sleep(0.5)  # 每1000只股票等待0.5秒
+                try:
+                    # 获取每日指标
+                    daily_basic = pro.daily_basic(
+                        trade_date=today,
+                        ts_code=ts_codes,
+                        fields='ts_code,pe,pb,ps,total_mv,circ_mv'
+                    )
                     
-            except Exception as e:
-                print(f"  ⚠️  批次 {i//batch_size + 1} 获取失败: {e}")
-                # 即使失败也保存基本信息
-                all_data.append(batch)
-                time.sleep(1)  # 失败后等待更长时间
+                    # 合并数据
+                    merged = batch.merge(daily_basic, on='ts_code', how='left')
+                    all_data.append(merged)
+                    
+                    # 控制请求频率（Tushare有频率限制）
+                    if (i + batch_size) % 1000 == 0:
+                        print(f"  ⏳ 已处理 {i + batch_size}/{len(stock_list)} 只股票")
+                        time.sleep(0.5)  # 每1000只股票等待0.5秒
+                        
+                except Exception as e:
+                    error_msg = str(e)
+                    if '权限' in error_msg or '积分' in error_msg:
+                        print(f"  ⚠️  批次 {i//batch_size + 1} 权限不足，使用基础信息")
+                        # 只保存基本信息
+                        all_data.append(batch)
+                        break  # 如果权限不足，不再尝试后续批次
+                    else:
+                        print(f"  ⚠️  批次 {i//batch_size + 1} 获取失败: {e}")
+                        # 即使失败也保存基本信息
+                        all_data.append(batch)
+                        time.sleep(1)  # 失败后等待更长时间
+        else:
+            # 如果没有daily_basic权限，只使用基础信息
+            print("  ℹ️  仅使用基础信息（无PE、PB、市值数据）")
+            all_data = [stock_list]
         
         # 合并所有数据
         if all_data:
@@ -478,11 +522,26 @@ def _fetch_with_tushare(adapter) -> pd.DataFrame:
                 if col not in result.columns:
                     result[col] = None
             
+            # 填充PE、PB等字段（如果权限不足可能为空）
+            for col in ['pe', 'pb', 'ps', 'market_cap', 'float_cap']:
+                if col not in result.columns:
+                    result[col] = None
+            
             print(f"  ✅ Tushare数据获取完成，共 {len(result)} 条记录")
             print(f"  📊 数据完整性：")
-            print(f"     - 有PE数据: {result['pe'].notna().sum()} 只")
-            print(f"     - 有PB数据: {result['pb'].notna().sum()} 只")
-            print(f"     - 有市值数据: {result['market_cap'].notna().sum()} 只")
+            
+            # 检查数据完整性
+            has_pe = result['pe'].notna().sum() if 'pe' in result.columns else 0
+            has_pb = result['pb'].notna().sum() if 'pb' in result.columns else 0
+            has_mv = result['market_cap'].notna().sum() if 'market_cap' in result.columns else 0
+            
+            print(f"     - 有PE数据: {has_pe} 只")
+            print(f"     - 有PB数据: {has_pb} 只")
+            print(f"     - 有市值数据: {has_mv} 只")
+            
+            if has_pe == 0 and has_pb == 0 and has_mv == 0:
+                print(f"  ⚠️  警告：获取的数据不完整（只有代码和名称）")
+                print(f"  💡 建议：登录 https://tushare.pro 完成实名认证以获取完整数据")
             
             return result
         else:
