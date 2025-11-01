@@ -64,11 +64,52 @@ class BacktestEngine:
         return True
 
     def calculate_signals(self, data: pd.DataFrame) -> List[Dict[str, Any]]:
+        """
+        计算交易信号（可被外部策略覆盖）
+        
+        Args:
+            data: 股票数据DataFrame
+        
+        Returns:
+            信号列表
+        """
         if len(data) < 2:
             return []
+        
+        # 如果数据包含signal列，使用该信号
+        if 'signal' in data.columns:
+            signals = []
+            for idx, row in data.iterrows():
+                signal_val = row.get('signal', 0)
+                if signal_val == 1:  # 买入
+                    signals.append({
+                        'side': 'BUY',
+                        'price': float(row.get('close', 0)),
+                        'qty': 100,
+                        'row': row.to_dict()
+                    })
+                elif signal_val == -1:  # 卖出
+                    signals.append({
+                        'side': 'SELL',
+                        'price': float(row.get('close', 0)),
+                        'qty': 100,
+                        'row': row.to_dict()
+                    })
+            return signals
+        
+        # 默认：简单的价格趋势信号
         last = data.iloc[-1].to_dict()
+        prev = data.iloc[-2].to_dict() if len(data) >= 2 else last
+        
         price = float(last.get('close', 10))
-        return [{'side': 'BUY', 'price': price, 'qty': 100, 'row': last}]
+        prev_price = float(prev.get('close', price))
+        
+        if price > prev_price * 1.01:  # 上涨超过1%
+            return [{'side': 'BUY', 'price': price, 'qty': 100, 'row': last}]
+        elif price < prev_price * 0.99:  # 下跌超过1%
+            return [{'side': 'SELL', 'price': price, 'qty': 100, 'row': last}]
+        
+        return []
 
     def place_order(self, signal: Dict[str, Any]) -> None:
         side = signal.get('side')
