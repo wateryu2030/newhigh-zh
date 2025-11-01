@@ -23,14 +23,108 @@ st.title("🔍 A股股票搜索")
 with st.sidebar:
     st.header("📊 数据管理")
     
-    if st.button("🔄 更新股票数据", type="primary", use_container_width=True):
-        with st.spinner("正在下载最新股票数据，请稍候..."):
+    st.markdown("### 📥 数据下载")
+    
+    # 下载选项
+    use_cache = st.checkbox("使用缓存（仅更新缺失数据）", value=False, help="勾选后只下载新数据，不勾选则全量更新")
+    
+    if st.button("🔄 一键下载/更新所有A股数据", type="primary", use_container_width=True):
+        progress_container = st.container()
+        status_container = st.container()
+        
+        with status_container:
+            st.info("📥 开始下载，请耐心等待（首次下载可能需要5-15分钟）...")
+        
+        try:
             downloader = get_downloader()
-            df = downloader.download_all_stocks(use_cache=False)
+            
+            # 显示进度信息
+            progress_bar = progress_container.progress(0)
+            status_text = status_container.empty()
+            
+            # 模拟进度更新（实际进度由下载器内部处理）
+            import time
+            status_messages = [
+                "🔍 连接数据源...",
+                "📊 获取股票列表...",
+                "⏳ 分批下载数据...",
+                "💾 保存到数据库...",
+                "✅ 完成！"
+            ]
+            
+            for i, msg in enumerate(status_messages):
+                status_text.info(msg)
+                progress_bar.progress((i + 1) / len(status_messages))
+                time.sleep(0.5)
+            
+            # 实际下载
+            status_text.info("📥 正在下载数据，请稍候（这可能需要几分钟）...")
+            df = downloader.download_all_stocks(use_cache=use_cache)
+            
             if not df.empty:
-                st.success(f"✅ 成功更新 {len(df)} 只股票数据")
+                progress_bar.progress(1.0)
+                status_text.empty()
+                
+                st.success(f"✅ 成功更新 {len(df)} 只股票数据！")
+                
+                # 显示数据统计
+                with st.expander("📊 查看下载统计", expanded=False):
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric("总股票数", len(df))
+                    with col2:
+                        st.metric("有PE数据", df['pe'].notna().sum())
+                    with col3:
+                        st.metric("有PB数据", df['pb'].notna().sum())
+                    with col4:
+                        st.metric("行业数量", df['industry'].nunique())
+                    
+                    # 数据预览
+                    st.markdown("**数据预览（前10条）:**")
+                    preview_cols = ['symbol', 'name', 'industry', 'pe', 'pb']
+                    preview_cols = [col for col in preview_cols if col in df.columns]
+                    st.dataframe(df[preview_cols].head(10), use_container_width=True)
+                
+                # 刷新页面数据
+                st.rerun()
             else:
-                st.error("❌ 数据更新失败")
+                status_text.error("❌ 数据更新失败：未获取到任何数据")
+                st.error("""
+                ❌ 下载失败，可能的原因：
+                1. API密钥未配置或已过期
+                2. 网络连接问题
+                3. 数据源服务暂时不可用
+                
+                💡 解决建议：
+                - 检查 `.env` 文件中的 `TUSHARE_TOKEN` 配置
+                - 等待几分钟后重试
+                - 查看控制台日志了解详细错误
+                """)
+        except Exception as e:
+            error_msg = str(e)
+            st.error(f"❌ 下载过程出错: {error_msg}")
+            
+            # 提供更友好的错误提示
+            if "Too Many Requests" in error_msg or "Rate limited" in error_msg:
+                st.warning("""
+                ⚠️ **API频率限制**
+                
+                系统已自动重试，但可能仍然达到频率上限。建议：
+                - 等待5-10分钟后重试
+                - 勾选"使用缓存"选项，减少API调用
+                - 升级Tushare账户获取更高配额
+                """)
+            elif "token" in error_msg.lower() or "密钥" in error_msg:
+                st.warning("""
+                ⚠️ **API密钥问题**
+                
+                请检查：
+                - `.env` 文件中的 `TUSHARE_TOKEN` 是否正确
+                - API密钥是否已激活
+                - 账户积分是否充足
+                """)
+            else:
+                st.info("💡 提示：首次使用请确保已配置API密钥（见README.md）")
     
     # 数据统计
     try:

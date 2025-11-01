@@ -155,22 +155,100 @@ class AShareDownloader:
             return self._download_fallback()
 
     def _download_fallback(self) -> pd.DataFrame:
-        """备用下载方法（使用AKShare等）"""
+        """
+        备用下载方法（使用AKShare等）
+        优化：批量获取，减少API调用
+        """
         try:
             import akshare as ak
             logger.info("📥 使用AKShare作为备用数据源...")
             
-            # 获取A股股票列表
+            # 方法1：尝试使用 spot_em 接口（更快，一次性获取所有A股实时数据）
+            try:
+                logger.info("📊 尝试使用 ak.stock_zh_a_spot_em() 批量获取...")
+                stock_spot = ak.stock_zh_a_spot_em()
+                
+                if not stock_spot.empty:
+                    logger.info(f"✅ 通过spot接口获取到 {len(stock_spot)} 只股票")
+                    
+                    # 映射列名
+                    column_mapping = {
+                        '代码': 'symbol',
+                        '名称': 'name',
+                        '最新价': 'close',
+                        '涨跌幅': 'pct_chg',
+                        '涨跌额': 'change',
+                        '成交量': 'volume',
+                        '成交额': 'amount',
+                        '市盈率-动态': 'pe',
+                        '市净率': 'pb',
+                        '总市值': 'total_mv',
+                        '流通市值': 'circ_mv'
+                    }
+                    
+                    result = pd.DataFrame()
+                    for old_col, new_col in column_mapping.items():
+                        if old_col in stock_spot.columns:
+                            result[new_col] = stock_spot[old_col]
+                    
+                    # 如果没有从spot获取到行业，尝试从其他接口
+                    if 'industry' not in result.columns:
+                        # 获取行业信息（可选，较慢）
+                        logger.info("📊 获取行业信息...")
+                        try:
+                            # 使用股票信息接口批量获取行业
+                            stock_info_all = ak.stock_info_a_code_name()
+                            # 合并行业信息（如果有）
+                            # 注意：这个接口可能不包含行业，需要逐个查询
+                            # 为了速度，我们跳过详细行业获取，使用空值
+                            result['industry'] = ''
+                        except:
+                            result['industry'] = ''
+                    
+                    # 补齐标准列
+                    if 'ts_code' not in result.columns:
+                        result['ts_code'] = result['symbol'].apply(lambda x: f"{x}.SH" if x.startswith('6') else f"{x}.SZ")
+                    if 'area' not in result.columns:
+                        result['area'] = ''
+                    if 'market' not in result.columns:
+                        result['market'] = result['symbol'].apply(lambda x: 'SH' if x.startswith('6') else 'SZ')
+                    if 'list_date' not in result.columns:
+                        result['list_date'] = ''
+                    if 'pe' not in result.columns:
+                        result['pe'] = None
+                    if 'pb' not in result.columns:
+                        result['pb'] = None
+                    if 'total_mv' not in result.columns:
+                        result['total_mv'] = None
+                    if 'circ_mv' not in result.columns:
+                        result['circ_mv'] = None
+                    
+                    result['update_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    # 保存到数据库
+                    self.save_to_db(result)
+                    logger.info(f"✅ 使用AKShare spot接口下载了 {len(result)} 只股票数据")
+                    return result[['ts_code', 'symbol', 'name', 'area', 'industry', 'market', 
+                                  'list_date', 'pe', 'pb', 'total_mv', 'circ_mv', 'update_time']]
+            
+            except Exception as e:
+                logger.warning(f"⚠️ spot接口失败，尝试基础接口: {e}")
+            
+            # 方法2：降级到基础接口
+            logger.info("📊 使用基础接口 ak.stock_info_a_code_name()...")
             stock_info = ak.stock_info_a_code_name()
             
             if stock_info.empty:
+                logger.error("❌ AKShare基础接口也返回空数据")
                 return pd.DataFrame()
+            
+            logger.info(f"✅ 获取到 {len(stock_info)} 只股票基本信息")
             
             # 重命名列以匹配标准格式
             result = pd.DataFrame({
                 'ts_code': '',
-                'symbol': stock_info['code'],
-                'name': stock_info['name'],
+                'symbol': stock_info['code'] if 'code' in stock_info.columns else stock_info.iloc[:, 0],
+                'name': stock_info['name'] if 'name' in stock_info.columns else stock_info.iloc[:, 1],
                 'area': '',
                 'industry': '',
                 'market': '',
@@ -182,31 +260,29 @@ class AShareDownloader:
                 'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             })
             
-            # 尝试获取行业信息
-            try:
-                for idx, row in result.iterrows():
-                    code = row['symbol']
-                    try:
-                        # 获取个股基本信息
-                        info = ak.stock_individual_info_em(symbol=code)
-                        if not info.empty:
-                            industry = info[info['item'] == '行业']['value'].values
-                            if len(industry) > 0:
-                                result.loc[idx, 'industry'] = industry[0]
-                        time.sleep(0.1)  # 控制频率
-                    except:
-                        continue
-            except Exception as e:
-                logger.warning(f"⚠️ 获取行业信息失败: {e}")
+            # 填充ts_code和market
+            result['ts_code'] = result['symbol'].apply(
+                lambda x: f"{x}.SH" if str(x).startswith('6') else f"{x}.SZ"
+            )
+            result['market'] = result['symbol'].apply(
+                lambda x: 'SH' if str(x).startswith('6') else 'SZ'
+            )
+            
+            # 注意：为了速度，跳过逐个查询行业信息（5000+股票会非常慢）
+            # 如果需要行业信息，可以后续单独批量更新
+            logger.info("💡 提示：行业信息未获取（避免5000+次API调用），可使用后续接口补充")
             
             # 保存到数据库
             self.save_to_db(result)
             
-            logger.info(f"✅ 使用AKShare下载了 {len(result)} 只股票数据")
+            logger.info(f"✅ 使用AKShare基础接口下载了 {len(result)} 只股票数据")
             return result
             
+        except ImportError:
+            logger.error("❌ AKShare未安装，请运行: pip install akshare")
+            return pd.DataFrame()
         except Exception as e:
-            logger.error(f"❌ 备用下载方法也失败: {e}")
+            logger.error(f"❌ 备用下载方法失败: {e}", exc_info=True)
             return pd.DataFrame()
 
     def save_to_db(self, data: pd.DataFrame):
