@@ -83,8 +83,29 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
             def no_proxy_request(self, method, url, **kwargs):
                 # 强制设置不使用代理
                 kwargs['proxies'] = {'http': None, 'https': None}
-                # 注意：不设置trust_env，因为Session.request()不接受这个参数
-                # trust_env只在Session初始化时设置
+                
+                # 添加更真实的浏览器请求头，避免被识别为爬虫
+                if 'headers' not in kwargs or kwargs['headers'] is None:
+                    kwargs['headers'] = {}
+                
+                headers = kwargs['headers']
+                if 'User-Agent' not in headers or not headers.get('User-Agent'):
+                    headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                if 'Accept' not in headers:
+                    headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                if 'Accept-Language' not in headers:
+                    headers['Accept-Language'] = 'zh-CN,zh;q=0.9,en;q=0.8'
+                if 'Accept-Encoding' not in headers:
+                    headers['Accept-Encoding'] = 'gzip, deflate, br'
+                if 'Connection' not in headers:
+                    headers['Connection'] = 'close'  # 每次请求后关闭连接，避免连接复用问题
+                if 'Upgrade-Insecure-Requests' not in headers:
+                    headers['Upgrade-Insecure-Requests'] = '1'
+                
+                # 增加超时时间（对于大数据量请求）
+                if 'timeout' not in kwargs or kwargs.get('timeout') is None:
+                    kwargs['timeout'] = (10, 120)  # (连接超时, 读取超时) 秒
+                
                 return original_request(self, method, url, **kwargs)
             
             requests.Session.request = no_proxy_request
@@ -192,26 +213,41 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
         print(f"  ✅ 获取到 {len(code_name)} 条股票代码")
         
         # 在两次API调用之间添加延迟，避免请求过快
-        print("  - 等待 2 秒后获取实时数据（避免请求过快）...")
-        time.sleep(2)
+        print("  - 等待 5 秒后获取实时数据（避免请求过快，给服务器缓冲时间）...")
+        time.sleep(5)
         
         # 获取实时股票信息，包括最新价、市值等（带重试，最多5次）
-        print("  - 获取实时股票信息...")
-        spot = retry_on_error(
-            lambda: ak.stock_zh_a_spot_em(),
-            max_retries=5,
-            initial_delay=3  # 对于大数据量请求，初始延迟更长
-        )
-        print(f"  ✅ 获取到 {len(spot)} 条实时信息")
+        # 如果这个接口持续失败，会使用降级方案
+        print("  - 获取实时股票信息（包含价格、市值等）...")
+        print("  ⚠️  注意：此接口需要获取所有A股实时数据，可能需要较长时间...")
+        
+        spot = None
+        try:
+            spot = retry_on_error(
+                lambda: ak.stock_zh_a_spot_em(),
+                max_retries=5,
+                initial_delay=5  # 对于大数据量请求，初始延迟更长
+            )
+            print(f"  ✅ 获取到 {len(spot)} 条实时信息")
+        except Exception as e:
+            print(f"  ⚠️  实时数据接口失败: {e}")
+            print(f"  💡 使用降级方案：只使用基础信息（代码和名称）")
+            print(f"  💡 价格、市值等数据将留空，可后续单独获取")
+            spot = pd.DataFrame()  # 空DataFrame，后续合并时使用left join
         
         # 合并数据
         print("  - 合并数据...")
-        df = code_name.merge(
-            spot, 
-            left_on="code", 
-            right_on="代码", 
-            how="left"
-        )
+        if not spot.empty:
+            df = code_name.merge(
+                spot, 
+                left_on="code", 
+                right_on="代码", 
+                how="left"
+            )
+        else:
+            # 降级方案：只使用基础信息
+            df = code_name.copy()
+            print("  ℹ️  使用降级方案：仅包含股票代码和名称")
         
         # 字段清洗，重命名
         keep = {
@@ -240,6 +276,12 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
                 pass
         
         df = df.rename(columns=rename_dict)
+        
+        # 如果使用了降级方案，确保所有期望的列都存在（即使为空）
+        for col in keep.values():
+            if col not in df.columns:
+                df[col] = None
+                print(f"  ℹ️  添加空列: {col}（降级方案）")
         
         # 尝试获取财务指标（ROE等）
         print("  - 尝试获取财务指标（ROE等）...")
