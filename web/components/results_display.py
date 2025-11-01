@@ -90,6 +90,27 @@ def render_results(results):
         # 根据错误类型提供针对性的解决方案
         error_lower = error.lower() if error else ""
         
+        # 递归限制错误
+        if "recursion limit" in error_lower or "递归限制" in error or "GRAPH_RECURSION_LIMIT" in error:
+            st.warning("""
+            ⚠️ **检测到递归限制错误**
+            
+            这表明分析过程比较复杂，需要更多的执行步骤。当前递归限制已设置为**300**。
+            
+            **解决方案：**
+            
+            1. **等待重试**：刷新页面后再次运行分析，有时可能是临时性的复杂情况
+            2. **简化分析**：减少分析师数量或降低研究深度
+            3. **联系管理员**：如果问题持续存在，可以联系管理员进一步增加递归限制
+            4. **查看日志**：检查应用日志以了解具体的执行步骤
+            
+            **说明：**
+            - 递归限制是一个安全机制，防止无限循环
+            - 复杂的分析（多个分析师、深度研究）可能需要更多步骤
+            - 当前限制：300步（已从默认的100增加到300）
+            """)
+            return  # 递归限制错误已处理，不需要继续显示其他错误信息
+        
         # 402错误：余额不足
         if "402" in error or "insufficient balance" in error_lower or "余额不足" in error:
             # 如果当前使用的是OpenAI，特别提示
