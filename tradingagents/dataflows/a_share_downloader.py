@@ -177,6 +177,11 @@ class AShareDownloader:
         # 禁用代理环境变量
         saved_proxy = self._disable_proxy_for_requests()
         
+        # 保存原始方法（在外部作用域）
+        original_request = None
+        original_get = None
+        original_post = None
+        
         # 修改requests库以彻底禁用代理
         try:
             import requests
@@ -227,11 +232,11 @@ class AShareDownloader:
             # 恢复原始方法（如果修改成功）
             try:
                 import requests
-                if 'original_request' in locals():
+                if original_request is not None:
                     requests.Session.request = original_request
-                if 'original_get' in locals():
+                if original_get is not None:
                     requests.get = original_get
-                if 'original_post' in locals():
+                if original_post is not None:
                     requests.post = original_post
             except:
                 pass
