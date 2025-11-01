@@ -717,23 +717,21 @@ def main():
         overflow-wrap: break-word !important;
     }
 
-    /* 允许侧边栏折叠/展开按钮显示，但优化其样式 */
-    section[data-testid="stSidebar"] button[kind="header"],
-    section[data-testid="stSidebar"] button[data-testid="collapsedControl"],
+    /* 确保Streamlit原生折叠/展开按钮始终可见和可用 */
+    button[data-testid="collapsedControl"],
     button[aria-label="Close sidebar"],
     button[aria-label="Open sidebar"],
-    [data-testid="collapsedControl"] {
-        /* 保留按钮可见，但优化样式 */
+    button[kind="header"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         z-index: 1000 !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 4px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+        position: relative !important;
     }
     
     /* 当侧边栏折叠时，确保展开按钮在主内容区域可见 */
-    button[aria-label="Open sidebar"] {
+    button[aria-label="Open sidebar"],
+    button[data-testid="collapsedControl"]:not([aria-label="Close sidebar"]) {
         position: fixed !important;
         left: 0 !important;
         top: 50% !important;
@@ -742,6 +740,14 @@ def main():
         width: 40px !important;
         height: 60px !important;
         border-radius: 0 8px 8px 0 !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     /* 确保侧边栏本身和内容可见 */
@@ -749,6 +755,9 @@ def main():
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
+        width: 320px !important;
+        min-width: 320px !important;
+        max-width: 320px !important;
     }
     
     /* 确保侧边栏内的所有内容元素可见 */
@@ -763,14 +772,20 @@ def main():
         visibility: visible !important;
         opacity: 1 !important;
     }
-
-    /* 隐藏侧边栏顶部区域的特定按钮（更精确的选择器，避免影响表单按钮） */
-    section[data-testid="stSidebar"] > div:first-child > button[kind="header"],
-    section[data-testid="stSidebar"] > div:first-child > div > button[kind="header"],
-    section[data-testid="stSidebar"] .css-1lcbmhc > button[kind="header"],
-    section[data-testid="stSidebar"] .css-1y4p8pa > button[kind="header"] {
-        display: none !important;
-        visibility: hidden !important;
+    
+    /* 当侧边栏折叠时（通过Streamlit的类或属性），确保展开按钮显示 */
+    section[data-testid="stSidebar"][class*="collapsed"],
+    section[data-testid="stSidebar"].css-1d391kg {
+        width: 0px !important;
+        min-width: 0px !important;
+        overflow: hidden !important;
+    }
+    
+    /* 确保折叠状态下的展开按钮仍然可见 */
+    section[data-testid="stSidebar"].css-1d391kg ~ button[aria-label="Open sidebar"],
+    section[data-testid="stSidebar"][class*="collapsed"] ~ button[aria-label="Open sidebar"] {
+        display: flex !important;
+        visibility: visible !important;
     }
 
     /* 调整侧边栏内容的padding */
@@ -894,28 +909,91 @@ def main():
     </style>
 
     <script>
-    // 检测侧边栏状态并添加展开按钮
+    // 确保侧边栏可见并添加展开按钮
     function initSidebarToggle() {
-        const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-        if (!sidebar) return;
-        
-        // 检测侧边栏是否折叠
-        function checkSidebarState() {
+        // 确保侧边栏默认可见
+        function ensureSidebarVisible() {
+            const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+            if (!sidebar) {
+                // 如果侧边栏不存在，延迟重试
+                setTimeout(ensureSidebarVisible, 500);
+                return;
+            }
+            
+            // 强制显示侧边栏（如果不是折叠状态）
+            const computedStyle = window.getComputedStyle(sidebar);
             const isCollapsed = sidebar.classList.contains('css-1d391kg') || 
-                               sidebar.style.width === '0px' ||
-                               getComputedStyle(sidebar).width === '0px' ||
+                               computedStyle.width === '0px' ||
                                sidebar.offsetWidth === 0;
             
-            // 查找或创建展开按钮
+            // 确保侧边栏容器可见
+            sidebar.style.display = 'block';
+            sidebar.style.visibility = 'visible';
+            sidebar.style.opacity = '1';
+            
+            // 如果不是折叠状态，确保宽度正确
+            if (!isCollapsed) {
+                sidebar.style.width = '320px';
+                sidebar.style.minWidth = '320px';
+            }
+        }
+        
+        // 检测侧边栏状态并确保展开按钮可见
+        function checkSidebarState() {
+            const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+            if (!sidebar) return;
+            
+            // 检测侧边栏是否折叠 - 使用多种方法
+            const computedStyle = window.getComputedStyle(sidebar);
+            const width = computedStyle.width;
+            const isCollapsed = sidebar.classList.contains('css-1d391kg') || 
+                               width === '0px' ||
+                               parseInt(width) === 0 ||
+                               sidebar.offsetWidth === 0 ||
+                               sidebar.offsetWidth < 10;
+            
+            console.log('侧边栏状态检测:', {
+                hasClass: sidebar.classList.contains('css-1d391kg'),
+                width: width,
+                offsetWidth: sidebar.offsetWidth,
+                isCollapsed: isCollapsed
+            });
+            
+            // 查找Streamlit原生的折叠/展开按钮
+            const nativeToggle = document.querySelector('button[data-testid="collapsedControl"]') ||
+                                 document.querySelector('button[aria-label="Close sidebar"]') ||
+                                 document.querySelector('button[aria-label="Open sidebar"]');
+            
+            if (nativeToggle) {
+                // 确保原生按钮可见
+                nativeToggle.style.display = 'flex';
+                nativeToggle.style.visibility = 'visible';
+                nativeToggle.style.opacity = '1';
+                nativeToggle.style.zIndex = '1000';
+                
+                // 如果是展开按钮且侧边栏折叠，确保按钮位置正确
+                if (isCollapsed && (nativeToggle.getAttribute('aria-label') === 'Open sidebar' || 
+                                    !nativeToggle.getAttribute('aria-label'))) {
+                    nativeToggle.style.position = 'fixed';
+                    nativeToggle.style.left = '0';
+                    nativeToggle.style.top = '50%';
+                    nativeToggle.style.transform = 'translateY(-50%)';
+                    nativeToggle.style.width = '40px';
+                    nativeToggle.style.height = '60px';
+                }
+            }
+            
+            // 查找或创建自定义展开按钮（作为备用）
             let expandButton = document.getElementById('sidebar-expand-button');
             
             if (isCollapsed) {
-                // 侧边栏被折叠，显示展开按钮
-                if (!expandButton) {
+                // 侧边栏被折叠，显示展开按钮（如果原生按钮不可用）
+                if (!expandButton && (!nativeToggle || nativeToggle.offsetParent === null)) {
                     expandButton = document.createElement('button');
                     expandButton.id = 'sidebar-expand-button';
                     expandButton.innerHTML = '☰';
                     expandButton.title = '展开侧边栏';
+                    expandButton.setAttribute('aria-label', 'Open sidebar');
                     expandButton.style.cssText = `
                         position: fixed;
                         left: 0;
@@ -944,61 +1022,64 @@ def main():
                         this.style.width = '40px';
                         this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                     };
-                    expandButton.onclick = function() {
-                        // 方法1: 查找Streamlit的折叠/展开按钮
-                        const toggleButton = document.querySelector('button[data-testid="collapsedControl"], button[aria-label="Close sidebar"], button[aria-label="Open sidebar"], button[kind="header"]');
-                        if (toggleButton) {
-                            toggleButton.click();
+                    expandButton.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // 优先使用原生按钮
+                        if (nativeToggle) {
+                            nativeToggle.click();
                         } else {
-                            // 方法2: 查找所有可能的按钮（通过样式或类名）
-                            const allButtons = document.querySelectorAll('button');
-                            let found = false;
-                            for (let btn of allButtons) {
-                                const ariaLabel = btn.getAttribute('aria-label');
-                                if (ariaLabel && (ariaLabel.includes('sidebar') || ariaLabel.includes('menu'))) {
-                                    btn.click();
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            
-                            // 方法3: 直接修改侧边栏样式
-                            if (!found) {
-                                sidebar.style.width = '';
-                                sidebar.style.display = '';
-                                sidebar.style.visibility = 'visible';
-                                sidebar.style.transform = '';
-                                sidebar.classList.remove('css-1d391kg');
-                                // 触发resize事件，让Streamlit重新计算布局
-                                window.dispatchEvent(new Event('resize'));
-                            }
+                            // 备用方案：直接修改侧边栏样式
+                            sidebar.style.width = '320px';
+                            sidebar.style.minWidth = '320px';
+                            sidebar.style.display = 'block';
+                            sidebar.style.visibility = 'visible';
+                            sidebar.classList.remove('css-1d391kg');
+                            // 触发resize事件
+                            window.dispatchEvent(new Event('resize'));
                         }
                     };
                     document.body.appendChild(expandButton);
+                    console.log('创建了自定义展开按钮');
+                } else if (expandButton) {
+                    expandButton.style.display = 'flex';
                 }
-                expandButton.style.display = 'flex';
             } else {
-                // 侧边栏展开，隐藏展开按钮
+                // 侧边栏展开，隐藏自定义展开按钮（保留原生按钮）
                 if (expandButton) {
                     expandButton.style.display = 'none';
                 }
             }
         }
         
+        // 确保侧边栏可见
+        ensureSidebarVisible();
+        
         // 初始检查
         checkSidebarState();
         
-        // 监听侧边栏变化（使用MutationObserver）
-        const observer = new MutationObserver(checkSidebarState);
-        observer.observe(sidebar, {
-            attributes: true,
-            attributeFilter: ['class', 'style'],
-            childList: false,
-            subtree: false
-        });
+        // 延迟再次检查，确保DOM完全加载
+        setTimeout(checkSidebarState, 500);
+        setTimeout(checkSidebarState, 1000);
+        setTimeout(checkSidebarState, 2000);
         
-        // 定期检查（作为备用）
-        setInterval(checkSidebarState, 500);
+        // 监听侧边栏变化
+        const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        if (sidebar) {
+            const observer = new MutationObserver(function(mutations) {
+                checkSidebarState();
+            });
+            observer.observe(sidebar, {
+                attributes: true,
+                attributeFilter: ['class', 'style'],
+                childList: true,
+                subtree: false
+            });
+            
+            // 定期检查（作为备用）
+            setInterval(checkSidebarState, 1000);
+        }
         
         // 监听窗口大小变化
         window.addEventListener('resize', checkSidebarState);
@@ -1012,7 +1093,9 @@ def main():
     }
     
     // 延迟执行以确保侧边栏已渲染
+    setTimeout(initSidebarToggle, 500);
     setTimeout(initSidebarToggle, 1000);
+    setTimeout(initSidebarToggle, 2000);
 
     // 强制修改页面边距为8px
     function forceOptimalPadding() {
