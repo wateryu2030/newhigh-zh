@@ -57,11 +57,48 @@ def render_results(results):
     if not success and error:
         st.error(f"❌ **分析失败**: {error}")
         
+        # 显示当前使用的LLM提供商（从results中获取）
+        current_provider = results.get('llm_provider', st.session_state.get('llm_provider', 'unknown'))
+        current_model = results.get('llm_model', st.session_state.get('llm_model', 'unknown'))
+        
+        # 使用检查器获取详细信息
+        try:
+            from utils.llm_provider_checker import LLMProviderChecker, get_current_provider_info
+            current_info = get_current_provider_info()
+            if current_info['provider'] != 'unknown':
+                current_provider = current_info['provider']
+                current_model = current_info['model']
+        except:
+            pass
+        
+        if current_provider != 'unknown':
+            provider_names = {
+                'dashscope': '🇨🇳 阿里百炼 (Dashscope)',
+                'openai': '🤖 OpenAI',
+                'anthropic': '🤖 Anthropic Claude',
+                'deepseek': '🚀 DeepSeek',
+                'google': '🌟 Google AI'
+            }
+            provider_display = provider_names.get(current_provider, current_provider)
+            
+            # 如果使用的是OpenAI且出现402错误，特别标注
+            if current_provider == "openai" and ("402" in error or "insufficient balance" in error.lower()):
+                st.error(f"📊 **当前使用的LLM**: {provider_display} - {current_model} ⚠️ **余额不足**")
+            else:
+                st.info(f"📊 **当前使用的LLM**: {provider_display} - {current_model}")
+        
         # 根据错误类型提供针对性的解决方案
         error_lower = error.lower() if error else ""
         
         # 402错误：余额不足
         if "402" in error or "insufficient balance" in error_lower or "余额不足" in error:
+            # 如果当前使用的是OpenAI，特别提示
+            if current_provider == "openai":
+                st.error("""
+                ⚠️ **检测到您当前使用的是OpenAI，但账户余额不足！**
+                
+                **建议立即切换到Dashscope继续使用。**
+                """)
             st.warning("""
             ⚠️ **API余额不足**
             
@@ -104,7 +141,7 @@ def render_results(results):
                 - 查看控制台日志获取详细错误信息
                 """)
             
-            # 显示当前API状态
+            # 显示当前API状态和快速切换按钮
             try:
                 import os
                 providers = []
@@ -119,9 +156,40 @@ def render_results(results):
                     st.info(f"""
                     💡 **检测到其他可用的LLM提供商：**
                     {chr(10).join(providers)}
-                    
-                    请切换到这些提供商继续使用服务。
                     """)
+                    
+                    # 如果检测到Dashscope，提供一键切换按钮
+                    if os.getenv("DASHSCOPE_API_KEY"):
+                        st.markdown("---")
+                        st.markdown("### 🚀 快速切换")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            if st.button("🔄 切换到Dashscope", type="primary", use_container_width=True):
+                                # 更新session state
+                                st.session_state.llm_provider = "dashscope"
+                                st.session_state.llm_model = "qwen-plus-latest"
+                                
+                                # 保存到持久化存储
+                                try:
+                                    from components.sidebar import save_model_selection
+                                    save_model_selection("dashscope", "openai", "qwen-plus-latest")
+                                except:
+                                    pass
+                                
+                                st.success("✅ 已切换到Dashscope！请重新运行分析。")
+                                st.info("💡 提示：刷新页面后配置将生效，侧边栏会显示新的LLM提供商选择。")
+                                st.balloons()
+                        
+                        with col2:
+                            if st.button("📋 查看切换指南", use_container_width=True):
+                                st.info("""
+                                **切换步骤：**
+                                1. 在侧边栏找到「🧠 AI模型配置」
+                                2. 选择「LLM提供商」→ 「🇨🇳 阿里百炼」
+                                3. 选择模型（推荐：Plus - 平衡）
+                                4. 重新运行分析
+                                """)
                 else:
                     st.warning("⚠️ 未检测到其他LLM提供商配置，建议配置备用提供商。")
             except:
