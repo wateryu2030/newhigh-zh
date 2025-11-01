@@ -173,21 +173,50 @@ class AShareDownloader:
             os.environ[var] = value
     
     def _call_akshare_without_proxy(self, func, *args, **kwargs):
-        """调用akshare函数时禁用代理"""
+        """调用akshare函数时禁用代理（彻底禁用）"""
         # 禁用代理环境变量
         saved_proxy = self._disable_proxy_for_requests()
         
-        # 如果akshare使用requests，也禁用代理
+        # 修改requests库以彻底禁用代理
         try:
             import requests
-            # 临时修改requests以禁用代理
+            import urllib3
+            
+            # 禁用urllib3的代理检测
+            try:
+                urllib3.disable_warnings()
+            except:
+                pass
+            
+            # 修改requests.Session的request方法
             original_request = requests.Session.request
             def no_proxy_request(self, method, url, **kwargs):
+                # 强制设置不使用代理
                 kwargs['proxies'] = {'http': None, 'https': None}
+                # 移除trust_env（这会读取系统代理设置）
+                kwargs['trust_env'] = False
                 return original_request(self, method, url, **kwargs)
             requests.Session.request = no_proxy_request
-        except:
-            pass
+            
+            # 修改requests.get/post等快捷方法
+            original_get = requests.get
+            original_post = requests.post
+            
+            def patched_get(url, **kwargs):
+                kwargs['proxies'] = {'http': None, 'https': None}
+                kwargs['trust_env'] = False
+                return original_get(url, **kwargs)
+            
+            def patched_post(url, **kwargs):
+                kwargs['proxies'] = {'http': None, 'https': None}
+                kwargs['trust_env'] = False
+                return original_post(url, **kwargs)
+            
+            requests.get = patched_get
+            requests.post = patched_post
+            
+        except Exception as e:
+            logger.warning(f"⚠️ 设置无代理模式失败: {e}")
         
         try:
             result = func(*args, **kwargs)
@@ -195,10 +224,15 @@ class AShareDownloader:
         finally:
             # 恢复代理设置
             self._restore_proxy_for_requests(saved_proxy)
-            # 恢复原始方法
+            # 恢复原始方法（如果修改成功）
             try:
                 import requests
-                requests.Session.request = original_request
+                if 'original_request' in locals():
+                    requests.Session.request = original_request
+                if 'original_get' in locals():
+                    requests.get = original_get
+                if 'original_post' in locals():
+                    requests.post = original_post
             except:
                 pass
 
