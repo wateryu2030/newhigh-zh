@@ -223,7 +223,22 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         # 创建配置
         update_progress("配置分析参数...")
         config = DEFAULT_CONFIG.copy()
+        # 如果llm_provider未指定或为空，默认使用dashscope
+        if not llm_provider or llm_provider not in ['dashscope', 'deepseek', 'google', 'openai', 'openrouter', 'siliconflow', 'custom_openai', 'qianfan']:
+            llm_provider = "dashscope"
+            logger.info(f"🔧 [配置] LLM提供商未指定，使用默认: dashscope")
         config["llm_provider"] = llm_provider
+        # 如果llm_model未指定，根据提供商设置默认模型
+        if not llm_model:
+            if llm_provider == "dashscope":
+                llm_model = "qwen-plus-latest"
+            elif llm_provider == "deepseek":
+                llm_model = "deepseek-chat"
+            elif llm_provider == "openai":
+                llm_model = "gpt-4o-mini"
+            else:
+                llm_model = config.get("deep_think_llm", "qwen-plus-latest")
+            logger.info(f"🔧 [配置] LLM模型未指定，使用默认: {llm_model}")
         config["deep_think_llm"] = llm_model
         config["quick_think_llm"] = llm_model
         # 根据研究深度调整配置
