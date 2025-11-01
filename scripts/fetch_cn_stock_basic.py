@@ -60,53 +60,91 @@ def fetch_cn_stock_basic() -> pd.DataFrame:
     """
     print("📥 开始拉取A股基础资料...")
     
+    # 更彻底的代理禁用（修改requests和urllib3的全局配置）
+    def setup_no_proxy_requests():
+        """设置requests库不使用代理"""
+        try:
+            import requests
+            import urllib3
+            
+            # 1. 禁用环境变量中的代理
+            disable_proxy()
+            
+            # 2. 禁用urllib3的代理检测
+            try:
+                urllib3.disable_warnings()
+                # 设置urllib3不使用系统代理
+                urllib3.util.connection.HAS_IPV6 = False  # 避免某些代理检测
+            except:
+                pass
+            
+            # 3. 修改requests.Session的request方法（最核心的方法）
+            original_request = requests.Session.request
+            def no_proxy_request(self, method, url, **kwargs):
+                # 强制设置不使用代理
+                kwargs['proxies'] = {'http': None, 'https': None}
+                # 移除trust_env（这会读取系统代理设置）
+                kwargs['trust_env'] = False
+                return original_request(self, method, url, **kwargs)
+            
+            requests.Session.request = no_proxy_request
+            
+            # 4. 修改requests.get/post等快捷方法（它们也会创建Session）
+            original_get = requests.get
+            original_post = requests.post
+            
+            def patched_get(url, **kwargs):
+                kwargs['proxies'] = {'http': None, 'https': None}
+                kwargs['trust_env'] = False
+                return original_get(url, **kwargs)
+            
+            def patched_post(url, **kwargs):
+                kwargs['proxies'] = {'http': None, 'https': None}
+                kwargs['trust_env'] = False
+                return original_post(url, **kwargs)
+            
+            requests.get = patched_get
+            requests.post = patched_post
+            
+            # 5. 修改Session的默认配置
+            original_init = requests.Session.__init__
+            def new_init(self, *args, **kwargs):
+                original_init(self, *args, **kwargs)
+                self.proxies = {'http': None, 'https': None}
+                self.trust_env = False
+            
+            requests.Session.__init__ = new_init
+            
+            return True
+        except Exception as e:
+            print(f"  ⚠️ 设置无代理模式失败: {e}")
+            return False
+    
     # 重试装饰器
     def retry_on_error(func, max_retries=3, delay=2):
         """重试机制（自动处理代理错误）"""
+        # 设置无代理模式
+        setup_no_proxy_requests()
+        
         for attempt in range(max_retries):
             try:
-                # 确保代理已禁用
-                disable_proxy()
-                # 如果akshare使用requests，强制禁用代理
-                try:
-                    import requests
-                    # 临时修改requests的Session以禁用代理
-                    original_get = requests.Session.request
-                    def no_proxy_request(self, method, url, **kwargs):
-                        kwargs['proxies'] = {'http': None, 'https': None}
-                        return original_get(self, method, url, **kwargs)
-                    requests.Session.request = no_proxy_request
-                except:
-                    pass
-                
                 result = func()
-                
-                # 恢复原始方法
-                try:
-                    import requests
-                    requests.Session.request = original_get
-                except:
-                    pass
-                
                 return result
             except Exception as e:
                 error_msg = str(e).lower()
                 if attempt < max_retries - 1:
-                    if "proxy" in error_msg or "连接" in error_msg:
-                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败（代理/网络问题）: {e}")
+                    if "proxy" in error_msg or "连接" in error_msg or "disconnected" in error_msg:
+                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败（代理/网络问题）: {str(e)[:100]}")
                         print(f"  🔄 {delay} 秒后重试（已禁用代理）...")
+                        # 再次确保代理已禁用
+                        disable_proxy()
+                        setup_no_proxy_requests()
                     else:
-                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败: {e}")
+                        print(f"  ⚠️ 第 {attempt + 1} 次尝试失败: {str(e)[:100]}")
                         print(f"  🔄 {delay} 秒后重试...")
                     time.sleep(delay)
                     delay *= 2  # 指数退避
                 else:
-                    # 恢复原始方法
-                    try:
-                        import requests
-                        requests.Session.request = original_get
-                    except:
-                        pass
                     raise
     
     try:
