@@ -219,13 +219,15 @@ class AShareDownloader:
             requests.get = patched_get
             requests.post = patched_post
             
-            # 修改Session的初始化，在这里设置trust_env=False
+            # 修改Session的初始化
             original_init = requests.Session.__init__
             def new_init(self, *args, **kwargs):
-                # 在初始化时设置trust_env=False（这会阻止读取环境变量中的代理）
-                kwargs['trust_env'] = False
+                # 先正常初始化
                 original_init(self, *args, **kwargs)
-                # 同时设置默认proxies
+                # 然后设置属性（而不是通过参数）
+                if hasattr(self, 'trust_env'):
+                    self.trust_env = False
+                # 设置默认proxies
                 self.proxies = {'http': None, 'https': None}
             
             requests.Session.__init__ = new_init
