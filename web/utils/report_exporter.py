@@ -50,6 +50,10 @@ except ImportError:
     logger.warning(f"⚠️ Docker适配器不可用")
 
 # 导入导出相关库
+# 先初始化为False，确保变量一定被定义
+EXPORT_AVAILABLE = False
+PANDOC_AVAILABLE = False
+
 try:
     import markdown
     import re
