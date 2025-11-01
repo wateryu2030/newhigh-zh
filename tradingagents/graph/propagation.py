@@ -50,11 +50,20 @@ class Propagator:
 
     def get_graph_args(self) -> Dict[str, Any]:
         """Get arguments for the graph invocation."""
+        # LangGraph的config需要直接传递，而不是嵌套在字典中
         args = {
-            "stream_mode": "values",
             "config": {
                 "recursion_limit": self.max_recur_limit,
             },
         }
         logger.info(f"🔧 [Propagator] Graph配置 - recursion_limit: {self.max_recur_limit}")
         return args
+    
+    def get_stream_config(self) -> Dict[str, Any]:
+        """Get config for graph.stream (需要单独的stream_mode参数)."""
+        return {
+            "stream_mode": "values",
+            "config": {
+                "recursion_limit": self.max_recur_limit,
+            },
+        }

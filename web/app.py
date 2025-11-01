@@ -945,15 +945,33 @@ def main():
                         this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                     };
                     expandButton.onclick = function() {
-                        // 触发侧边栏展开
-                        const toggleButton = document.querySelector('button[data-testid="collapsedControl"], button[kind="header"]');
+                        // 方法1: 查找Streamlit的折叠/展开按钮
+                        const toggleButton = document.querySelector('button[data-testid="collapsedControl"], button[aria-label="Close sidebar"], button[aria-label="Open sidebar"], button[kind="header"]');
                         if (toggleButton) {
                             toggleButton.click();
                         } else {
-                            // 如果没有找到按钮，直接修改侧边栏样式
-                            sidebar.style.width = '';
-                            sidebar.style.display = '';
-                            sidebar.classList.remove('css-1d391kg');
+                            // 方法2: 查找所有可能的按钮（通过样式或类名）
+                            const allButtons = document.querySelectorAll('button');
+                            let found = false;
+                            for (let btn of allButtons) {
+                                const ariaLabel = btn.getAttribute('aria-label');
+                                if (ariaLabel && (ariaLabel.includes('sidebar') || ariaLabel.includes('menu'))) {
+                                    btn.click();
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            
+                            // 方法3: 直接修改侧边栏样式
+                            if (!found) {
+                                sidebar.style.width = '';
+                                sidebar.style.display = '';
+                                sidebar.style.visibility = 'visible';
+                                sidebar.style.transform = '';
+                                sidebar.classList.remove('css-1d391kg');
+                                // 触发resize事件，让Streamlit重新计算布局
+                                window.dispatchEvent(new Event('resize'));
+                            }
                         }
                     };
                     document.body.appendChild(expandButton);

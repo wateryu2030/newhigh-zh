@@ -354,22 +354,30 @@ class TradingAgentsGraph:
         )
         logger.debug(f"🔍 [GRAPH DEBUG] 初始状态中的company_of_interest: '{init_agent_state.get('company_of_interest', 'NOT_FOUND')}'")
         logger.debug(f"🔍 [GRAPH DEBUG] 初始状态中的trade_date: '{init_agent_state.get('trade_date', 'NOT_FOUND')}'")
-        args = self.propagator.get_graph_args()
         
-        # 验证递归限制是否正确传递
-        recursion_limit = args.get("config", {}).get("recursion_limit", 100)
-        logger.info(f"🔧 [Graph] 实际传递给graph的递归限制: {recursion_limit}")
+        # 获取配置并验证递归限制
+        config_dict = self.propagator.get_graph_args()["config"]
+        recursion_limit = config_dict.get("recursion_limit", 100)
+        
+        logger.info(f"🔧 [Graph] 准备使用的递归限制: {recursion_limit}")
+        logger.info(f"🔧 [Graph] Propagator的max_recur_limit: {self.propagator.max_recur_limit}")
+        
         if recursion_limit < 300:
             logger.error(f"❌ [Graph] 递归限制({recursion_limit})过低！这将导致分析失败")
-            logger.error(f"❌ [Graph] Propagator的max_recur_limit: {self.propagator.max_recur_limit}")
             # 强制设置
-            args["config"]["recursion_limit"] = self.propagator.max_recur_limit
-            logger.warning(f"⚠️ [Graph] 已强制修正递归限制为: {self.propagator.max_recur_limit}")
+            config_dict["recursion_limit"] = self.propagator.max_recur_limit
+            recursion_limit = self.propagator.max_recur_limit
+            logger.warning(f"⚠️ [Graph] 已强制修正递归限制为: {recursion_limit}")
+        
+        # 确保config格式正确：LangGraph需要config作为关键字参数直接传递
+        config = config_dict
 
         if self.debug:
             # Debug mode with tracing
             trace = []
-            for chunk in self.graph.stream(init_agent_state, **args):
+            stream_config = self.propagator.get_stream_config()
+            logger.info(f"🔧 [Graph Debug] Stream配置 - recursion_limit: {stream_config['config']['recursion_limit']}")
+            for chunk in self.graph.stream(init_agent_state, **stream_config):
                 if len(chunk["messages"]) == 0:
                     pass
                 else:
@@ -378,8 +386,9 @@ class TradingAgentsGraph:
 
             final_state = trace[-1]
         else:
-            # Standard mode without tracing
-            final_state = self.graph.invoke(init_agent_state, **args)
+            # Standard mode without tracing - 直接传递config作为关键字参数
+            logger.info(f"🔧 [Graph] 调用graph.invoke，config.recursion_limit={config.get('recursion_limit')}")
+            final_state = self.graph.invoke(init_agent_state, config=config)
 
         # Store current state for reflection
         self.curr_state = final_state
