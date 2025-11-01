@@ -215,12 +215,41 @@ class DataDownloader:
                         except:
                             pass
                     
-                    # 从API获取
-                    df = self.pro.daily(
-                        ts_code=code,
-                        start_date=start_date,
-                        end_date=end_date
-                    )
+                    # 从API获取（带重试）
+                    max_retries = 3
+                    df = None
+                    
+                    for attempt in range(max_retries):
+                        try:
+                            df = self.pro.daily(
+                                ts_code=code,
+                                start_date=start_date,
+                                end_date=end_date
+                            )
+                            
+                            # 成功获取数据，退出重试循环
+                            break
+                            
+                        except Exception as api_error:
+                            error_msg = str(api_error)
+                            
+                            # 检查是否是频率限制错误
+                            if "Too Many Requests" in error_msg or "Rate limited" in error_msg or "频率限制" in error_msg:
+                                if attempt < max_retries - 1:
+                                    # 指数退避：2秒、4秒、6秒
+                                    wait_time = 2 * (attempt + 1)
+                                    logger.warning(f"⏳ {code} 频率限制，等待{wait_time}秒后重试...")
+                                    time.sleep(wait_time)
+                                    continue
+                                else:
+                                    logger.error(f"❌ {code} 达到最大重试次数，跳过")
+                                    df = None
+                                    break
+                            else:
+                                # 其他错误，直接退出
+                                logger.error(f"❌ {code} API错误: {error_msg}")
+                                df = None
+                                break
                     
                     if df is not None and not df.empty:
                         # 标准化列名
@@ -237,8 +266,8 @@ class DataDownloader:
                         
                         all_data.append(df)
                     
-                    # 控制请求频率
-                    time.sleep(0.2)
+                    # 控制请求频率（Tushare要求间隔0.2秒以上）
+                    time.sleep(0.3)
                     
                 except Exception as e:
                     logger.warning(f"⚠️ {code} 下载失败: {e}")
