@@ -198,8 +198,8 @@ class AShareDownloader:
             def no_proxy_request(self, method, url, **kwargs):
                 # 强制设置不使用代理
                 kwargs['proxies'] = {'http': None, 'https': None}
-                # 移除trust_env（这会读取系统代理设置）
-                kwargs['trust_env'] = False
+                # 注意：不设置trust_env，因为Session.request()不接受这个参数
+                # trust_env只在Session初始化时设置
                 return original_request(self, method, url, **kwargs)
             requests.Session.request = no_proxy_request
             
@@ -209,16 +209,26 @@ class AShareDownloader:
             
             def patched_get(url, **kwargs):
                 kwargs['proxies'] = {'http': None, 'https': None}
-                kwargs['trust_env'] = False
+                # 注意：trust_env只对Session有效，不是request的参数
                 return original_get(url, **kwargs)
             
             def patched_post(url, **kwargs):
                 kwargs['proxies'] = {'http': None, 'https': None}
-                kwargs['trust_env'] = False
                 return original_post(url, **kwargs)
             
             requests.get = patched_get
             requests.post = patched_post
+            
+            # 修改Session的初始化，在这里设置trust_env=False
+            original_init = requests.Session.__init__
+            def new_init(self, *args, **kwargs):
+                # 在初始化时设置trust_env=False（这会阻止读取环境变量中的代理）
+                kwargs['trust_env'] = False
+                original_init(self, *args, **kwargs)
+                # 同时设置默认proxies
+                self.proxies = {'http': None, 'https': None}
+            
+            requests.Session.__init__ = new_init
             
         except Exception as e:
             logger.warning(f"⚠️ 设置无代理模式失败: {e}")
