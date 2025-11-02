@@ -1,6 +1,6 @@
 """
-数据中心 - A股基础资料
-用于下载和管理A股股票基础资料
+Data Center - A-Share Basic Data
+Download and manage A-share stock basic information
 """
 
 import streamlit as st
@@ -12,7 +12,7 @@ import os
 
 # 设置页面配置
 st.set_page_config(
-    page_title="数据中心 - A股基础资料",
+    page_title="Data Center - A-Share Basic Data",
     page_icon="📥",
     layout="wide"
 )
@@ -24,7 +24,8 @@ sys.path.insert(0, str(project_root))
 # 数据路径（用于向后兼容）
 DATA_PATH = project_root / "data" / "stock_basic.csv"
 
-st.title("📥 数据中心 - A股基础资料")
+st.title("📥 Data Center - A-Share Basic Data")
+st.markdown("**数据中心 - A股基础资料**")  # 保留中文显示标题
 st.markdown("---")
 
 # 检查Tushare配置状态
