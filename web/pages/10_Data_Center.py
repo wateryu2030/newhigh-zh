@@ -242,6 +242,12 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
                 # 如果完整版本不存在，使用原版本
                 script_path = project_root / "scripts" / "fetch_cn_stock_basic.py"
             
+            # 添加备用方案选择
+            use_individual = st.checkbox("使用备用方案（逐只获取，慢但更可靠）", value=False, help="当批量接口失败时，可以使用此方案逐只获取数据，虽然较慢但更可靠")
+            
+            if use_individual:
+                script_path = project_root / "scripts" / "fetch_cn_stock_basic_individual.py"
+            
             if not script_path.exists():
                 st.error(f"❌ 未找到下载脚本: {script_path}")
                 st.stop()

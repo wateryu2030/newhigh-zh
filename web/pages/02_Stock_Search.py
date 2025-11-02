@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 from tradingagents.dataflows.a_share_downloader import AShareDownloader, get_downloader
 from tradingagents.dataflows.stock_search import StockSearcher, get_searcher
 
+# 设置页面配置（英文标题，避免URL编码问题）
 st.set_page_config(page_title="股票搜索", page_icon="🔍", layout="wide")
 st.title("🔍 A股股票搜索")
 

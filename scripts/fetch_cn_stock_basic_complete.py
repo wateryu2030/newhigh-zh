@@ -247,7 +247,9 @@ def fetch_stock_data_complete():
                 stock_fundamentals = pd.DataFrame()
     
     if not retry_success:
-        print(f"  ⚠️  实时行情接口失败，将只使用基础信息")
+        print(f"  ⚠️  实时行情接口失败")
+        print(f"  💡 建议：可以尝试使用备用方案（逐只获取）")
+        print(f"     运行: python scripts/fetch_cn_stock_basic_individual.py")
         stock_fundamentals = pd.DataFrame()
     
     # 步骤3: 合并数据
