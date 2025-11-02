@@ -91,22 +91,62 @@ if db_exists:
     try:
         import sqlite3
         conn = sqlite3.connect(str(DB_PATH))
-        # 检查表是否存在
         cursor = conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='stock_data'")
-        table_exists = cursor.fetchone() is not None
         
-        if table_exists:
-            df = pd.read_sql_query("SELECT * FROM stock_data ORDER BY stock_code", conn)
-            conn.close()
-            if not df.empty:
-                data_source = "数据库"
-                st.success(f"✅ 从数据库读取: {len(df)} 条记录")
+        # 检查有哪些表
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        # 优先尝试stock_data表（新版本），如果不存在尝试stock_basic表（旧版本）
+        target_table = None
+        if 'stock_data' in tables:
+            target_table = 'stock_data'
+            # 检查列名，如果是新格式（stock_code/stock_name）
+            cursor.execute("PRAGMA table_info(stock_data)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if 'stock_code' in columns:
+                df = pd.read_sql_query("SELECT * FROM stock_data ORDER BY stock_code", conn)
             else:
-                st.warning(f"⚠️ 数据库表存在但数据为空")
+                # 旧格式，需要映射
+                df = pd.read_sql_query("SELECT * FROM stock_data ORDER BY code", conn)
+        elif 'stock_basic' in tables:
+            target_table = 'stock_basic'
+            # 检查列名
+            cursor.execute("PRAGMA table_info(stock_basic)")
+            columns = [row[1] for row in cursor.fetchall()]
+            column_names = [row[1] for row in cursor.execute("PRAGMA table_info(stock_basic)")]
+            
+            # 读取数据并根据列名映射
+            df_raw = pd.read_sql_query("SELECT * FROM stock_basic", conn)
+            
+            # 映射旧表列名到新格式
+            column_mapping = {}
+            if 'symbol' in column_names:
+                column_mapping['symbol'] = 'stock_code'
+            if 'code' in column_names:
+                column_mapping['code'] = 'stock_code'
+            if 'name' in column_names:
+                column_mapping['name'] = 'stock_name'
+            if 'total_mv' in column_names:
+                column_mapping['total_mv'] = 'market_cap'
+            if 'circ_mv' in column_names:
+                column_mapping['circ_mv'] = 'float_cap'
+            
+            if column_mapping:
+                df = df_raw.rename(columns=column_mapping)
+            else:
+                df = df_raw
+        
+        conn.close()
+        
+        if df is not None and not df.empty:
+            data_source = f"数据库({target_table})"
+            st.success(f"✅ 从数据库读取: {len(df)} 条记录")
+        elif target_table:
+            st.warning(f"⚠️ 数据库表{target_table}存在但数据为空")
         else:
-            conn.close()
-            st.info(f"ℹ️ 数据库存在但stock_data表尚未创建，等待下载...")
+            st.info(f"ℹ️ 数据库存在但没有找到stock_data或stock_basic表，等待下载...")
+            
     except Exception as e:
         st.warning(f"⚠️ 读取数据库失败: {e}")
         import traceback
