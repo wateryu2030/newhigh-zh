@@ -118,8 +118,11 @@ st.markdown("""
 if st.button("🚀 下载/更新 A股基础资料", type="primary", use_container_width=True):
     with st.spinner("正在拉取数据（AkShare）...这可能需要1-3分钟..."):
         try:
-            # 执行下载脚本
-            script_path = project_root / "scripts" / "fetch_cn_stock_basic.py"
+            # 执行下载脚本（使用完整版本）
+            script_path = project_root / "scripts" / "fetch_cn_stock_basic_complete.py"
+            if not script_path.exists():
+                # 如果完整版本不存在，使用原版本
+                script_path = project_root / "scripts" / "fetch_cn_stock_basic.py"
             
             if not script_path.exists():
                 st.error(f"❌ 未找到下载脚本: {script_path}")
