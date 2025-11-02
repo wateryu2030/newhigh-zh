@@ -119,23 +119,44 @@ if db_exists:
             # 读取数据并根据列名映射
             df_raw = pd.read_sql_query("SELECT * FROM stock_basic", conn)
             
-            # 映射旧表列名到新格式
+            # 映射旧表列名到新格式（兼容多种可能的列名）
             column_mapping = {}
+            # 代码列映射
             if 'symbol' in column_names:
                 column_mapping['symbol'] = 'stock_code'
-            if 'code' in column_names:
+            elif 'code' in column_names:
                 column_mapping['code'] = 'stock_code'
+            # 名称列映射
             if 'name' in column_names:
                 column_mapping['name'] = 'stock_name'
+            # 市值列映射
             if 'total_mv' in column_names:
                 column_mapping['total_mv'] = 'market_cap'
             if 'circ_mv' in column_names:
                 column_mapping['circ_mv'] = 'float_cap'
+            # 价格列（可能不存在）
+            if 'close' in column_names:
+                column_mapping['close'] = 'price'
             
             if column_mapping:
                 df = df_raw.rename(columns=column_mapping)
+                # 确保stock_code列存在（用于后续处理）
+                if 'stock_code' not in df.columns and 'symbol' in df_raw.columns:
+                    df['stock_code'] = df_raw['symbol']
+                if 'stock_code' not in df.columns and 'code' in df_raw.columns:
+                    df['stock_code'] = df_raw['code']
+                if 'stock_name' not in df.columns and 'name' in df_raw.columns:
+                    df['stock_name'] = df_raw['name']
             else:
                 df = df_raw
+                # 如果没有映射，确保至少有一些标准列名
+                if 'stock_code' not in df.columns:
+                    if 'symbol' in df.columns:
+                        df['stock_code'] = df['symbol']
+                    elif 'code' in df.columns:
+                        df['stock_code'] = df['code']
+                if 'stock_name' not in df.columns and 'name' in df.columns:
+                    df['stock_name'] = df['name']
         
         conn.close()
         
@@ -376,9 +397,36 @@ if df is not None and not df.empty:
             💡 **建议**: 重新点击「下载/更新 A股基础资料」按钮，确保网络连接稳定。
             """)
         
-        # 显示数据
+        # 显示数据（确保至少显示代码和名称）
+        # 选择要显示的列（优先显示有数据的列）
+        display_columns = []
+        
+        # 必须显示的列
+        code_col = 'stock_code' if 'stock_code' in display_df.columns else 'code'
+        name_col = 'stock_name' if 'stock_name' in display_df.columns else 'name'
+        
+        if code_col in display_df.columns:
+            display_columns.append(code_col)
+        if name_col in display_df.columns:
+            display_columns.append(name_col)
+        
+        # 可选显示的列（如果有数据）
+        optional_cols = ['price', 'market_cap', 'float_cap', 'pe', 'pb', 'ps', 'pcf', 
+                        'change_pct', 'volume', 'turnover', 'industry', 'area', 'market', 
+                        'list_date', 'update_time']
+        
+        for col in optional_cols:
+            if col in display_df.columns:
+                # 如果有数据就显示（至少有一条非空）
+                if display_df[col].notna().any() or col in ['industry', 'area', 'market', 'list_date', 'update_time']:
+                    display_columns.append(col)
+        
+        # 如果display_columns为空，显示所有列
+        if not display_columns:
+            display_columns = list(display_df.columns)
+        
         st.dataframe(
-            display_df.head(show_count),
+            display_df[display_columns].head(show_count),
             use_container_width=True,
             hide_index=True
         )
