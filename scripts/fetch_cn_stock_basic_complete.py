@@ -89,17 +89,27 @@ def init_database():
 
 
 def setup_no_proxy_requests():
-    """设置requests库不使用代理"""
+    """
+    彻底设置requests库不使用代理
+    确保在AKShare内部调用时也生效
+    """
     try:
         import requests
         import urllib3
         
+        # 禁用urllib3警告
         urllib3.disable_warnings()
         
-        # 修改requests.Session的request方法
+        # 保存原始方法
         original_request = requests.Session.request
+        original_get = requests.get
+        original_post = requests.post
+        original_init = requests.Session.__init__
+        
+        # 包装request方法
         def no_proxy_request(self, method, url, **kwargs):
             kwargs['proxies'] = {'http': None, 'https': None}
+            kwargs['verify'] = False  # 禁用SSL验证（某些情况下需要）
             if 'headers' not in kwargs or kwargs['headers'] is None:
                 kwargs['headers'] = {}
             headers = kwargs['headers']
@@ -109,19 +119,34 @@ def setup_no_proxy_requests():
                 kwargs['timeout'] = (10, 120)
             return original_request(self, method, url, **kwargs)
         
-        requests.Session.request = no_proxy_request
-        requests.get = lambda url, **kwargs: requests.api.get(url, proxies={'http': None, 'https': None}, **kwargs)
-        requests.post = lambda url, **kwargs: requests.api.post(url, proxies={'http': None, 'https': None}, **kwargs)
+        # 包装get/post方法
+        def no_proxy_get(url, **kwargs):
+            kwargs['proxies'] = {'http': None, 'https': None}
+            kwargs['verify'] = False
+            return original_get(url, **kwargs)
         
-        # 修改Session默认配置
-        original_init = requests.Session.__init__
+        def no_proxy_post(url, **kwargs):
+            kwargs['proxies'] = {'http': None, 'https': None}
+            kwargs['verify'] = False
+            return original_post(url, **kwargs)
+        
+        # 修改Session初始化
         def new_init(self, *args, **kwargs):
             original_init(self, *args, **kwargs)
-            if hasattr(self, 'trust_env'):
-                self.trust_env = False
+            self.trust_env = False
             self.proxies = {'http': None, 'https': None}
+            self.verify = False
         
+        # 应用修改
+        requests.Session.request = no_proxy_request
+        requests.get = no_proxy_get
+        requests.post = no_proxy_post
         requests.Session.__init__ = new_init
+        
+        # 修改requests模块级别的配置
+        requests.packages.urllib3.disable_warnings()
+        
+        print("  ✅ 代理已彻底禁用")
         return True
     except Exception as e:
         print(f"  ⚠️ 设置无代理模式失败: {e}")
@@ -168,36 +193,61 @@ def fetch_stock_data_complete():
     # 步骤2: 获取A股实时行情数据（包含市盈率、PB、PS等）
     print("\n2️⃣ 获取A股实时行情数据（包含PE、PB、PS等财务指标）...")
     print("  ⚠️  注意：此接口需要获取所有A股实时数据（5000+只），可能需要较长时间...")
+    print("  🔧 确保代理已禁用...")
+    
+    # 再次确保代理禁用（在AKShare调用前）
+    setup_no_proxy_requests()
     
     stock_fundamentals = None
-    try:
-        stock_fundamentals = retry_call(
-            lambda: ak.stock_zh_a_spot_em(),
-            retries=6,
-            backoff=2.0,
-            func_name="stock_zh_a_spot_em"
-        )
-        print(f"  ✅ 获取到 {len(stock_fundamentals)} 条实时行情数据")
-        print(f"  📋 实时行情列名 ({len(stock_fundamentals.columns)}个):")
-        for i, col in enumerate(stock_fundamentals.columns[:30], 1):
-            print(f"      {i:2d}. {col}")
-        
-        # 查找包含PE、PB的列
-        pe_pb_cols = [col for col in stock_fundamentals.columns 
-                     if 'pe' in col.lower() or 'pb' in col.lower() or '市盈' in col or '市净' in col]
-        print(f"\n  🎯 包含PE/PB相关的列: {pe_pb_cols}")
-        
-        # 显示前2行数据示例
-        if len(stock_fundamentals) > 0:
-            print(f"\n  📊 前2行数据示例（关键列）:")
-            key_cols = ['代码', '名称', '最新价', '总市值', '流通市值', '市盈率-动态', '市净率']
-            available_key_cols = [col for col in key_cols if col in stock_fundamentals.columns]
-            if available_key_cols:
-                print(stock_fundamentals[available_key_cols].head(2).to_string())
+    max_retries = 8  # 增加重试次数
+    retry_success = False
+    
+    for attempt in range(max_retries):
+        try:
+            print(f"  🔄 尝试 {attempt + 1}/{max_retries}...")
+            stock_fundamentals = ak.stock_zh_a_spot_em()
             
-    except Exception as e:
-        print(f"  ⚠️  实时行情接口失败: {e}")
-        print(f"  💡 将只使用基础信息（代码和名称）")
+            if stock_fundamentals is not None and not stock_fundamentals.empty:
+                retry_success = True
+                print(f"  ✅ 获取到 {len(stock_fundamentals)} 条实时行情数据")
+                print(f"  📋 实时行情列名 ({len(stock_fundamentals.columns)}个):")
+                for i, col in enumerate(stock_fundamentals.columns[:30], 1):
+                    print(f"      {i:2d}. {col}")
+                
+                # 查找包含PE、PB的列
+                pe_pb_cols = [col for col in stock_fundamentals.columns 
+                             if 'pe' in col.lower() or 'pb' in col.lower() or '市盈' in col or '市净' in col]
+                print(f"\n  🎯 包含PE/PB相关的列: {pe_pb_cols}")
+                
+                # 显示前2行数据示例
+                if len(stock_fundamentals) > 0:
+                    print(f"\n  📊 前2行数据示例（关键列）:")
+                    key_cols = ['代码', '名称', '最新价', '总市值', '流通市值', '市盈率-动态', '市净率']
+                    available_key_cols = [col for col in key_cols if col in stock_fundamentals.columns]
+                    if available_key_cols:
+                        print(stock_fundamentals[available_key_cols].head(2).to_string())
+                
+                break  # 成功获取，退出循环
+        except Exception as e:
+            error_msg = str(e).lower()
+            if attempt < max_retries - 1:
+                wait_time = 2.0 * (2 ** attempt)  # 指数退避
+                print(f"  ⚠️  第 {attempt + 1} 次尝试失败: {str(e)[:100]}")
+                print(f"  💤 等待 {wait_time:.1f} 秒后重试...")
+                
+                # 如果是因为代理问题，重新设置代理禁用
+                if 'proxy' in error_msg:
+                    print(f"  🔧 检测到代理问题，重新禁用代理...")
+                    setup_no_proxy_requests()
+                
+                time.sleep(wait_time)
+            else:
+                print(f"  ❌ 所有 {max_retries} 次尝试均失败")
+                print(f"  💡 将只使用基础信息（代码和名称）")
+                stock_fundamentals = pd.DataFrame()
+    
+    if not retry_success:
+        print(f"  ⚠️  实时行情接口失败，将只使用基础信息")
         stock_fundamentals = pd.DataFrame()
     
     # 步骤3: 合并数据
