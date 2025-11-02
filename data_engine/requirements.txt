@@ -1,0 +1,11 @@
+akshare>=1.14.0
+baostock>=0.8.9
+tushare>=1.2.89
+pandas>=2.0.0
+pandas_ta>=0.3.14b0
+SQLAlchemy>=2.0.0
+pymysql>=1.1.0
+python-dateutil>=2.8.2
+requests>=2.31.0
+loguru>=0.7.2
+tqdm>=4.66.0

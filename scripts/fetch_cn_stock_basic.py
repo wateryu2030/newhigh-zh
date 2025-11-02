@@ -9,6 +9,8 @@ import pandas as pd
 import sys
 import os
 import time
+import sqlite3
+from datetime import datetime
 
 # 添加项目根目录到路径
 project_root = Path(__file__).parent.parent
@@ -49,6 +51,10 @@ except ImportError:
 
 OUT = Path("data/stock_basic.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
+
+# 数据库路径
+DB_PATH = project_root / "data" / "a_share_basic.db"
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 def retry_call(func, retries=6, backoff=1.5, allowed_exceptions=(Exception,), func_name="未知函数"):
@@ -399,7 +405,8 @@ def _fetch_with_tushare(adapter) -> pd.DataFrame:
         from datetime import datetime
         import pandas as pd
         
-        pro = adapter.provider.pro_api
+        # 修复: 使用api而不是pro_api
+        pro = adapter.provider.api
         today = datetime.now().strftime('%Y%m%d')
         
         print("  - 测试Tushare接口权限...")
@@ -555,15 +562,70 @@ def _fetch_with_tushare(adapter) -> pd.DataFrame:
         raise
 
 
+def init_database():
+    """初始化数据库"""
+    conn = sqlite3.connect(str(DB_PATH))
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stock_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            price REAL,
+            market_cap REAL,
+            float_cap REAL,
+            pe REAL,
+            pb REAL,
+            ps REAL,
+            pcf REAL,
+            change_pct REAL,
+            volume INTEGER,
+            turnover REAL,
+            industry TEXT,
+            area TEXT,
+            market TEXT,
+            list_date TEXT,
+            update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_code ON stock_data(code)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_name ON stock_data(name)")
+    conn.commit()
+    conn.close()
+
+def save_to_database(df):
+    """保存到数据库"""
+    if df.empty:
+        return
+    conn = sqlite3.connect(str(DB_PATH))
+    df.to_sql('stock_data', conn, if_exists='replace', index=False)
+    conn.close()
+
+
 if __name__ == "__main__":
     try:
+        # 初始化数据库
+        init_database()
+        
+        # 优先尝试使用Tushare（如果配置了Token）
+        use_tushare = os.getenv('TUSHARE_ENABLED', 'false').lower() == 'true'
+        
+        if use_tushare:
+            print("🔑 使用Tushare获取数据（完整财务指标）")
+        else:
+            print("📊 使用AKShare获取数据（免费，无需Token）")
+        
         # 使用AKShare获取数据（免费，无需Token，无需实名认证）
         # 如果用户配置了Tushare且想使用，可以设置use_tushare=True
-        df = fetch_cn_stock_basic(use_tushare=False)
+        df = fetch_cn_stock_basic(use_tushare=use_tushare)
         
         # 保存到CSV
         df.to_csv(OUT, index=False, encoding="utf-8-sig")  # 使用utf-8-sig确保Excel能正确打开
         print(f"✅ 已保存 {len(df)} 条记录到 {OUT.absolute()}")
+        
+        # 保存到数据库
+        save_to_database(df)
+        print(f"✅ 已保存 {len(df)} 条记录到数据库 {DB_PATH}")
         
         # 显示前几条数据
         print("\n📊 数据预览:")

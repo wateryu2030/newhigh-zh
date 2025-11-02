@@ -9,6 +9,8 @@ from pathlib import Path
 import subprocess
 import sys
 import os
+import time
+import re
 
 # 设置页面配置
 st.set_page_config(
@@ -232,121 +234,249 @@ st.markdown("""
 - 流通市值
 """)
 
+# 检查Tushare是否可用
+tushare_available = False
+try:
+    import tushare as ts
+    from dotenv import load_dotenv
+    import os
+    load_dotenv(project_root / ".env")
+    token = os.getenv('TUSHARE_TOKEN', '')
+    if token:
+        tushare_available = True
+except:
+    pass
+
+# 选择数据源（在按钮之前）
+st.subheader("📊 选择数据源")
+
+if tushare_available:
+    data_source = st.radio(
+        "选择数据下载方式：",
+        ["Tushare（推荐）", "BaoStock", "AKShare批量", "AKShare逐只"],
+        help="""
+        - **Tushare（推荐）**：数据最完整（PE、PB、市值等），需要Token但已配置✅
+        - **BaoStock**：免费、无需注册，数据完整可靠
+        - **AKShare批量**：速度快但可能因网络问题失败
+        - **AKShare逐只**：慢但更可靠，适合网络不稳定时
+        """,
+        horizontal=True
+    )
+else:
+    data_source = st.radio(
+        "选择数据下载方式：",
+        ["BaoStock（推荐）", "AKShare批量", "AKShare逐只"],
+        help="""
+        - **BaoStock（推荐）**：免费、无需注册，数据完整可靠
+        - **AKShare批量**：速度快但可能因网络问题失败
+        - **AKShare逐只**：慢但更可靠，适合网络不稳定时
+        """,
+        horizontal=True
+    )
+
+# 根据选择确定脚本路径
+if data_source == "Tushare（推荐）" or data_source == "Tushare":
+    script_path = project_root / "scripts" / "fetch_cn_stock_basic.py"
+    # 强制使用Tushare
+    os.environ['TUSHARE_ENABLED'] = 'true'
+elif data_source == "BaoStock（推荐）" or data_source == "BaoStock":
+    script_path = project_root / "scripts" / "fetch_cn_stock_basic_baostock.py"
+elif data_source == "AKShare批量":
+    script_path = project_root / "scripts" / "fetch_cn_stock_basic_complete.py"
+else:  # AKShare逐只
+    script_path = project_root / "scripts" / "fetch_cn_stock_basic_individual.py"
+
 # 创建下载按钮
 if st.button("🚀 下载/更新 A股基础资料", type="primary", use_container_width=True):
-    with st.spinner("正在拉取数据（AkShare）...这可能需要1-3分钟..."):
-        try:
-            # 执行下载脚本（使用完整版本）
-            script_path = project_root / "scripts" / "fetch_cn_stock_basic_complete.py"
-            if not script_path.exists():
-                # 如果完整版本不存在，使用原版本
-                script_path = project_root / "scripts" / "fetch_cn_stock_basic.py"
+    data_source_name = data_source.replace("（推荐）", "")
+    
+    # 创建进度显示区域
+    progress_container = st.container()
+    with progress_container:
+        st.markdown("### 📥 下载进度")
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        log_output = st.empty()
+    
+    try:
+        if not script_path.exists():
+            st.error(f"❌ 未找到下载脚本: {script_path}")
+            st.stop()
+        
+        # 确定正确的Python可执行文件
+        # 优先使用当前Streamlit进程的Python
+        python_exe = sys.executable
+        # 备用方案：尝试多个可能的位置
+        if not os.path.exists(python_exe):
+            for alt_python in [
+                '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3',
+                '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12',
+                '/usr/local/bin/python3'
+            ]:
+                if os.path.exists(alt_python):
+                    python_exe = alt_python
+                    break
+        
+        # 使用Popen实时读取输出
+        process = subprocess.Popen(
+            [python_exe, str(script_path)],
+            cwd=str(project_root),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            universal_newlines=True
+        )
+        
+        # 实时读取输出
+        output_lines = []
+        last_progress = 0
+        current_status = "初始化中..."
+        
+        status_text.info(f"🔄 **状态**: {current_status}")
+        
+        for line in iter(process.stdout.readline, ''):
+            if not line:
+                break
             
-            # 添加备用方案选择
-            use_individual = st.checkbox("使用备用方案（逐只获取，慢但更可靠）", value=False, help="当批量接口失败时，可以使用此方案逐只获取数据，虽然较慢但更可靠")
-            
-            if use_individual:
-                script_path = project_root / "scripts" / "fetch_cn_stock_basic_individual.py"
-            
-            if not script_path.exists():
-                st.error(f"❌ 未找到下载脚本: {script_path}")
-                st.stop()
-            
-            # 使用subprocess运行脚本
-            result = subprocess.run(
-                [sys.executable, str(script_path)],
-                cwd=str(project_root),
-                capture_output=True,
-                text=True,
-                timeout=300  # 5分钟超时
-            )
-            
-            if result.returncode != 0:
-                st.error(f"❌ 下载失败")
+            line = line.strip()
+            if line:
+                output_lines.append(line)
                 
-                # 分析错误类型并给出友好提示
-                error_output = result.stderr if result.stderr else result.stdout
-                if "proxy" in error_output.lower() or "ProxyError" in error_output:
-                    st.warning("🔧 **代理配置问题**")
-                    st.info("""
-                    **问题诊断**: 系统检测到代理连接错误
-                    
-                    **可能的解决方案：**
-                    1. 系统已自动尝试禁用代理，请重试
-                    2. 如果仍有问题，检查系统代理设置：
-                       - macOS: 系统设置 → 网络 → 代理
-                       - 检查是否有无效的代理配置
-                    3. 临时禁用代理环境变量：
-                       ```bash
-                       unset HTTP_PROXY
-                       unset HTTPS_PROXY
-                       unset http_proxy
-                       unset https_proxy
-                       ```
-                    4. 如果确实需要代理，请确保代理服务器正常运行
-                    """)
-                    st.success("💡 **提示**: 下载脚本已自动禁用代理，请点击按钮重试")
-                elif "connection" in error_output.lower() or "Connection" in error_output:
-                    st.warning("🌐 **网络连接问题**")
-                    st.info("""
-                    **可能的解决方案：**
-                    1. 检查网络连接是否稳定
-                    2. 检查是否需要配置代理/VPN
-                    3. 稍后重试（数据源服务器可能临时不可用）
-                    4. 尝试在网络较好的环境下重试
-                    """)
-                elif "timeout" in error_output.lower():
-                    st.warning("⏱️ **请求超时**")
-                    st.info("""
-                    **可能的解决方案：**
-                    1. 数据源服务器响应较慢，请稍后重试
-                    2. 检查网络连接速度
-                    3. 如果是首次下载，数据量较大，可能需要更长时间
-                    """)
-                elif "rate limit" in error_output.lower() or "频率" in error_output:
-                    st.warning("🚦 **请求频率过高**")
-                    st.info("""
-                    **可能的解决方案：**
-                    1. 等待 1-2 分钟后重试
-                    2. 数据源可能有访问频率限制
-                    """)
-                elif "token" in error_output.lower() or "权限" in error_output.lower() or "积分" in error_output.lower():
-                    st.warning("🔑 **Tushare权限问题**")
-                    st.info("""
-                    **问题分析**: Tushare Token可能无效或权限不足
-                    
-                    **解决方案：**
-                    1. **检查Token**: 访问 https://tushare.pro 确认Token是否正确
-                    2. **完成实名认证**: 免费用户需要实名认证才能使用接口
-                    3. **查看积分**: 部分接口需要积分，检查账号积分余额
-                    4. **使用AKShare**: 系统已自动降级使用AKShare作为备用
-                    
-                    **注意**: 如果权限不足，系统会自动降级，至少能获取基础信息（代码+名称）
-                    """)
-                    with st.expander("📚 查看Tushare配置指南"):
-                        st.markdown("""
-                        - **数据源指南**: `docs/DATA_SOURCES_GUIDE.md`
-                        - **Token获取教程**: `docs/HOW_TO_GET_TUSHARE_TOKEN.md`
-                        - **权限问题解决**: `docs/TUSHARE_PERMISSION_FIX.md`
-                        """)
+                # 解析进度信息
+                progress_match = re.search(r'进度:\s*(\d+)/(\d+)\s*\(([\d.]+)%\)', line)
+                if progress_match:
+                    processed = int(progress_match.group(1))
+                    total = int(progress_match.group(2))
+                    percentage = float(progress_match.group(3))
+                    last_progress = percentage / 100.0
+                    progress_bar.progress(min(last_progress, 1.0))
+                    current_status = f"已处理 {processed}/{total} 只股票 ({percentage:.1f}%)"
+                    status_text.info(f"🔄 **状态**: {current_status}")
                 
-                # 显示详细错误信息（可折叠）
-                with st.expander("🔍 查看详细错误信息"):
-                    st.code(error_output, language="bash")
-            else:
-                st.success("✅ 下载完成！")
-                if result.stdout:
-                    st.code(result.stdout, language="bash")
+                # 更新状态文本
+                elif "✅" in line or "完成" in line:
+                    if "获取到" in line and "只股票" in line:
+                        status_text.success(f"✅ {line}")
+                    elif "下载完成" in line or "数据整理完成" in line:
+                        status_text.success(f"✅ {line}")
+                        progress_bar.progress(1.0)
+                        current_status = "下载完成"
+                elif "❌" in line or "失败" in line:
+                    status_text.error(f"❌ {line}")
+                elif "⏳" in line:
+                    status_text.info(f"⏳ {line}")
                 
-                # 刷新状态
-                st.rerun()
+                # 显示最后几行日志
+                if len(output_lines) > 10:
+                    log_output.text_area(
+                        "下载日志",
+                        "\n".join(output_lines[-10:]),
+                        height=150,
+                        disabled=True
+                    )
+                else:
+                    log_output.text_area(
+                        "下载日志",
+                        "\n".join(output_lines),
+                        height=150,
+                        disabled=True
+                    )
+        
+        # 等待进程完成
+        process.wait()
+        
+        # 获取最终输出
+        final_output = "\n".join(output_lines)
+        
+        # 检查是否成功
+        if process.returncode == 0:
+            st.success("✅ 下载完成！正在刷新数据...")
+            status_text.success(f"✅ 下载成功完成！")
+            progress_bar.progress(1.0)
+            
+            # 刷新页面以显示新数据
+            time.sleep(1)
+            st.rerun()
+        else:
+            st.error(f"❌ 下载失败")
+            
+            # 分析错误类型并给出友好提示
+            error_output = final_output
+            if "proxy" in error_output.lower() or "ProxyError" in error_output:
+                st.warning("🔧 **代理配置问题**")
+                st.info("""
+                **问题诊断**: 系统检测到代理连接错误
                 
-        except subprocess.TimeoutExpired:
-            st.error("❌ 下载超时（超过5分钟），请检查网络连接或稍后重试")
-        except Exception as e:
-            st.error(f"❌ 下载过程出错: {e}")
-            import traceback
-            st.code(traceback.format_exc(), language="python")
+                **可能的解决方案：**
+                1. 系统已自动尝试禁用代理，请重试
+                2. 如果仍有问题，检查系统代理设置：
+                   - macOS: 系统设置 → 网络 → 代理
+                   - 检查是否有无效的代理配置
+                3. 临时禁用代理环境变量：
+                   ```bash
+                   unset HTTP_PROXY
+                   unset HTTPS_PROXY
+                   unset http_proxy
+                   unset https_proxy
+                   ```
+                4. 如果确实需要代理，请确保代理服务器正常运行
+                """)
+                st.success("💡 **提示**: 下载脚本已自动禁用代理，请点击按钮重试")
+            elif "connection" in error_output.lower() or "Connection" in error_output:
+                st.warning("🌐 **网络连接问题**")
+                st.info("""
+                **可能的解决方案：**
+                1. 检查网络连接是否稳定
+                2. 检查是否需要配置代理/VPN
+                3. 稍后重试（数据源服务器可能临时不可用）
+                4. 尝试在网络较好的环境下重试
+                """)
+            elif "timeout" in error_output.lower():
+                st.warning("⏱️ **请求超时**")
+                st.info("""
+                **可能的解决方案：**
+                1. 数据源服务器响应较慢，请稍后重试
+                2. 检查网络连接速度
+                3. 如果是首次下载，数据量较大，可能需要更长时间
+                """)
+            elif "rate limit" in error_output.lower() or "频率" in error_output:
+                st.warning("🚦 **请求频率过高**")
+                st.info("""
+                **可能的解决方案：**
+                1. 等待 1-2 分钟后重试
+                2. 数据源可能有访问频率限制
+                """)
+            elif "token" in error_output.lower() or "权限" in error_output.lower() or "积分" in error_output.lower():
+                st.warning("🔑 **Tushare权限问题**")
+                st.info("""
+                **问题分析**: Tushare Token可能无效或权限不足
+                
+                **解决方案：**
+                1. **检查Token**: 访问 https://tushare.pro 确认Token是否正确
+                2. **完成实名认证**: 免费用户需要实名认证才能使用接口
+                3. **查看积分**: 部分接口需要积分，检查账号积分余额
+                4. **使用AKShare**: 系统已自动降级使用AKShare作为备用
+                
+                **注意**: 如果权限不足，系统会自动降级，至少能获取基础信息（代码+名称）
+                """)
+                with st.expander("📚 查看Tushare配置指南"):
+                    st.markdown("""
+                    - **数据源指南**: `docs/DATA_SOURCES_GUIDE.md`
+                    - **Token获取教程**: `docs/HOW_TO_GET_TUSHARE_TOKEN.md`
+                    - **权限问题解决**: `docs/TUSHARE_PERMISSION_FIX.md`
+                    """)
+            
+            # 显示详细错误信息（可折叠）
+            with st.expander("🔍 查看详细错误信息"):
+                st.code(error_output, language="bash")
+                
+    except subprocess.TimeoutExpired:
+        st.error("❌ 下载超时（超过5分钟），请检查网络连接或稍后重试")
+    except Exception as e:
+        st.error(f"❌ 下载过程出错: {e}")
+        import traceback
+        st.code(traceback.format_exc(), language="python")
 
 st.markdown("---")
 
@@ -356,7 +486,8 @@ if 'df' not in locals():
     df = None
 
 if df is not None and not df.empty:
-    st.subheader("📊 数据预览")
+    st.subheader("📊 完整数据列表")
+    st.info(f"💡 共 {len(df)} 条股票数据，以下为完整列表（可滚动查看）")
     
     try:
         # 使用之前读取的df（来自数据库或CSV），不再重新读取
@@ -381,12 +512,12 @@ if df is not None and not df.empty:
         # 数据表格
         st.markdown("### 📋 数据表格")
         
-        # 搜索功能
+        # 搜索功能（可选，用于快速查找）
         search_col1, search_col2 = st.columns([3, 1])
         with search_col1:
-            search_keyword = st.text_input("🔍 搜索股票（代码或名称）", placeholder="例如: 000001 或 平安")
+            search_keyword = st.text_input("🔍 搜索股票（代码或名称，留空显示全部）", placeholder="例如: 000001 或 平安", value="")
         with search_col2:
-            show_count = st.number_input("显示数量", min_value=10, max_value=500, value=50, step=10)
+            st.markdown("<br>", unsafe_allow_html=True)  # 占位符
         
         # 过滤数据（兼容数据库列名stock_code/stock_name和CSV列名code/name）
         display_df = df.copy()
@@ -446,9 +577,11 @@ if df is not None and not df.empty:
         if not display_columns:
             display_columns = list(display_df.columns)
         
+        # 显示完整数据列表（移除head限制，显示全部）
         st.dataframe(
-            display_df[display_columns].head(show_count),
+            display_df[display_columns] if display_columns else display_df,
             use_container_width=True,
+            height=600,  # 设置固定高度，支持滚动
             hide_index=True
         )
         
@@ -471,18 +604,23 @@ if df is not None and not df.empty:
                 use_container_width=True
             )
         with col2:
-            if st.button("🗑️ 删除本地数据", use_container_width=True):
+            if st.button("🗑️ 删除数据库数据", use_container_width=True):
                 if st.session_state.get("confirm_delete"):
                     try:
-                        DATA_PATH.unlink()
-                        st.success("✅ 数据文件已删除")
+                        # 删除数据库
+                        if DB_PATH.exists():
+                            DB_PATH.unlink()
+                        # 同时删除CSV备份
+                        if DATA_PATH.exists():
+                            DATA_PATH.unlink()
+                        st.success("✅ 数据已删除（数据库和CSV）")
                         st.session_state.confirm_delete = False
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ 删除失败: {e}")
                 else:
                     st.session_state.confirm_delete = True
-                    st.warning("⚠️ 确认删除？请再次点击按钮")
+                    st.warning("⚠️ 确认删除数据库和CSV？请再次点击按钮")
 
     except Exception as e:
         st.error(f"❌ 读取数据失败: {e}")
