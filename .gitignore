@@ -13,9 +13,11 @@ __pycache__/
 .env.*.local
 .env.db
 .env.mongodb*
-frontend
-backend
 .venv
+
+# 前端/后端目录（需要提交代码）
+# frontend/
+# backend/
 
 
 # 系统文件
@@ -24,7 +26,7 @@ Thumbs.db
 
 # 数据文件
 *.csv
-*.json
+# *.json  # 注释掉以允许package.json提交
 *.xlsx
 *.xls
 
@@ -36,7 +38,7 @@ data/a_share_basic.db
 data/stock_basic.csv
 
 # 项目特定目录
-src/
+# src/  # 注释掉以允许frontend/src提交
 eval_results/
 eval_data/
 results/
