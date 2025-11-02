@@ -245,39 +245,51 @@ def fetch_cn_stock_basic(use_tushare: bool = False) -> pd.DataFrame:
             df = code_name.copy()
             print("  ℹ️  使用降级方案：仅包含股票代码和名称")
         
-        # 字段清洗，重命名
-        keep = {
-            "code": "code",
-            "name": "name",
-            "最新价": "price",
-            "总市值": "market_cap",
-            "流通市值": "float_cap",
-            "市盈率": "pe",
-            "市净率": "pb",
-            "市销率": "ps",
-            "市现率": "pcf",
-            "涨跌幅": "change_pct",
-            "成交量": "volume",
-            "成交额": "turnover",
+        # 字段清洗，重命名（参考a_share_downloader.py的实际列名）
+        # AKShare的stock_zh_a_spot_em返回的列名可能有多种变体
+        column_mapping = {}
+        available_columns = df.columns.tolist()
+        
+        # 打印实际列名以便调试
+        print(f"  📋 实际获取到的列名: {available_columns[:20]}...")
+        
+        # 定义多种可能的列名映射（应对AKShare不同版本或接口变化）
+        mapping_candidates = {
+            "code": ["code", "代码", "symbol", "股票代码"],
+            "name": ["name", "名称"],
+            "price": ["最新价", "现价", "close", "price"],
+            "market_cap": ["总市值", "总市值(元)", "market_cap", "total_mv"],
+            "float_cap": ["流通市值", "流通市值(元)", "float_cap", "circ_mv"],
+            "pe": ["市盈率-动态", "市盈率", "PE", "动态市盈率", "pe", "pe_ttm"],
+            "pb": ["市净率", "PB", "pb"],
+            "ps": ["市销率", "PS", "ps"],
+            "pcf": ["市现率", "PCF", "pcf"],
+            "change_pct": ["涨跌幅", "涨跌%", "pct_chg", "change_pct"],
+            "volume": ["成交量", "volume"],
+            "turnover": ["成交额", "amount", "turnover"],
         }
         
-        # 确保所需的列存在
-        available_columns = df.columns.tolist()
-        rename_dict = {}
-        for old_col, new_col in keep.items():
-            if old_col in available_columns:
-                rename_dict[old_col] = new_col
-            elif new_col in available_columns:
-                # 如果已经是目标名称，跳过
-                pass
+        # 匹配列名
+        for new_col, candidates in mapping_candidates.items():
+            matched = False
+            for candidate in candidates:
+                if candidate in available_columns:
+                    column_mapping[candidate] = new_col
+                    matched = True
+                    break
+            if not matched:
+                print(f"  ⚠️  未找到 {new_col} 的列，将设为空值")
         
-        df = df.rename(columns=rename_dict)
+        # 执行重命名
+        df = df.rename(columns=column_mapping)
         
-        # 如果使用了降级方案，确保所有期望的列都存在（即使为空）
-        for col in keep.values():
+        # 确保所有期望的列都存在（即使为空）
+        expected_columns = ["code", "name", "price", "market_cap", "float_cap", 
+                           "pe", "pb", "ps", "pcf", "change_pct", "volume", "turnover"]
+        for col in expected_columns:
             if col not in df.columns:
                 df[col] = None
-                print(f"  ℹ️  添加空列: {col}（降级方案）")
+                print(f"  ℹ️  添加空列: {col}（数据源中不存在）")
         
         # 尝试获取财务指标（ROE等）
         print("  - 尝试获取财务指标（ROE等）...")
@@ -299,17 +311,32 @@ def fetch_cn_stock_basic(use_tushare: bool = False) -> pd.DataFrame:
             print(f"  ⚠️ 财务指标获取部分失败（不影响主流程）: {e}")
         
         # 选择需要的列
-        columns_to_keep = [col for col in keep.values() if col in df.columns]
+        expected_columns = ["code", "name", "price", "market_cap", "float_cap", 
+                           "pe", "pb", "ps", "pcf", "change_pct", "volume", "turnover"]
+        columns_to_keep = [col for col in expected_columns if col in df.columns]
         df = df[columns_to_keep]
         
         # 数据清洗
         df = df.dropna(subset=["code", "name"]).drop_duplicates(subset=["code"])
         
-        # 数值列转换
-        numeric_columns = ["price", "market_cap", "float_cap"]
+        # 数值列转换（处理各种格式：字符串、带单位等）
+        numeric_columns = ["price", "market_cap", "float_cap", "pe", "pb", "ps", "pcf", 
+                         "change_pct", "volume", "turnover"]
         for col in numeric_columns:
             if col in df.columns:
+                # 先转换为字符串，清理单位
+                if df[col].dtype == 'object':
+                    df[col] = df[col].astype(str).str.replace('元', '').str.replace('万', '').str.replace(',', '').str.replace(' ', '')
                 df[col] = pd.to_numeric(df[col], errors="coerce")
+        
+        # 检查数据完整性
+        print(f"\n  📊 数据完整性检查：")
+        for col in ["pe", "pb", "market_cap", "price"]:
+            if col in df.columns:
+                non_null_count = df[col].notna().sum()
+                print(f"     - {col}: {non_null_count}/{len(df)} 条有数据 ({non_null_count/len(df)*100:.1f}%)")
+            else:
+                print(f"     - {col}: 列不存在")
         
         print(f"  ✅ 数据清洗完成，共 {len(df)} 条有效记录")
         return df
