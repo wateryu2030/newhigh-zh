@@ -260,7 +260,7 @@ if df is not None and not df.empty:
     st.subheader("📊 数据预览")
     
     try:
-        df = pd.read_csv(DATA_PATH, encoding="utf-8-sig")
+        # 使用之前读取的df（来自数据库或CSV），不再重新读取
         
         # 显示统计信息
         col1, col2, col3, col4 = st.columns(4)
