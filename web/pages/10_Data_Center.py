@@ -163,10 +163,21 @@ if db_exists:
         if df is not None and not df.empty:
             data_source = f"数据库({target_table})"
             st.success(f"✅ 从数据库读取: {len(df)} 条记录")
+            
+            # 调试信息（可折叠）
+            with st.expander("🔍 数据调试信息"):
+                st.write(f"**数据来源**: {data_source}")
+                st.write(f"**列名**: {list(df.columns)}")
+                st.write(f"**数据形状**: {df.shape}")
+                code_col = 'stock_code' if 'stock_code' in df.columns else ('code' if 'code' in df.columns else 'symbol')
+                if code_col in df.columns:
+                    st.write(f"**示例代码**: {df[code_col].head(5).tolist()}")
         elif target_table:
             st.warning(f"⚠️ 数据库表{target_table}存在但数据为空")
+            df = None  # 确保df为None
         else:
             st.info(f"ℹ️ 数据库存在但没有找到stock_data或stock_basic表，等待下载...")
+            df = None  # 确保df为None
             
     except Exception as e:
         st.warning(f"⚠️ 读取数据库失败: {e}")
@@ -334,6 +345,10 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
 st.markdown("---")
 
 # 数据展示（即使数据不完整也显示，至少显示代码和名称）
+# 添加调试信息
+if 'df' not in locals():
+    df = None
+
 if df is not None and not df.empty:
     st.subheader("📊 数据预览")
     
