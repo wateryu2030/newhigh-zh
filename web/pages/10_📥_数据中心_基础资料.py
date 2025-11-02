@@ -21,8 +21,8 @@ st.set_page_config(
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-DATA_PATH = Path("data/stock_basic.csv")
-DATA_PATH = project_root / DATA_PATH if not DATA_PATH.is_absolute() else DATA_PATH
+# 数据路径（用于向后兼容）
+DATA_PATH = project_root / "data" / "stock_basic.csv"
 
 st.title("📥 数据中心 - A股基础资料")
 st.markdown("---")
@@ -75,26 +75,55 @@ except ImportError:
 
 st.markdown("---")
 
-# 检查数据文件是否存在
-data_exists = DATA_PATH.exists()
+# 检查数据库和CSV文件
+DB_PATH = project_root / "data" / "a_share_basic.db"
+DATA_PATH = project_root / "data" / "stock_basic.csv"
+
+db_exists = DB_PATH.exists()
+csv_exists = DATA_PATH.exists()
+
+# 尝试从数据库读取数据（优先）
+df = None
+data_source = None
+
+if db_exists:
+    try:
+        import sqlite3
+        conn = sqlite3.connect(str(DB_PATH))
+        df = pd.read_sql_query("SELECT * FROM stock_data ORDER BY stock_code", conn)
+        conn.close()
+        if not df.empty:
+            data_source = "数据库"
+            st.success(f"✅ 从数据库读取: {len(df)} 条记录")
+    except Exception as e:
+        st.warning(f"⚠️ 读取数据库失败: {e}")
+
+# 如果数据库读取失败，尝试从CSV读取
+if df is None or df.empty:
+    if csv_exists:
+        try:
+            df = pd.read_csv(DATA_PATH, encoding="utf-8-sig")
+            if not df.empty:
+                data_source = "CSV文件"
+                st.success(f"✅ 从CSV文件读取: {len(df)} 条记录")
+        except Exception as e:
+            st.error(f"❌ 读取CSV文件失败: {e}")
 
 # 显示当前状态
 col1, col2 = st.columns([2, 1])
 with col1:
-    if data_exists:
-        try:
-            df = pd.read_csv(DATA_PATH, encoding="utf-8-sig")
-            st.success(f"✅ 本地数据文件存在: {len(df)} 条记录")
-            
-            # 显示最后更新时间
+    if df is not None and not df.empty:
+        # 显示最后更新时间
+        if 'update_time' in df.columns:
+            latest_time = df['update_time'].max() if df['update_time'].notna().any() else None
+            if latest_time:
+                st.caption(f"📅 最后更新时间: {latest_time}")
+        elif csv_exists:
             import time
             mtime = os.path.getmtime(DATA_PATH)
             from datetime import datetime
             update_time = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
-            st.caption(f"📅 最后更新时间: {update_time}")
-        except Exception as e:
-            st.error(f"❌ 读取数据文件失败: {e}")
-            data_exists = False
+            st.caption(f"📅 CSV文件最后更新时间: {update_time}")
     else:
         st.info("ℹ️ 未检测到本地基础资料，点击下方按钮开始下载。")
 
@@ -227,7 +256,7 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
 st.markdown("---")
 
 # 数据展示
-if data_exists:
+if df is not None and not df.empty:
     st.subheader("📊 数据预览")
     
     try:
@@ -238,8 +267,9 @@ if data_exists:
         with col1:
             st.metric("总记录数", len(df))
         with col2:
-            if "code" in df.columns:
-                st.metric("股票代码数", df["code"].nunique())
+            code_col = 'stock_code' if 'stock_code' in df.columns else 'code'
+            if code_col in df.columns:
+                st.metric("股票代码数", df[code_col].nunique())
         with col3:
             if "price" in df.columns:
                 avg_price = df["price"].mean()
@@ -259,12 +289,16 @@ if data_exists:
         with search_col2:
             show_count = st.number_input("显示数量", min_value=10, max_value=500, value=50, step=10)
         
-        # 过滤数据
+        # 过滤数据（兼容数据库列名stock_code/stock_name和CSV列名code/name）
         display_df = df.copy()
         if search_keyword:
+            # 确定代码和名称列
+            code_col = 'stock_code' if 'stock_code' in display_df.columns else 'code'
+            name_col = 'stock_name' if 'stock_name' in display_df.columns else 'name'
+            
             mask = (
-                display_df["code"].astype(str).str.contains(search_keyword, case=False, na=False) |
-                display_df["name"].astype(str).str.contains(search_keyword, case=False, na=False)
+                display_df[code_col].astype(str).str.contains(search_keyword, case=False, na=False) |
+                display_df[name_col].astype(str).str.contains(search_keyword, case=False, na=False)
             )
             display_df = display_df[mask]
             st.info(f"🔍 找到 {len(display_df)} 条匹配记录")
