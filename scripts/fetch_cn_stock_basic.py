@@ -51,39 +51,76 @@ OUT = Path("data/stock_basic.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 
-def fetch_cn_stock_basic(use_tushare: bool = True) -> pd.DataFrame:
+def retry_call(func, retries=6, backoff=1.5, allowed_exceptions=(Exception,), func_name="未知函数"):
     """
-    获取A股股票基本信息
+    重试包装函数，使用指数退避
+    参考ChatGPT推荐的方案，能够大幅减少RemoteDisconnected错误影响
     
     Args:
-        use_tushare: 是否优先使用Tushare（需要配置TUSHARE_TOKEN）
+        func: 要执行的函数（无参数）
+        retries: 最大重试次数
+        backoff: 初始退避时间（秒）
+        allowed_exceptions: 允许重试的异常类型
+        func_name: 函数名称（用于日志）
+    """
+    for attempt in range(retries):
+        try:
+            return func()
+        except allowed_exceptions as e:
+            if attempt < retries - 1:
+                wait = backoff * (2 ** attempt)  # 指数退避：1.5s, 3s, 6s, 12s, 24s, 48s
+                print(f"  ⚠️  [{func_name}] 第 {attempt+1}/{retries} 次尝试失败: {repr(e)[:80]}")
+                print(f"  💤 等待 {wait:.1f} 秒后重试...")
+                time.sleep(wait)
+            else:
+                print(f"  ❌ [{func_name}] 所有 {retries} 次重试均失败")
+                raise RuntimeError(f"所有 {retries} 次重试均失败: {func_name}") from e
+    raise RuntimeError(f"重试逻辑错误: {func_name}")
+
+
+def fetch_cn_stock_basic(use_tushare: bool = False) -> pd.DataFrame:
+    """
+    获取A股股票基本信息（优先使用AKShare，稳定且免费）
+    
+    Args:
+        use_tushare: 是否尝试使用Tushare（默认False，使用AKShare）
     
     Returns:
         pd.DataFrame: 包含股票代码、名称、最新价、市值等信息
     """
     print("📥 开始拉取A股基础资料...")
     
-    # 方法1：尝试使用Tushare（如果配置了Token）
+    # 彻底清除代理环境变量（防止代理导致的连接中断）
+    print("  🔧 清除代理环境变量...")
+    proxy_vars = ['HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy', 
+                  'ALL_PROXY', 'all_proxy', 'NO_PROXY', 'no_proxy']
+    for var in proxy_vars:
+        os.environ.pop(var, None)
+    print("  ✅ 代理环境变量已清除")
+    
+    # 方法1：优先使用AKShare（推荐，免费且稳定）
+    print("  📊 使用AKShare获取数据（免费，无需Token）...")
+    
+    # 方法2：可选，如果用户明确要使用Tushare
     if use_tushare:
         try:
             from tradingagents.dataflows.tushare_adapter import get_tushare_adapter
             adapter = get_tushare_adapter()
             
             if adapter.provider and adapter.provider.connected:
-                print("  ✅ 检测到Tushare配置，使用Tushare获取完整数据...")
-                return _fetch_with_tushare(adapter)
-            else:
-                print("  ⚠️  Tushare未配置或连接失败，使用AKShare作为备用...")
+                print("  ✅ 检测到Tushare配置，尝试使用Tushare获取完整数据...")
+                try:
+                    return _fetch_with_tushare(adapter)
+                except Exception as e:
+                    print(f"  ⚠️  Tushare获取失败: {e}")
+                    print("  💡 降级使用AKShare...")
         except Exception as e:
             print(f"  ⚠️  Tushare初始化失败: {e}")
-            print("  💡 使用AKShare作为备用数据源...")
+            print("  💡 使用AKShare作为数据源...")
     
-    # 方法2：使用AKShare（备用方案）
-    print("  📊 使用AKShare获取数据...")
-    
-    # 更彻底的代理禁用（修改requests和urllib3的全局配置）
+    # 设置无代理模式（修改requests库配置）
     def setup_no_proxy_requests():
-        """设置requests库不使用代理"""
+        """设置requests库不使用代理（参考ChatGPT方案）"""
         try:
             import requests
             import urllib3
@@ -94,18 +131,16 @@ def fetch_cn_stock_basic(use_tushare: bool = True) -> pd.DataFrame:
             # 2. 禁用urllib3的代理检测
             try:
                 urllib3.disable_warnings()
-                # 设置urllib3不使用系统代理
-                urllib3.util.connection.HAS_IPV6 = False  # 避免某些代理检测
             except:
                 pass
             
-            # 3. 修改requests.Session的request方法（最核心的方法）
+            # 3. 修改requests.Session的request方法
             original_request = requests.Session.request
             def no_proxy_request(self, method, url, **kwargs):
                 # 强制设置不使用代理
                 kwargs['proxies'] = {'http': None, 'https': None}
                 
-                # 添加更真实的浏览器请求头，避免被识别为爬虫
+                # 添加更真实的浏览器请求头
                 if 'headers' not in kwargs or kwargs['headers'] is None:
                     kwargs['headers'] = {}
                 
@@ -116,28 +151,23 @@ def fetch_cn_stock_basic(use_tushare: bool = True) -> pd.DataFrame:
                     headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                 if 'Accept-Language' not in headers:
                     headers['Accept-Language'] = 'zh-CN,zh;q=0.9,en;q=0.8'
-                if 'Accept-Encoding' not in headers:
-                    headers['Accept-Encoding'] = 'gzip, deflate, br'
                 if 'Connection' not in headers:
-                    headers['Connection'] = 'close'  # 每次请求后关闭连接，避免连接复用问题
-                if 'Upgrade-Insecure-Requests' not in headers:
-                    headers['Upgrade-Insecure-Requests'] = '1'
+                    headers['Connection'] = 'close'  # 每次请求后关闭连接
                 
-                # 增加超时时间（对于大数据量请求）
+                # 增加超时时间
                 if 'timeout' not in kwargs or kwargs.get('timeout') is None:
-                    kwargs['timeout'] = (10, 120)  # (连接超时, 读取超时) 秒
+                    kwargs['timeout'] = (10, 120)
                 
                 return original_request(self, method, url, **kwargs)
             
             requests.Session.request = no_proxy_request
             
-            # 4. 修改requests.get/post等快捷方法（它们也会创建Session）
+            # 4. 修改requests.get/post等快捷方法
             original_get = requests.get
             original_post = requests.post
             
             def patched_get(url, **kwargs):
                 kwargs['proxies'] = {'http': None, 'https': None}
-                # 注意：trust_env只对Session有效，不是request的参数
                 return original_get(url, **kwargs)
             
             def patched_post(url, **kwargs):
@@ -150,12 +180,9 @@ def fetch_cn_stock_basic(use_tushare: bool = True) -> pd.DataFrame:
             # 5. 修改Session的默认配置
             original_init = requests.Session.__init__
             def new_init(self, *args, **kwargs):
-                # 先正常初始化
                 original_init(self, *args, **kwargs)
-                # 然后设置属性（而不是通过参数）
                 if hasattr(self, 'trust_env'):
                     self.trust_env = False
-                # 设置默认proxies
                 self.proxies = {'http': None, 'https': None}
             
             requests.Session.__init__ = new_init
@@ -165,89 +192,37 @@ def fetch_cn_stock_basic(use_tushare: bool = True) -> pd.DataFrame:
             print(f"  ⚠️ 设置无代理模式失败: {e}")
             return False
     
-    # 重试装饰器
-    def retry_on_error(func, max_retries=5, initial_delay=2):
-        """重试机制（自动处理网络错误）"""
-        # 设置无代理模式
-        setup_no_proxy_requests()
-        
-        delay = initial_delay
-        
-        for attempt in range(max_retries):
-            try:
-                result = func()
-                return result
-            except Exception as e:
-                error_msg = str(e).lower()
-                error_type = type(e).__name__
-                
-                # 判断是否是可重试的错误
-                is_retryable = (
-                    "connection" in error_msg or
-                    "disconnected" in error_msg or
-                    "aborted" in error_msg or
-                    "timeout" in error_msg or
-                    "proxy" in error_msg or
-                    "连接" in error_msg or
-                    "RemoteDisconnected" in error_type or
-                    "ConnectionError" in error_type or
-                    "ProtocolError" in error_type
-                )
-                
-                if attempt < max_retries - 1 and is_retryable:
-                    # 根据错误类型显示不同的消息
-                    if "disconnected" in error_msg or "aborted" in error_msg:
-                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（连接中断）: {str(e)[:80]}")
-                        print(f"  💡 可能是数据源服务器临时关闭连接，或网络不稳定")
-                    elif "timeout" in error_msg:
-                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（请求超时）: {str(e)[:80]}")
-                    elif "proxy" in error_msg:
-                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（代理问题）: {str(e)[:80]}")
-                        disable_proxy()
-                        setup_no_proxy_requests()
-                    else:
-                        print(f"  ⚠️ 第 {attempt + 1}/{max_retries} 次尝试失败（网络问题）: {str(e)[:80]}")
-                    
-                    # 指数退避：2秒、4秒、8秒、16秒、32秒
-                    print(f"  🔄 等待 {delay} 秒后重试...")
-                    time.sleep(delay)
-                    delay = min(delay * 2, 32)  # 最大延迟32秒
-                    
-                    # 对于连接中断，增加额外等待
-                    if "disconnected" in error_msg or "aborted" in error_msg:
-                        print(f"  💤 连接中断，额外等待 3 秒...")
-                        time.sleep(3)
-                else:
-                    # 最后一次尝试失败，或者不可重试的错误
-                    if not is_retryable:
-                        print(f"  ❌ 遇到不可重试的错误: {error_type}")
-                    raise
+    # 设置无代理模式
+    setup_no_proxy_requests()
+    
+    # 注意：retry_call函数已定义在函数外部，使用ChatGPT推荐的指数退避方案
     
     try:
-        # 获取股票代码与名称（带重试，最多5次）
-        print("  - 获取股票代码与名称...")
-        code_name = retry_on_error(
+        # 使用改进的重试机制获取股票代码与名称
+        print("  - 获取股票代码与名称表（stock_info_a_code_name）...")
+        code_name = retry_call(
             lambda: ak.stock_info_a_code_name(),
-            max_retries=5,
-            initial_delay=2
+            retries=6,
+            backoff=1.5,
+            func_name="stock_info_a_code_name"
         )
         print(f"  ✅ 获取到 {len(code_name)} 条股票代码")
         
         # 在两次API调用之间添加延迟，避免请求过快
-        print("  - 等待 5 秒后获取实时数据（避免请求过快，给服务器缓冲时间）...")
-        time.sleep(5)
+        print("  - 等待 3 秒后获取实时数据（避免请求过快）...")
+        time.sleep(3)
         
-        # 获取实时股票信息，包括最新价、市值等（带重试，最多5次）
-        # 如果这个接口持续失败，会使用降级方案
-        print("  - 获取实时股票信息（包含价格、市值等）...")
-        print("  ⚠️  注意：此接口需要获取所有A股实时数据，可能需要较长时间...")
+        # 获取当日A股现货行情（包含价格、市值等）
+        print("  - 获取当日A股现货行情（stock_zh_a_spot_em）...")
+        print("  ⚠️  注意：此接口需要获取所有A股实时数据（5000+只），可能需要较长时间...")
         
         spot = None
         try:
-            spot = retry_on_error(
+            spot = retry_call(
                 lambda: ak.stock_zh_a_spot_em(),
-                max_retries=5,
-                initial_delay=5  # 对于大数据量请求，初始延迟更长
+                retries=6,
+                backoff=2.0,  # 对于大数据量请求，初始退避时间更长
+                func_name="stock_zh_a_spot_em"
             )
             print(f"  ✅ 获取到 {len(spot)} 条实时信息")
         except Exception as e:
@@ -555,8 +530,9 @@ def _fetch_with_tushare(adapter) -> pd.DataFrame:
 
 if __name__ == "__main__":
     try:
-        # 尝试使用Tushare，如果失败则使用AKShare
-        df = fetch_cn_stock_basic(use_tushare=True)
+        # 使用AKShare获取数据（免费，无需Token，无需实名认证）
+        # 如果用户配置了Tushare且想使用，可以设置use_tushare=True
+        df = fetch_cn_stock_basic(use_tushare=False)
         
         # 保存到CSV
         df.to_csv(OUT, index=False, encoding="utf-8-sig")  # 使用utf-8-sig确保Excel能正确打开
