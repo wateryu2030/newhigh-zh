@@ -91,13 +91,27 @@ if db_exists:
     try:
         import sqlite3
         conn = sqlite3.connect(str(DB_PATH))
-        df = pd.read_sql_query("SELECT * FROM stock_data ORDER BY stock_code", conn)
-        conn.close()
-        if not df.empty:
-            data_source = "数据库"
-            st.success(f"✅ 从数据库读取: {len(df)} 条记录")
+        # 检查表是否存在
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='stock_data'")
+        table_exists = cursor.fetchone() is not None
+        
+        if table_exists:
+            df = pd.read_sql_query("SELECT * FROM stock_data ORDER BY stock_code", conn)
+            conn.close()
+            if not df.empty:
+                data_source = "数据库"
+                st.success(f"✅ 从数据库读取: {len(df)} 条记录")
+            else:
+                st.warning(f"⚠️ 数据库表存在但数据为空")
+        else:
+            conn.close()
+            st.info(f"ℹ️ 数据库存在但stock_data表尚未创建，等待下载...")
     except Exception as e:
         st.warning(f"⚠️ 读取数据库失败: {e}")
+        import traceback
+        with st.expander("查看详细错误"):
+            st.code(traceback.format_exc())
 
 # 如果数据库读取失败，尝试从CSV读取
 if df is None or df.empty:
@@ -107,6 +121,8 @@ if df is None or df.empty:
             if not df.empty:
                 data_source = "CSV文件"
                 st.success(f"✅ 从CSV文件读取: {len(df)} 条记录")
+            else:
+                st.warning(f"⚠️ CSV文件存在但数据为空")
         except Exception as e:
             st.error(f"❌ 读取CSV文件失败: {e}")
 
@@ -256,7 +272,7 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
 
 st.markdown("---")
 
-# 数据展示
+# 数据展示（即使数据不完整也显示，至少显示代码和名称）
 if df is not None and not df.empty:
     st.subheader("📊 数据预览")
     
@@ -303,6 +319,22 @@ if df is not None and not df.empty:
             )
             display_df = display_df[mask]
             st.info(f"🔍 找到 {len(display_df)} 条匹配记录")
+        
+        # 显示数据完整性提示
+        code_col = 'stock_code' if 'stock_code' in display_df.columns else 'code'
+        has_price = 'price' in display_df.columns and display_df['price'].notna().any()
+        has_pe = 'pe' in display_df.columns and display_df['pe'].notna().any()
+        has_pb = 'pb' in display_df.columns and display_df['pb'].notna().any()
+        
+        if not has_price or not has_pe or not has_pb:
+            st.warning(f"""
+            ⚠️ **数据不完整提示**:
+            - 价格数据: {'✅' if has_price else '❌ 缺失'}
+            - PE数据: {'✅' if has_pe else '❌ 缺失'}
+            - PB数据: {'✅' if has_pb else '❌ 缺失'}
+            
+            💡 **建议**: 重新点击「下载/更新 A股基础资料」按钮，确保网络连接稳定。
+            """)
         
         # 显示数据
         st.dataframe(
