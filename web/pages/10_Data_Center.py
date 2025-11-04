@@ -765,10 +765,19 @@ if df is not None and not df.empty:
                         
                         if 'total_mv' in price_data.columns:
                             price_mv = price_data.dropna(subset=['total_mv']).copy()
-                            # 确保没有重复列
+                            # 确保没有重复列（在dropna后立即清理）
                             price_mv = clean_duplicate_columns(price_mv, keep_first=False)
                             
+                            # 双重验证：确保绝对没有重复列（在传递给Plotly之前）
+                            if price_mv.columns.duplicated().any():
+                                unique_cols = list(dict.fromkeys(price_mv.columns))
+                                price_mv = pd.DataFrame(price_mv.values[:, :len(unique_cols)], columns=unique_cols)
+                            
                             price_mv['total_mv_billion'] = price_mv['total_mv'] / 1e8
+                            
+                            # 再次验证：确保创建新列后没有重复列
+                            price_mv = clean_duplicate_columns(price_mv, keep_first=False)
+                            
                             fig_scatter = px.scatter(
                                 price_mv,
                                 x='price',
