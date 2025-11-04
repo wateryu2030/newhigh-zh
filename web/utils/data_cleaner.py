@@ -55,7 +55,7 @@ def clean_duplicate_columns(df: pd.DataFrame, keep_first: bool = True) -> pd.Dat
             num_cols = len(unique_cols)
             num_rows = len(df)
             if num_cols > 0:
-                # 获取唯一列对应的数据
+                # 获取唯一列对应的数据（保留第一个出现的列）
                 seen = {}
                 col_indices = []
                 for i, col in enumerate(df.columns):
@@ -76,9 +76,28 @@ def clean_duplicate_columns(df: pd.DataFrame, keep_first: bool = True) -> pd.Dat
             # 即使没有重复，也确保列名唯一
             df = df[unique_cols]
     
-    # 最终验证：确保绝对没有重复列
+    # 最终验证：确保绝对没有重复列（强制验证）
     if df.columns.duplicated().any():
-        # 如果还有重复，强制重建
+        # 如果还有重复，强制重建（使用最可靠的方法）
+        unique_cols = list(dict.fromkeys(df.columns))
+        # 获取每个唯一列的第一个出现位置
+        seen = {}
+        col_indices = []
+        for i, col in enumerate(df.columns):
+            if col not in seen:
+                seen[col] = i
+                col_indices.append(i)
+        
+        if len(col_indices) == len(unique_cols):
+            df = df.iloc[:, col_indices]
+            df.columns = unique_cols
+        else:
+            # 如果仍有问题，使用values重建
+            df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+    
+    # 最后一次验证：确保绝对没有重复列
+    if df.columns.duplicated().any():
+        # 最后的保险：强制重建
         unique_cols = list(dict.fromkeys(df.columns))
         df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
     

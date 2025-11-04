@@ -160,7 +160,15 @@ if data_engine_db_exists:
                 df = df.merge(df_fin, on='ts_code', how='left')
                 df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
                 
-                # 最终确保：使用数据清洗模块去重
+                # 立即清理重复列（在合并后立即处理，防止后续操作产生问题）
+                df = clean_duplicate_columns(df, keep_first=False)
+                
+                # 双重验证：确保绝对没有重复列
+                if df.columns.duplicated().any():
+                    unique_cols = list(dict.fromkeys(df.columns))
+                    df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+                
+                # 最终确保：使用数据清洗模块去重（最后一次确认）
                 df = clean_duplicate_columns(df, keep_first=False)
             else:
                 df = df_basic.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
@@ -572,6 +580,11 @@ if df is not None and not df.empty:
         
         # 立即去除重复列（在筛选前确保数据干净，使用数据清洗模块）
         display_df = clean_duplicate_columns(display_df, keep_first=False)
+        
+        # 双重验证：确保绝对没有重复列
+        if display_df.columns.duplicated().any():
+            unique_cols = list(dict.fromkeys(display_df.columns))
+            display_df = pd.DataFrame(display_df.values[:, :len(unique_cols)], columns=unique_cols)
         
         # 市值筛选（BaoStock不提供市值数据，暂时跳过）
         if has_mv and 'total_mv' in display_df.columns and display_df['total_mv'].notna().any():
