@@ -18,8 +18,11 @@ try:
 except ImportError:
     PLOTLY_AVAILABLE = False
 
+# 添加项目根目录到路径（先添加，确保导入路径正确）
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 # 导入数据清洗模块
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from web.utils.data_cleaner import safe_dataframe as clean_dataframe, clean_duplicate_columns
 
 def safe_dataframe(df, **kwargs):
@@ -38,10 +41,6 @@ st.set_page_config(
     page_icon="📥",
     layout="wide"
 )
-
-# 添加项目根目录到路径
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 # 数据路径（用于向后兼容）
 DATA_PATH = project_root / "data" / "stock_basic.csv"
