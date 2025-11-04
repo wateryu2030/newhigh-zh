@@ -3,7 +3,18 @@ import pandas as pd
 import os
 
 def get_engine(db_url: str):
-    engine = create_engine(db_url, pool_pre_ping=True)
+    # SQLite需要设置超时和连接池参数，避免数据库锁定
+    if db_url.startswith("sqlite"):
+        engine = create_engine(
+            db_url, 
+            pool_pre_ping=True,
+            connect_args={
+                "timeout": 30.0,  # 30秒超时
+                "check_same_thread": False  # 允许多线程访问
+            }
+        )
+    else:
+        engine = create_engine(db_url, pool_pre_ping=True)
     
     # 如果是SQLite，自动初始化表结构
     if db_url.startswith("sqlite"):

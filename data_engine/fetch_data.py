@@ -225,42 +225,52 @@ def main():
     
     # 2. 下载日K行情（智能增量更新：优先下载缺失的数据）
     # 检查数据库中已有的股票，只下载缺失的数据
-    try:
-        import sqlite3
-        from pathlib import Path
-        db_path = Path(__file__).parent.parent / "data" / "stock_database.db"
-        if db_path.exists():
-            conn = sqlite3.connect(str(db_path))
-            cursor = conn.cursor()
-            # 获取已有最新日期的股票列表
-            cursor.execute("""
-                SELECT DISTINCT ts_code 
-                FROM stock_market_daily 
-                WHERE trade_date = (SELECT MAX(trade_date) FROM stock_market_daily)
-            """)
-            existing_codes = set([row[0] for row in cursor.fetchall()])
-            conn.close()
+        try:
+            import sqlite3
+            from pathlib import Path
+            db_path = Path(__file__).parent.parent / "data" / "stock_database.db"
+            if db_path.exists():
+                # 使用超时连接，避免数据库锁定
+                conn = sqlite3.connect(str(db_path), timeout=30.0)
+                cursor = conn.cursor()
+                # 获取已有最新日期的股票列表
+                cursor.execute("""
+                    SELECT DISTINCT ts_code 
+                    FROM stock_market_daily 
+                    WHERE trade_date = (SELECT MAX(trade_date) FROM stock_market_daily)
+                """)
+                existing_codes = set([row[0] for row in cursor.fetchall()])
+                conn.close()
             
             # 找出缺失的股票
             all_codes = set(codes_df['ts_code'].tolist())
             missing_codes = all_codes - existing_codes
+            
+            # 检查BATCH_SIZE设置
+            batch_size = os.getenv("BATCH_SIZE", "full")
             
             if missing_codes:
                 logger.info(f"发现 {len(missing_codes)} 只股票缺少市场数据，将优先下载")
                 missing_df = codes_df[codes_df['ts_code'].isin(missing_codes)]
                 fetch_market_daily(missing_df)
             
-            # 检查是否还需要更新已有股票的最新数据
-            batch_size = os.getenv("BATCH_SIZE", "full")
+            # 根据BATCH_SIZE决定是否更新已有股票
             if batch_size.lower() in ["none", "null", "full"]:
+                # 全量更新：更新所有股票（包括已有最新数据的股票）
                 logger.info(f"全量更新所有股票数据（共{len(codes_df)}只）")
                 fetch_market_daily(codes_df)
             else:
+                # 批量更新：只更新指定数量的股票
                 try:
                     limit = int(batch_size)
-                    update_codes = codes_df.head(limit)
-                    logger.info(f"更新前{limit}只股票的数据")
-                    fetch_market_daily(update_codes)
+                    # 优先更新缺失的股票，如果还有剩余，再更新已有股票
+                    if len(missing_codes) < limit:
+                        remaining = limit - len(missing_codes)
+                        existing_update_codes = codes_df[~codes_df['ts_code'].isin(missing_codes)].head(remaining)
+                        if len(existing_update_codes) > 0:
+                            logger.info(f"更新 {remaining} 只已有股票的最新数据")
+                            fetch_market_daily(existing_update_codes)
+                    logger.info(f"批量更新完成（共更新 {min(limit, len(codes_df))} 只股票）")
                 except ValueError:
                     logger.warning(f"BATCH_SIZE值无效: {batch_size}，使用全量下载")
                     fetch_market_daily(codes_df)

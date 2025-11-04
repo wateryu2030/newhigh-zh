@@ -18,8 +18,23 @@ from compute_indicators import main as compute_main
 
 logger = setup_logger(log_file=os.path.join(DATA_DIR, "update.log"))
 
-if __name__ == "__main__":
+def main():
+    """主函数：更新所有数据"""
     logger.info("🚀 开始更新 A股智能选股基础数据库（v1）")
     fetch_main()
-    compute_main(limit=400)   # 初次运行先限制规模，稳定后可放开
+    
+    # 技术指标计算（可选，根据需要启用）
+    batch_size = os.getenv("BATCH_SIZE", "400")
+    if batch_size.lower() in ["none", "null", "full"]:
+        compute_main(limit=None)  # 全量计算
+    else:
+        try:
+            limit = int(batch_size)
+            compute_main(limit=limit)
+        except ValueError:
+            compute_main(limit=400)
+    
     logger.info("✅ 全部完成")
+
+if __name__ == "__main__":
+    main()
