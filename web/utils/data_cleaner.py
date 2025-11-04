@@ -26,59 +26,94 @@ def detect_duplicate_columns(df: pd.DataFrame) -> list:
     return dup_cols
 
 
-def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
+def clean_duplicate_columns(df: pd.DataFrame, keep_first: bool = True) -> pd.DataFrame:
     """
-    清理 DataFrame 中重复的列名，保留第一列。
+    清理 DataFrame 中重复的列名，保留第一列或使用dict.fromkeys保持顺序。
+    
     :param df: pandas.DataFrame
+    :param keep_first: 如果为True，保留第一个出现的列；如果为False，使用dict.fromkeys保持顺序（推荐）
     :return: 清理后的 DataFrame
     """
+    if df is None or df.empty:
+        return df
+    
     dup_cols = detect_duplicate_columns(df)
     if dup_cols:
-        df = df.loc[:, ~df.columns.duplicated()]
+        if keep_first:
+            # 方法1：使用pandas的duplicated()方法，保留第一个
+            df = df.loc[:, ~df.columns.duplicated()]
+        else:
+            # 方法2：使用dict.fromkeys保持顺序（推荐，更可靠）
+            unique_cols = list(dict.fromkeys(df.columns))
+            if len(unique_cols) != len(df.columns):
+                # 如果有重复，重建DataFrame
+                df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+            else:
+                df = df[unique_cols]
         logger.info(f"✅ 已移除重复列，当前字段数量: {len(df.columns)}")
     return df
 
 
-def normalize_column_names(df: pd.DataFrame) -> pd.DataFrame:
+def normalize_column_names(df: pd.DataFrame, lowercase: bool = False) -> pd.DataFrame:
     """
-    统一列名格式（去除多余空格、统一小写）
+    统一列名格式（去除多余空格，可选统一小写）
+    
     :param df: pandas.DataFrame
+    :param lowercase: 是否将列名转为小写（默认False，保持原样）
     :return: 标准化后的 DataFrame
     """
+    if df is None or df.empty:
+        return df
+    
     original = df.columns.tolist()
-    df.columns = [col.strip().lower() for col in df.columns]
+    if lowercase:
+        df.columns = [col.strip().lower() for col in df.columns]
+    else:
+        df.columns = [col.strip() for col in df.columns]
+    
     logger.info(f"🧩 标准化列名: {len(original)} → {len(set(df.columns))}")
-    return clean_duplicate_columns(df)
+    return clean_duplicate_columns(df, keep_first=False)
 
 
-def safe_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+def safe_dataframe(df: pd.DataFrame, normalize: bool = False, lowercase: bool = False) -> pd.DataFrame:
     """
-    综合清理函数：去重 + 标准化 + 重命名
+    综合清理函数：去重 + 可选标准化
+    
     :param df: pandas.DataFrame
+    :param normalize: 是否标准化列名（去除空格）
+    :param lowercase: 是否将列名转为小写（仅在normalize=True时生效）
     :return: 清理后的 DataFrame
     """
     if df is None or df.empty:
         logger.warning("⚠️ 输入 DataFrame 为空，跳过清理。")
         return df
-    df = normalize_column_names(df)
-    df = clean_duplicate_columns(df)
+    
+    if normalize:
+        df = normalize_column_names(df, lowercase=lowercase)
+    else:
+        # 只做去重，保持列名原样
+        df = clean_duplicate_columns(df, keep_first=False)
+    
     return df
 
 
 # 示例使用：
 if __name__ == "__main__":
     # 模拟重复列 DataFrame
+    import pandas as pd
+    
     data = {
         "stock_code": [1, 2],
         "stock_name": ["A", "B"],
-        "price": [10, 20],
-        "price": [11, 22],
-        "volume": [1000, 2000],
-        "volume": [1000, 2000]
     }
     df = pd.DataFrame(data)
+    # 手动添加重复列（通过直接修改columns）
+    df.columns = ['stock_code', 'stock_name', 'price', 'volume', 'volume']  # 最后一个volume是重复的
+    
     print("原始列:", df.columns.tolist())
+    print("是否有重复:", df.columns.duplicated().any())
 
-    df_clean = safe_dataframe(df)
+    df_clean = safe_dataframe(df, normalize=False)
     print("清理后列:", df_clean.columns.tolist())
+    print("是否有重复:", df_clean.columns.duplicated().any())
 
