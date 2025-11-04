@@ -709,7 +709,20 @@ if df is not None and not df.empty:
                     # 再次验证：确保nlargest后没有重复列
                     top_mv = clean_duplicate_columns(top_mv, keep_first=False)
                     
+                    # 最终验证：在传递给Plotly之前绝对确保没有重复列
+                    if top_mv.columns.duplicated().any():
+                        unique_cols = list(dict.fromkeys(top_mv.columns))
+                        top_mv = pd.DataFrame(top_mv.values[:, :len(unique_cols)], columns=unique_cols)
+                    
+                    # 最后一次强制清理（确保绝对没有重复列）
+                    top_mv = clean_duplicate_columns(top_mv, keep_first=False)
+                    
                     if PLOTLY_AVAILABLE:
+                        # 在创建图表前再次验证（确保传递给Plotly的DataFrame绝对干净）
+                        if top_mv.columns.duplicated().any():
+                            unique_cols = list(dict.fromkeys(top_mv.columns))
+                            top_mv = pd.DataFrame(top_mv.values[:, :len(unique_cols)], columns=unique_cols)
+                        
                         fig_mv = px.bar(
                             top_mv,
                             x='stock_name',
