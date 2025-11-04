@@ -640,6 +640,11 @@ if df is not None and not df.empty:
                         plot_df = display_df.dropna(subset=['pe', 'pb']).copy()
                         plot_df = clean_duplicate_columns(plot_df, keep_first=False)
                         
+                        # 双重验证：确保绝对没有重复列（在传递给Plotly之前）
+                        if plot_df.columns.duplicated().any():
+                            unique_cols = list(dict.fromkeys(plot_df.columns))
+                            plot_df = pd.DataFrame(plot_df.values[:, :len(unique_cols)], columns=unique_cols)
+                        
                         fig = px.scatter(
                             plot_df,
                             x='pe',
@@ -659,6 +664,11 @@ if df is not None and not df.empty:
                             plot_df_pe = display_df.dropna(subset=['pe']).copy()
                             plot_df_pe = clean_duplicate_columns(plot_df_pe, keep_first=False)
                             
+                            # 双重验证：确保绝对没有重复列（在传递给Plotly之前）
+                            if plot_df_pe.columns.duplicated().any():
+                                unique_cols = list(dict.fromkeys(plot_df_pe.columns))
+                                plot_df_pe = pd.DataFrame(plot_df_pe.values[:, :len(unique_cols)], columns=unique_cols)
+                            
                             fig_pe = px.histogram(plot_df_pe, x='pe', nbins=30, title='PE分布直方图')
                             st.plotly_chart(fig_pe, use_container_width=True)
                         else:
@@ -669,6 +679,11 @@ if df is not None and not df.empty:
                             # 确保传递给Plotly的DataFrame没有重复列
                             plot_df_pb = display_df.dropna(subset=['pb']).copy()
                             plot_df_pb = clean_duplicate_columns(plot_df_pb, keep_first=False)
+                            
+                            # 双重验证：确保绝对没有重复列（在传递给Plotly之前）
+                            if plot_df_pb.columns.duplicated().any():
+                                unique_cols = list(dict.fromkeys(plot_df_pb.columns))
+                                plot_df_pb = pd.DataFrame(plot_df_pb.values[:, :len(unique_cols)], columns=unique_cols)
                             
                             fig_pb = px.histogram(plot_df_pb, x='pb', nbins=30, title='PB分布直方图')
                             st.plotly_chart(fig_pb, use_container_width=True)
