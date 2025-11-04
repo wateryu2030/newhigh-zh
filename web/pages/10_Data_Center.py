@@ -710,14 +710,22 @@ if df is not None and not df.empty:
             with viz_tab3:
                 if has_price and 'price' in display_df.columns:
                     price_data = display_df.dropna(subset=['price']).copy()
-                    # 确保没有重复列
+                    # 确保没有重复列（在dropna后立即清理）
                     price_data = clean_duplicate_columns(price_data, keep_first=False)
+                    
+                    # 双重验证：确保绝对没有重复列（在访问columns之前）
+                    if price_data.columns.duplicated().any():
+                        unique_cols = list(dict.fromkeys(price_data.columns))
+                        price_data = pd.DataFrame(price_data.values[:, :len(unique_cols)], columns=unique_cols)
                     
                     if PLOTLY_AVAILABLE:
                         fig_price = px.histogram(price_data, x='price', nbins=50, title='股价分布直方图')
                         st.plotly_chart(fig_price, use_container_width=True)
                         
-                        # 价格与市值关系
+                        # 价格与市值关系（在访问columns前再次确保无重复列）
+                        if price_data.columns.duplicated().any():
+                            price_data = clean_duplicate_columns(price_data, keep_first=False)
+                        
                         if 'total_mv' in price_data.columns:
                             price_mv = price_data.dropna(subset=['total_mv']).copy()
                             # 确保没有重复列
@@ -783,6 +791,11 @@ if df is not None and not df.empty:
         
         # 确保display_df没有重复列（一次性处理，避免重复检查，使用数据清洗模块）
         display_df = clean_duplicate_columns(display_df, keep_first=False)
+        
+        # 再次验证：确保绝对没有重复列（在访问columns之前）
+        if display_df.columns.duplicated().any():
+            unique_cols = list(dict.fromkeys(display_df.columns))
+            display_df = pd.DataFrame(display_df.values[:, :len(unique_cols)], columns=unique_cols)
         
         display_columns = []
         

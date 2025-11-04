@@ -37,20 +37,52 @@ def clean_duplicate_columns(df: pd.DataFrame, keep_first: bool = True) -> pd.Dat
     if df is None or df.empty:
         return df
     
-    dup_cols = detect_duplicate_columns(df)
-    if dup_cols:
-        if keep_first:
-            # 方法1：使用pandas的duplicated()方法，保留第一个
-            df = df.loc[:, ~df.columns.duplicated()]
-        else:
-            # 方法2：使用dict.fromkeys保持顺序（推荐，更可靠）
-            unique_cols = list(dict.fromkeys(df.columns))
-            if len(unique_cols) != len(df.columns):
-                # 如果有重复，重建DataFrame
-                df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+    # 首先检查是否有重复列
+    if not df.columns.duplicated().any():
+        # 没有重复列，直接返回
+        return df
+    
+    # 有重复列，需要清理
+    if keep_first:
+        # 方法1：使用pandas的duplicated()方法，保留第一个
+        df = df.loc[:, ~df.columns.duplicated()]
+    else:
+        # 方法2：使用dict.fromkeys保持顺序（推荐，更可靠）
+        unique_cols = list(dict.fromkeys(df.columns))
+        if len(unique_cols) != len(df.columns):
+            # 如果有重复，重建DataFrame
+            # 确保数据列数匹配
+            num_cols = len(unique_cols)
+            num_rows = len(df)
+            if num_cols > 0:
+                # 获取唯一列对应的数据
+                seen = {}
+                col_indices = []
+                for i, col in enumerate(df.columns):
+                    if col not in seen:
+                        seen[col] = i
+                        col_indices.append(i)
+                
+                # 确保索引数量正确
+                if len(col_indices) == num_cols:
+                    df = df.iloc[:, col_indices]
+                    df.columns = unique_cols
+                else:
+                    # 如果索引不匹配，使用values重建
+                    df = pd.DataFrame(df.values[:, :num_cols], columns=unique_cols)
             else:
-                df = df[unique_cols]
-        logger.info(f"✅ 已移除重复列，当前字段数量: {len(df.columns)}")
+                df = pd.DataFrame(columns=unique_cols)
+        else:
+            # 即使没有重复，也确保列名唯一
+            df = df[unique_cols]
+    
+    # 最终验证：确保绝对没有重复列
+    if df.columns.duplicated().any():
+        # 如果还有重复，强制重建
+        unique_cols = list(dict.fromkeys(df.columns))
+        df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+    
+    logger.info(f"✅ 已移除重复列，当前字段数量: {len(df.columns)}")
     return df
 
 
