@@ -131,23 +131,15 @@ with st.sidebar:
                         elif "⏳" in line or "进度" in line:
                             status_text.info(f"⏳ {line}")
                         
-                        # 显示最后几行日志
-                        if len(output_lines) > 10:
-                            log_output.text_area(
-                                "下载日志",
-                                "\n".join(output_lines[-10:]),
-                                height=150,
-                                disabled=True,
-                                key="download_log"
-                            )
-                        else:
-                            log_output.text_area(
-                                "下载日志",
-                                "\n".join(output_lines),
-                                height=150,
-                                disabled=True,
-                                key="download_log"
-                            )
+                        # 显示最后几行日志（使用唯一的key）
+                        display_lines = output_lines[-10:] if len(output_lines) > 10 else output_lines
+                        log_output.text_area(
+                            "下载日志",
+                            "\n".join(display_lines),
+                            height=150,
+                            disabled=True,
+                            key=f"download_log_{id(log_output)}"
+                        )
                 
                 # 等待进程完成
                 process.wait()
