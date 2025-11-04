@@ -45,12 +45,15 @@ CREATE TABLE IF NOT EXISTS stock_market_daily (
     high DOUBLE,
     low DOUBLE,
     close DOUBLE,
-    pre_close DOUBLE,
+    preclose DOUBLE,
     pct_chg DOUBLE,
-    vol BIGINT,
+    volume BIGINT,
     amount DOUBLE,
     turnover_rate DOUBLE,
     amplitude DOUBLE,
+    peTTM DOUBLE,
+    pbMRQ DOUBLE,
+    psTTM DOUBLE,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(ts_code, trade_date)
 );
@@ -108,3 +111,12 @@ CREATE TABLE IF NOT EXISTS market_index_daily (
     pb DOUBLE,
     UNIQUE(index_code, trade_date)
 );
+
+-- 创建索引以提升查询性能
+-- MySQL语法：需要手动检查索引是否存在或直接创建（如果不存在会报错但可忽略）
+CREATE INDEX idx_stock_basic_symbol ON stock_basic_info(symbol);
+CREATE INDEX idx_financials_ts_date ON stock_financials(ts_code, trade_date);
+CREATE INDEX idx_market_daily_ts_date ON stock_market_daily(ts_code, trade_date);
+CREATE INDEX idx_technical_ts_date ON stock_technical_indicators(ts_code, trade_date);
+CREATE INDEX idx_moneyflow_ts_date ON stock_moneyflow(ts_code, trade_date);
+CREATE INDEX idx_index_daily_code_date ON market_index_daily(index_code, trade_date);

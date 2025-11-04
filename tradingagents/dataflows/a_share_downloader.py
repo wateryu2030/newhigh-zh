@@ -2,6 +2,10 @@
 """
 A股基础数据下载器
 批量下载并存储A股基本信息（代码、名称、市盈率、市值等）
+
+⚠️ 已废弃：此模块已被 data_engine 替代
+新的数据下载请使用：data_engine/update_all.py
+新的数据查询请直接访问：data/stock_database.db
 """
 
 import os

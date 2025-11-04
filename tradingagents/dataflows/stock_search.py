@@ -2,6 +2,10 @@
 """
 股票搜索接口
 提供便捷的股票搜索和查询功能
+
+⚠️ 已废弃：此模块已被 data_engine 替代
+新的数据查询请直接访问：data/stock_database.db
+新的搜索功能请使用：web/pages/02_Stock_Search.py
 """
 
 from typing import Optional, List, Dict

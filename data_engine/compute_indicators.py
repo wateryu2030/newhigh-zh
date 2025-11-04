@@ -1,6 +1,13 @@
 import os
+import sys
 import pandas as pd
 import pandas_ta as ta
+from pathlib import Path
+
+# Add data_engine directory to path for imports
+data_engine_dir = Path(__file__).parent
+sys.path.insert(0, str(data_engine_dir))
+
 from utils.logger import setup_logger
 from utils.db_utils import get_engine, read_sql, upsert_df
 from config import DB_URL

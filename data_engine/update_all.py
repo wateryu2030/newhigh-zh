@@ -4,6 +4,13 @@
 2) 运行本脚本将自动：基础信息 -> 财务/估值 -> 指数 -> 概念行业 -> 日K -> 技术指标
 """
 import os
+import sys
+from pathlib import Path
+
+# Add data_engine directory to path for imports
+data_engine_dir = Path(__file__).parent
+sys.path.insert(0, str(data_engine_dir))
+
 from utils.logger import setup_logger
 from config import DATA_DIR
 from fetch_data import main as fetch_main

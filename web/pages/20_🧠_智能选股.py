@@ -1,11 +1,12 @@
 """
 智能选股（简化版）
-基于本地CSV基础资料 + LLM的智能选股系统
+基于data_engine数据库 + LLM的智能选股系统
 """
 
 import os
 import streamlit as st
 import pandas as pd
+import sqlite3
 from pathlib import Path
 import sys
 from typing import List, Dict
@@ -13,8 +14,8 @@ from tradingagents.utils.logging_init import get_logger
 
 logger = get_logger('web.smart_selection')
 
-# 添加项目根目录到路径
-project_root = Path(__file__).parent.parent.parent
+# 添加项目根目录到路径（使用resolve()确保绝对路径）
+project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
 st.set_page_config(
@@ -23,28 +24,157 @@ st.set_page_config(
     layout="wide"
 )
 
-DATA_PATH = Path("data/stock_basic.csv")
-DATA_PATH = project_root / DATA_PATH if not DATA_PATH.is_absolute() else DATA_PATH
+# 使用新数据库
+DATA_ENGINE_DB_PATH = project_root / "data" / "stock_database.db"
 
 st.title("🧠 智能选股（基于本地基础资料 + LLM）")
 
-# 检查数据文件
-if not DATA_PATH.exists():
-    st.warning("⚠️ 未找到本地基础资料，请先到「数据中心 - 基础资料」页面下载。")
+# 检查数据库（使用绝对路径，添加详细诊断）
+db_path_absolute = DATA_ENGINE_DB_PATH.resolve()
+
+if not db_path_absolute.exists():
+    # 显示调试信息（帮助诊断问题）
+    st.error("❌ 数据库文件不存在")
+    with st.expander("🔍 调试信息（点击展开）", expanded=True):
+        st.write(f"**项目根目录**: `{project_root}`")
+        st.write(f"**数据库相对路径**: `{DATA_ENGINE_DB_PATH}`")
+        st.write(f"**数据库绝对路径**: `{db_path_absolute}`")
+        st.write(f"**路径存在**: {db_path_absolute.exists()}")
+        
+        # 检查父目录
+        data_dir = db_path_absolute.parent
+        st.write(f"**data目录**: `{data_dir}`")
+        st.write(f"**data目录存在**: {data_dir.exists()}")
+        
+        if data_dir.exists():
+            st.write(f"**data目录内容**: {list(data_dir.iterdir())[:10]}")
+    
+    st.warning("⚠️ 未找到本地基础资料，请先到「Data Center」页面下载。")
     st.info("""
     💡 **使用步骤**:
-    1. 点击左侧导航栏中的「📥 数据中心 - 基础资料」
+    1. 点击左侧导航栏中的「Data Center」
     2. 点击「下载/更新 A股基础资料」按钮
     3. 等待下载完成后返回本页面
     """)
+    
+    # 建议重启Streamlit
+    st.info("💡 **如果数据库存在但仍显示此错误，请尝试重启Streamlit服务**")
     st.stop()
 
-# 加载数据
+# 从数据库加载数据
+df = None
 try:
-    df = pd.read_csv(DATA_PATH, encoding="utf-8-sig")
-    st.success(f"✅ 已加载 {len(df)} 条股票数据")
+    # 使用绝对路径确保正确连接
+    conn = sqlite3.connect(str(db_path_absolute))
+    cursor = conn.cursor()
+    
+    # 检查表
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = [row[0] for row in cursor.fetchall()]
+    
+    if 'stock_basic_info' in tables and 'stock_market_daily' in tables:
+        # 读取基础信息
+        df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", conn)
+        
+        # 获取最新的交易日期
+        cursor.execute("SELECT MAX(trade_date) FROM stock_market_daily")
+        latest_date = cursor.fetchone()[0]
+        
+        if latest_date:
+            # 读取最新日期的市场数据
+            query_market = f"""
+                SELECT 
+                    m.ts_code,
+                    m.close as price,
+                    m.volume,
+                    m.amount as turnover,
+                    m.pct_chg as change_pct,
+                    m.peTTM as pe,
+                    m.pbMRQ as pb,
+                    m.psTTM as ps
+                FROM stock_market_daily m
+                WHERE m.trade_date = '{latest_date}'
+            """
+            df_market = pd.read_sql_query(query_market, conn)
+            
+            # 读取财务数据（如果有）
+            if 'stock_financials' in tables:
+                query_fin = f"""
+                    SELECT 
+                        f.ts_code,
+                        f.total_mv,
+                        f.circ_mv
+                    FROM stock_financials f
+                    WHERE f.trade_date = (
+                        SELECT MAX(trade_date) FROM stock_financials
+                    )
+                """
+                df_fin = pd.read_sql_query(query_fin, conn)
+                
+                # 合并数据
+                df = df_basic.merge(df_market, on='ts_code', how='left')
+                df = df.merge(df_fin, on='ts_code', how='left')
+            else:
+                # 合并市场数据
+                df = df_basic.merge(df_market, on='ts_code', how='left')
+            
+            # 字段映射（适配旧代码的字段名）
+            # 注意：数据库中的字段是peTTM/pbMRQ/psTTM，需要正确映射
+            rename_map = {
+                'ts_code': 'code',
+                'name': 'name',
+                'price': 'price',
+                'total_mv': 'market_cap',
+                'circ_mv': 'float_cap',
+                'volume': 'volume',
+                'turnover': 'turnover',
+                'change_pct': 'change_pct'
+            }
+            # PE/PB/PS字段映射（从peTTM/pbMRQ/psTTM）
+            if 'peTTM' in df.columns:
+                rename_map['peTTM'] = 'pe'
+            if 'pbMRQ' in df.columns:
+                rename_map['pbMRQ'] = 'pb'
+            if 'psTTM' in df.columns:
+                rename_map['psTTM'] = 'ps'
+            
+            df = df.rename(columns=rename_map)
+            
+            # 确保必要的字段存在
+            if 'market_cap' not in df.columns:
+                df['market_cap'] = None
+            if 'pe' not in df.columns:
+                df['pe'] = None
+            if 'pb' not in df.columns:
+                df['pb'] = None
+            
+            st.success(f"✅ 已加载 {len(df)} 条股票数据（最新日期: {latest_date}）")
+        else:
+            st.error("❌ 数据库中没有市场数据，请先下载数据")
+            st.stop()
+    elif 'stock_basic_info' in tables:
+        # 只有基础信息
+        df = pd.read_sql_query("SELECT * FROM stock_basic_info", conn)
+        df = df.rename(columns={'ts_code': 'code', 'name': 'name'})
+        df['price'] = None
+        df['market_cap'] = None
+        df['pe'] = None
+        df['pb'] = None
+        st.warning(f"⚠️ 只有基础信息，共 {len(df)} 条，建议下载完整数据")
+    else:
+        st.error("❌ 数据库表结构不正确，请重新下载数据")
+        st.stop()
+    
+    conn.close()
 except Exception as e:
     st.error(f"❌ 读取数据失败: {e}")
+    import traceback
+    with st.expander("查看详细错误"):
+        st.code(traceback.format_exc())
+    st.stop()
+
+if df is None or df.empty:
+    st.error("❌ 未能加载数据，请检查数据库")
     st.stop()
 
 st.markdown("---")
@@ -146,11 +276,14 @@ def llm_rerank(candidates: pd.DataFrame, api_key: str, provider: str, strategy: 
     
     results = []
     for _, r in candidates.iterrows():
+        # 获取code（兼容多种字段名）
+        code = r.get("code") or r.get("ts_code") or r.get("stock_code") or "N/A"
+        
         results.append({
-            "code": r.get("code", "N/A"),
+            "code": code,
             "name": r.get("name", "N/A"),
-            "price": f"￥{r.get('price', 0):.2f}" if pd.notna(r.get("price")) else "N/A",
-            "market_cap": f"{r.get('market_cap', 0) / 1e8:.2f}亿" if pd.notna(r.get("market_cap")) else "N/A",
+            "price": f"￥{r.get('price', 0):.2f}" if pd.notna(r.get("price")) and r.get("price", 0) > 0 else "N/A",
+            "market_cap": f"{r.get('market_cap', 0) / 1e8:.2f}亿" if pd.notna(r.get("market_cap")) and r.get("market_cap", 0) > 0 else "N/A",
             "pe": f"{r.get('pe', 0):.2f}" if pd.notna(r.get("pe")) and r.get("pe", 0) > 0 else "N/A",
             "pb": f"{r.get('pb', 0):.2f}" if pd.notna(r.get("pb")) and r.get("pb", 0) > 0 else "N/A",
             "score": r.get("score", 0),
@@ -175,6 +308,12 @@ if st.button("🚀 生成选股建议", type="primary", use_container_width=True
         if not allow_st:
             if "name" in work.columns:
                 work = work[~work["name"].astype(str).str.contains("ST", case=False, na=False)]
+        
+        # 确保字段名正确（适配旧代码）
+        if "code" not in work.columns and "ts_code" in work.columns:
+            work["code"] = work["ts_code"]
+        if "code" not in work.columns and "stock_code" in work.columns:
+            work["code"] = work["stock_code"]
         
         # 市值筛选
         if "market_cap" in work.columns:
@@ -227,7 +366,7 @@ if st.button("🚀 生成选股建议", type="primary", use_container_width=True
                 columns_for_llm.append("ps")
             
             ranked = llm_rerank(
-                work[columns_for_llm],
+                work[available_cols],
                 api_key,
                 provider,
                 strategy,

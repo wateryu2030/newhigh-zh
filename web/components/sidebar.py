@@ -1099,6 +1099,20 @@ def render_sidebar():
             if st.button("⚙️ 系统设置", key="system_settings_btn", use_container_width=True):
                 st.session_state.page = "system_settings"
         
+        # LLM配置重置按钮
+        st.markdown("---")
+        if st.button("🔄 重置LLM配置为阿里百炼", help="清除当前配置，恢复为阿里百炼默认配置", use_container_width=True, key="reset_llm_config"):
+            # 清除配置
+            persistence.clear_config()
+            # 重置session state
+            st.session_state.llm_provider = "dashscope"
+            st.session_state.llm_model = "qwen-plus-latest"
+            st.session_state.model_category = "openai"
+            # 保存新配置
+            save_model_selection("dashscope", "openai", "qwen-plus-latest")
+            st.sidebar.success("✅ 已重置为阿里百炼配置")
+            st.rerun()
+        
         # 帮助链接
         st.markdown("**📚 帮助资源**")
         

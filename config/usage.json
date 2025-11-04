@@ -1,0 +1,6652 @@
+[
+  {
+    "timestamp": "2025-10-29T17:46:01.624847",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_d21975c4_20251029_174208",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-29T17:54:15.065800",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_51944328_20251029_174956",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-29T22:23:17.841303",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_7be76521_20251029_221918",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T05:58:39.962631",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_578d77dc_20251030_055513",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T06:06:28.022258",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_9da7fa37_20251030_060223",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T06:32:17.481627",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_805d2197_20251030_062753",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T06:52:20.863971",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_2fa61271_20251030_064856",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T07:00:40.423471",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.0,
+    "session_id": "analysis_4268f773_20251030_065641",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T07:11:52.567845",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.0,
+    "session_id": "analysis_eff23c12_20251030_070807",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-10-30T07:17:37.476456",
+    "provider": "openai",
+    "model_name": "gpt-4o",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.0,
+    "session_id": "analysis_b9111f05_20251030_071423",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:56:32.747861",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 817,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_356",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:57:06.653029",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 681,
+    "output_tokens": 1325,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2667",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:57:09.083382",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6439",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:57:10.509155",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2803",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:57:27.059086",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 630,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1408",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:14.417549",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1767,
+    "output_tokens": 1950,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3647",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:15.776711",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2883",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:19.946892",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2303",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:23.878387",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 3848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8996",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:27.778540",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6854",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:31.530634",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5295",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:35.926984",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6431",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:39.869066",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2246",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:44.332976",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6157",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:48.654758",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2093",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:53.002140",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 14348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4276",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:58:58.443913",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 15848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_111",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:04.109639",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 17348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9396",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:07.940610",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 18848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_612",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:16.183606",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 20348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9548",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:19.742448",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 21848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5351",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:27.049018",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 23348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8437",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:33.136014",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 24848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9540",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:40.965390",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 26348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1167",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:48.788291",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 27848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1893",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T15:59:55.141451",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 29348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_949",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:04.255500",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 30848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1443",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:11.926012",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 32348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6111",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:21.014856",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 33848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7076",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:30.176496",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 35348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7210",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:33.795172",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 36848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7094",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:40.374971",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 38348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6934",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:55.872561",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 39848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5475",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:00:59.442130",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 41348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5876",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:08.088674",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 42848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2801",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:20.328077",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 44348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3274",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:24.206757",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 45848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2146",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:31.703756",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 47348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5162",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:37.415909",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 48848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3675",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:42.107998",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 50348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4665",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:01:57.785480",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 51848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9488",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:02:51.189136",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 53348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9991",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:02:58.269555",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 54848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1299",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:11.702647",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 56348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_544",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:17.225585",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 57848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_144",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:21.202372",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 59348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6785",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:25.974580",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 60848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6787",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:30.212841",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 62348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7897",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:33.801832",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 63848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2790",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:03:37.574773",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 65348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_715",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:04:19.446880",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 66848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8685",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:29:08.671612",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 817,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5521",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:30:00.370661",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 681,
+    "output_tokens": 1516,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9343",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:30:02.552780",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4053",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:30:04.020941",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6109",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:30:19.660200",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 434,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6905",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:13.614402",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1767,
+    "output_tokens": 1728,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7377",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:16.080631",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7293",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:20.409032",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4512",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:24.468243",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 3848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_583",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:28.998688",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9807",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:33.649284",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2970",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:38.410794",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7342",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:42.109697",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2859",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:46.729412",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_577",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:51.648271",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4204",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:31:57.571710",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 14348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7134",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:04.197807",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 15848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6495",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:10.148864",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 17348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2973",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:17.060213",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 18848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4385",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:23.591154",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 20348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5678",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:30.980069",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 21848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6048",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:36.092267",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 23348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5494",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:44.281907",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 24848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8320",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:52.499874",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 26348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6070",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:32:57.270814",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 27848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3197",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:33:05.378113",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 29348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7709",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:33:15.081194",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 30848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_509",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:33:23.529511",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 32348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2402",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:33:32.468407",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 33848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5170",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:33:40.011180",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 35348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5983",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:33:44.991432",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 36848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5821",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:34:01.397331",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 38348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_650",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:34:29.301038",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 39848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7030",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:34:32.798316",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 41348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6849",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:34:38.098340",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 42848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6814",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:35:09.540923",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 44348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4197",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:35:28.180176",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 45848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6808",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:35:47.982518",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 47348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9096",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:02.528385",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 48848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5519",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:06.838647",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 50348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2628",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:10.438233",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 51848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9575",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:17.290150",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 53348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8108",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:42.477747",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 54848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6776",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:46.292143",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 56348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3044",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:51.287192",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 57848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5787",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:36:55.242099",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 59348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5266",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:37:10.078041",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 60848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8729",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:37:13.821287",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 62348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8914",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:37:17.323787",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 63848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7985",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:37:21.114186",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 65348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7858",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T16:37:53.748566",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 66848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2029",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:42:51.581403",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 817,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_978",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:43:29.908221",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 681,
+    "output_tokens": 1330,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9707",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:43:31.926140",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7326",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:43:34.049072",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7355",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:43:43.992913",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 259,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3021",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:44:41.206663",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1794,
+    "output_tokens": 1896,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6558",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:44:42.734267",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3242",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:44:47.030925",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1698",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:44:50.263409",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 3848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4162",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:44:53.356219",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7765",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:44:57.390533",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1897",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:01.758979",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9370",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:07.572704",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8443",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:11.490098",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5552",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:17.154693",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5209",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:21.808238",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 14348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3886",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:27.164653",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 15848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8173",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:32.659202",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 17348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9190",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:39.113086",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 18848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7283",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:46.331520",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 20348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3750",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:50.952753",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 21848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1389",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:45:57.124330",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 23348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9185",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:46:02.155441",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 24848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4312",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:46:09.546784",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 26348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1783",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:46:17.936225",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 27848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6338",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:46:27.401853",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 29348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5928",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:46:37.047622",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 30848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8610",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:46:45.916436",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 32348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6129",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:13.618950",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 33848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1398",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:16.797980",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 35348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8687",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:26.794876",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 36848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9967",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:30.577161",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 38348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_976",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:33.818398",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 39848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_477",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:37.765069",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 41348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3862",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:47:57.329772",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 42848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8505",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:48:36.294373",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 44348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6416",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T18:48:40.075961",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 45848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2042",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:34:11.995971",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 47348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3634",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:34:32.986283",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 48848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6037",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:37:20.910588",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 50348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6224",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:37:25.431922",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 51848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4567",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:37:30.781383",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 53348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6564",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:37:35.181244",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 54848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6703",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:38:08.747843",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 56348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2718",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:38:13.208969",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 57848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8545",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:38:17.730242",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 59348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6504",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:38:25.098238",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 60848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5592",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:38:29.438523",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 62348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3968",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:39:40.374525",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 63848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2626",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:39:44.715087",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 65348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9189",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:39:50.371145",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 66848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8117",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:42:45.295346",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2560",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:43:22.237833",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 687,
+    "output_tokens": 1308,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8586",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:43:23.974854",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7178",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:43:25.282587",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7883",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:43:35.995845",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 269,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9674",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:44:15.814711",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1828,
+    "output_tokens": 1550,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3703",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:44:19.802567",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4634",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:44:55.990061",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2352,
+    "output_tokens": 1003,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8095",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:46:16.831138",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1591,
+    "output_tokens": 2454,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8466",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:47:41.237980",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5897,
+    "output_tokens": 2540,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1057",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:49:25.868245",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 10991,
+    "output_tokens": 2482,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9605",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:50:17.508718",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 10972,
+    "output_tokens": 1860,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_889",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:51:12.406306",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2464,
+    "output_tokens": 1291,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3396",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:51:57.492220",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7171,
+    "output_tokens": 990,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9593",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:52:50.445734",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9144,
+    "output_tokens": 1013,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1858",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:53:40.770311",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11145,
+    "output_tokens": 1328,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3455",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:54:27.841326",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 5487,
+    "output_tokens": 1921,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9178",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:54:31.680303",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2205,
+    "output_tokens": 101,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6620",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T19:54:31.686719",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_431f6347_20251101_194243",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:20:14.180890",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8039",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:21:03.314836",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 687,
+    "output_tokens": 1445,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6208",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:21:05.286262",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9741",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:21:07.180248",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9271",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:21:30.572674",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 1073,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2901",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:22:18.649014",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1828,
+    "output_tokens": 1515,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1820",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:22:20.125477",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2114",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:22:48.931997",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2352,
+    "output_tokens": 1002,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7235",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:24:31.856542",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1591,
+    "output_tokens": 2575,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_100",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:26:19.638255",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6925,
+    "output_tokens": 2550,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5079",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:27:51.359781",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12039,
+    "output_tokens": 2232,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_598",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:28:41.982824",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11762,
+    "output_tokens": 1633,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9468",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:29:21.040412",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2239,
+    "output_tokens": 1270,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4427",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:29:41.364560",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8179,
+    "output_tokens": 744,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6507",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:30:25.422000",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9660,
+    "output_tokens": 1148,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_84",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:31:39.948437",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11931,
+    "output_tokens": 2741,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7484",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:32:40.844180",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 6564,
+    "output_tokens": 1743,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8714",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:32:43.196227",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2028,
+    "output_tokens": 98,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_637",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:32:43.201897",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_eb2e609e_20251101_202012",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:35:40.492677",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 818,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9412",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:36:15.173687",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 691,
+    "output_tokens": 1317,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2987",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:36:17.215744",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_250",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:36:18.360834",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8674",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:36:22.238232",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 177,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1533",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:37:05.271109",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1755,
+    "output_tokens": 1744,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5022",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:37:08.242446",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 848,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_55",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:37:27.224798",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2355,
+    "output_tokens": 588,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1190",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:38:36.419716",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1593,
+    "output_tokens": 2423,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2199",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:39:59.347952",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5977,
+    "output_tokens": 2450,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7836",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:41:36.964509",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 10895,
+    "output_tokens": 2577,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1352",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:42:35.352676",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11058,
+    "output_tokens": 1635,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5353",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:43:18.281402",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2239,
+    "output_tokens": 1441,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7453",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:43:50.845452",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7402,
+    "output_tokens": 823,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8815",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:44:31.868291",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9041,
+    "output_tokens": 925,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8171",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:45:03.344120",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 10866,
+    "output_tokens": 1020,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2545",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:46:09.356711",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 4699,
+    "output_tokens": 1884,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8214",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:46:13.426547",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2169,
+    "output_tokens": 134,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3014",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:46:13.433045",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_58baf6b8_20251101_203538",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:56:22.997403",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1218",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:57:21.121358",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 688,
+    "output_tokens": 1260,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5674",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:57:25.037872",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9985",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:57:26.286424",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3733",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:57:50.685950",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 976,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6283",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:58:57.362081",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1755,
+    "output_tokens": 1777,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_945",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:00.375686",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4984",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:05.667660",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2354,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7513",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:09.608170",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 3858,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6105",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:14.619047",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5362,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1347",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:19.108136",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6866,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6540",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:23.309285",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8370,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5509",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:27.580793",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9874,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4563",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:31.453092",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11378,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1511",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:36.482309",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12882,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8537",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:42.254277",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 14386,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2126",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:47.066805",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 15890,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5233",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:52.453191",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 17394,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9739",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T20:59:59.700761",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 18898,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2569",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:04.014528",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 20402,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8368",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:12.551936",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 21906,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9682",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:20.942780",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 23410,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9611",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:26.417886",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 24914,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1277",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:35.403146",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 26418,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9726",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:44.453117",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 27922,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5779",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:00:54.140914",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 29426,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3514",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:01:04.708207",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 30930,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8664",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:01:13.662725",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 32434,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8373",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:01:23.381107",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 33938,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1561",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:01:36.638742",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 35442,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1630",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:02:11.496671",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 36946,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5577",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:02:33.162862",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 38450,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4122",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:02:44.324093",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 39954,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9055",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:02:49.035681",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 41458,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2512",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:03:11.128148",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 42962,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3941",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:03:22.414460",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 44466,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2935",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:03:26.282004",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 45970,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1506",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:03:37.572618",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 47474,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3263",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:03:51.817307",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 48978,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1827",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:03:57.993388",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 50482,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7940",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:04:01.432796",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 51986,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7394",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:04:07.183150",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 53490,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6303",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:04:36.690105",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 54994,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_456",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:04:47.836823",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 56498,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4677",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:05:27.762516",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 58002,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5572",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:05:47.076353",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 59506,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3106",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:05:50.980700",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 61010,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8400",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:06:23.089287",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 62514,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3107",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:07:21.456109",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 64018,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6731",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:07:34.982716",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 65522,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7600",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:08:27.510588",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 67026,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7701",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:20:53.477217",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1230",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:21:18.917975",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 688,
+    "output_tokens": 1335,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3867",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:21:20.566195",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2035",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:21:22.293884",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4987",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:21:46.855774",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 826,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8733",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:22:32.006091",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1755,
+    "output_tokens": 1679,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9866",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:22:33.975327",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4864",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:23:00.589061",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2354,
+    "output_tokens": 1102,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2275",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:24:08.460448",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1593,
+    "output_tokens": 2455,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5375",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:25:33.421151",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6610,
+    "output_tokens": 2839,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2735",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:26:58.134250",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12302,
+    "output_tokens": 2839,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6287",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:27:42.351163",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 12340,
+    "output_tokens": 1374,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1035",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:35:56.237447",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8752",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:36:39.834299",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 688,
+    "output_tokens": 1305,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9762",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:36:43.297037",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5929",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:36:44.723306",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9704",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:36:59.583196",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 263,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4762",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:37:48.311814",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1755,
+    "output_tokens": 1783,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8346",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:37:50.567815",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_389",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:37:57.362910",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1972,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7680",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:02.678244",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 3476,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1705",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:09.564723",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 4980,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1426",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:15.137259",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6484,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2271",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:21.438698",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7988,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_280",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:26.066908",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9492,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9654",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:31.233847",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 10996,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8908",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:37.619359",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12500,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4329",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:43.938918",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 14004,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9153",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:38:53.013610",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 15508,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3922",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:39:01.758100",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 17012,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7919",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:39:12.382131",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 18516,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6612",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:39:20.807749",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 20020,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9530",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:39:29.939087",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 21524,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8154",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:39:40.139607",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 23028,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6349",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:39:49.485507",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 24532,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1517",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:40:00.000695",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 26036,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3030",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:40:10.285056",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 27540,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6665",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:40:18.160100",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 29044,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3954",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:40:28.397433",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 30548,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9959",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:40:38.028979",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 32052,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8271",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:41:02.791728",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 33556,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1511",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:41:07.201960",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 35060,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_691",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:41:18.205486",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 36564,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1468",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:41:56.116707",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 38068,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1358",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:42:07.381571",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 39572,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9030",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:42:22.240306",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 41076,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4359",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:42:48.502959",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 42580,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4212",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:42:52.643315",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 44084,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1796",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:43:13.182157",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 45588,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4602",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:43:28.110417",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 47092,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3557",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:43:42.929578",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 48596,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_184",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:43:59.866707",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 50100,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1234",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:44:21.345907",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 51604,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5316",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:44:31.752744",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 53108,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1635",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:44:38.980430",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 54612,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9351",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:44:52.509374",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 56116,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5461",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:45:09.585324",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 57620,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8665",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:45:41.712223",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 59124,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_255",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:46:03.582746",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 60628,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_235",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:46:13.850878",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 62132,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6556",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:46:19.409078",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 63636,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3658",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:46:29.868599",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 65140,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6260",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:47:05.887744",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 66644,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5276",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:47:24.314280",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 68148,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2930",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:47:30.618075",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 69652,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9415",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:47:37.698464",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 71156,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2807",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:47:57.054900",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 72660,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6898",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:48:10.482914",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 74164,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8071",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:48:22.502879",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 75668,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6317",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:48:43.043983",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 77172,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4465",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:48:50.797136",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 78676,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3692",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-01T21:49:00.276199",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 80180,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1169",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:15:41.652614",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6695",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:16:25.315440",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 687,
+    "output_tokens": 1312,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7777",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:16:27.085113",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4851",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:16:28.369420",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8937",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:16:39.787514",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 319,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4973",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:17:16.450749",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1828,
+    "output_tokens": 1362,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6091",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:17:18.251307",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7028",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:17:38.691703",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2352,
+    "output_tokens": 628,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3035",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:18:41.691556",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1591,
+    "output_tokens": 2294,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_98",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:20:07.177989",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5602,
+    "output_tokens": 2416,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4360",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:22:02.970269",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 10448,
+    "output_tokens": 3028,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7723",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:22:55.134661",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11099,
+    "output_tokens": 1594,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_88",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:23:36.644549",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2198,
+    "output_tokens": 1148,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9584",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:24:35.717292",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6734,
+    "output_tokens": 1300,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8226",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:25:29.943489",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9329,
+    "output_tokens": 1163,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9729",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-02T22:27:23.951341",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11630,
+    "output_tokens": 925,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3503",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T04:59:28.580908",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 5279,
+    "output_tokens": 1485,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_638",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T04:59:31.387237",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1770,
+    "output_tokens": 119,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7631",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T04:59:31.398219",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_7fb3589a_20251102_221537",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:28:19.778383",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4736",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:28:51.815423",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 687,
+    "output_tokens": 1418,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5425",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:28:53.511811",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4895",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:28:54.828463",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2110",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:29:02.120604",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 273,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9297",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:29:42.948059",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1828,
+    "output_tokens": 1652,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4004",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:29:44.105771",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5163",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:30:04.762345",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2352,
+    "output_tokens": 980,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3889",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:30:56.122990",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1591,
+    "output_tokens": 2554,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4932",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:32:06.083611",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6213,
+    "output_tokens": 2737,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7229",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:33:14.346198",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11703,
+    "output_tokens": 2692,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7821",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:33:54.152035",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11696,
+    "output_tokens": 1414,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3373",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:34:29.295216",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2018,
+    "output_tokens": 1527,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_119",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:35:01.255579",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7724,
+    "output_tokens": 954,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_594",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:35:33.111980",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9625,
+    "output_tokens": 1103,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8059",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:36:02.592737",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11806,
+    "output_tokens": 1147,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3469",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:36:49.791681",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 4913,
+    "output_tokens": 1641,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4215",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:36:52.539997",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1926,
+    "output_tokens": 115,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6135",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:36:52.555090",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_27f964b4_20251103_062818",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:43:58.475515",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6235",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:44:35.574601",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 687,
+    "output_tokens": 1474,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3234",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:44:37.372197",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2378",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:44:40.438649",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9750",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:44:49.109446",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 378,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8077",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:45:28.560519",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1792,
+    "output_tokens": 1852,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4822",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:45:30.252453",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8176",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:45:55.577261",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2357,
+    "output_tokens": 1256,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5649",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:47:02.854036",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1596,
+    "output_tokens": 3181,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_499",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:48:11.481301",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7203,
+    "output_tokens": 2572,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1814",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:49:13.103975",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12361,
+    "output_tokens": 2481,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2715",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:49:59.612449",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 12309,
+    "output_tokens": 1557,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1333",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:50:32.755386",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2161,
+    "output_tokens": 1500,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8356",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:50:59.578196",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8687,
+    "output_tokens": 755,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6083",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:51:34.381860",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 10190,
+    "output_tokens": 1123,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3964",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:52:05.279268",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12411,
+    "output_tokens": 1048,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4031",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:54:06.296519",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4136",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:54:32.698042",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 687,
+    "output_tokens": 1329,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9331",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:54:34.469681",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_285",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:54:35.742896",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4459",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:54:51.515495",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 338,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1901",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:55:37.900122",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1792,
+    "output_tokens": 1831,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4097",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:55:39.522311",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8400",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:56:06.065060",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2357,
+    "output_tokens": 996,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9092",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:57:08.938309",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1596,
+    "output_tokens": 2693,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_871",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:58:09.527019",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6513,
+    "output_tokens": 2275,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7875",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:59:20.462122",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11077,
+    "output_tokens": 2530,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9270",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T06:59:58.127747",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11372,
+    "output_tokens": 1244,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5763",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:00:43.213251",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1848,
+    "output_tokens": 1289,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7674",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:01:10.205321",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7786,
+    "output_tokens": 891,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_233",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:01:39.265874",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9561,
+    "output_tokens": 970,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1349",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:02:16.855647",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11476,
+    "output_tokens": 1122,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3737",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:03:02.782232",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 4523,
+    "output_tokens": 1549,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6589",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:03:05.420641",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1834,
+    "output_tokens": 115,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8616",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:03:05.427459",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_54f58823_20251103_065352",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:10:46.105230",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3459",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:11:15.662975",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 682,
+    "output_tokens": 1282,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5242",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:11:17.467152",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4863",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:11:18.573042",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1190",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:11:31.222436",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 452,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6228",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:12:13.336757",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1831,
+    "output_tokens": 1757,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6693",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:12:15.180793",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5996",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:12:45.469226",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2349,
+    "output_tokens": 1196,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2277",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:13:46.533371",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1588,
+    "output_tokens": 2442,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5911",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:14:56.098258",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6250,
+    "output_tokens": 2640,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_116",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:16:35.875913",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11540,
+    "output_tokens": 2689,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5850",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:17:15.689733",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11629,
+    "output_tokens": 1277,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_350",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:18:04.862681",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1881,
+    "output_tokens": 1526,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8772",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:18:34.353395",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7760,
+    "output_tokens": 796,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_900",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:19:10.071303",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9345,
+    "output_tokens": 1094,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_969",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:19:52.524924",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11508,
+    "output_tokens": 1172,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2847",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:20:39.007314",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 4635,
+    "output_tokens": 1600,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7476",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:20:42.176223",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1885,
+    "output_tokens": 150,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_369",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:20:42.183001",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_000be270_20251103_071044",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:40:42.705081",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 836,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9935",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:41:13.998276",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 676,
+    "output_tokens": 1283,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7326",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:41:16.017415",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1009,
+    "output_tokens": 88,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9130",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:41:17.274605",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1162,
+    "output_tokens": 43,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1428",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:41:42.096085",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1236,
+    "output_tokens": 1062,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6966",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:42:22.954936",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1779,
+    "output_tokens": 1601,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6210",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:42:24.894215",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 854,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3018",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:42:41.728721",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2353,
+    "output_tokens": 688,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_593",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:43:39.920101",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1594,
+    "output_tokens": 2353,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1160",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:45:10.567509",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6618,
+    "output_tokens": 2658,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1011",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:46:29.601068",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11948,
+    "output_tokens": 2806,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5652",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:47:16.512584",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 12136,
+    "output_tokens": 1400,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8898",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:48:06.484459",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2004,
+    "output_tokens": 1702,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4310",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:48:30.783876",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8304,
+    "output_tokens": 810,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_956",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:49:04.778114",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9919,
+    "output_tokens": 1072,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7265",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:49:50.780708",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12038,
+    "output_tokens": 1272,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9059",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:50:41.392117",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 4851,
+    "output_tokens": 1520,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9374",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:50:46.399859",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1805,
+    "output_tokens": 119,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1456",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T07:50:46.409513",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 16000,
+    "output_tokens": 8000,
+    "cost": 0.16,
+    "session_id": "analysis_9df5adfe_20251103_074041",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:09:23.105735",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 824,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4306",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:10:02.834974",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 684,
+    "output_tokens": 1366,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9573",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:11:00.564282",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1847,
+    "output_tokens": 1814,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9297",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:11:03.449912",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 850,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7805",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:11:48.504913",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2349,
+    "output_tokens": 1312,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7689",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:12:56.516115",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1588,
+    "output_tokens": 2567,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6426",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:14:20.356552",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6065,
+    "output_tokens": 2703,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9589",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:15:59.404997",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11487,
+    "output_tokens": 2943,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_324",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:16:52.585017",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 11765,
+    "output_tokens": 1521,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3960",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:17:33.216875",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2125,
+    "output_tokens": 1436,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4790",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:18:12.668809",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 7485,
+    "output_tokens": 944,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7768",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:18:48.436870",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9366,
+    "output_tokens": 1045,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9098",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:19:35.244558",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11431,
+    "output_tokens": 1204,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_462",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:20:32.470810",
+    "provider": "dashscope",
+    "model_name": "qwen3-max",
+    "input_tokens": 5009,
+    "output_tokens": 1618,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6063",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:20:34.919920",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1903,
+    "output_tokens": 90,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5614",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:20:34.927046",
+    "provider": "dashscope",
+    "model_name": "qwen-plus-latest",
+    "input_tokens": 12000,
+    "output_tokens": 6000,
+    "cost": 0.12,
+    "session_id": "analysis_ea2a9bbe_20251103_170907",
+    "analysis_type": "A股_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:27:13.780806",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 829,
+    "output_tokens": 60,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6882",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:28:05.591154",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 672,
+    "output_tokens": 1235,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3518",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:00.588617",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 1783,
+    "output_tokens": 1800,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6132",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:01.915624",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 852,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4385",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:07.102357",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 2338,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4877",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:11.474086",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 3824,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_866",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:16.333434",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 5310,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6653",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:20.162136",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 6796,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9095",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:24.548838",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 8282,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9112",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:31.113667",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 9768,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8149",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:37.222491",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 11254,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4091",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:41.418209",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 12740,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4786",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:48.071227",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 14226,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2392",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:53.009502",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 15712,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2400",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:29:59.124394",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 17198,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8987",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:06.042905",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 18684,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8981",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:11.217323",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 20170,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9374",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:18.217184",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 21656,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7107",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:24.967827",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 23142,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5980",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:33.356335",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 24628,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_561",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:42.645940",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 26114,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8527",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:50.914970",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 27600,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6033",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:30:54.840992",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 29086,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9970",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:00.418981",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 30572,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9474",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:08.831442",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 32058,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4568",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:17.981090",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 33544,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5779",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:27.162335",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 35030,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6165",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:30.701845",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 36516,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4405",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:34.511765",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 38002,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8523",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:37.948000",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 39488,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9858",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:49.464255",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 40974,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1545",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:31:56.244542",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 42460,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3655",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:08.117468",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 43946,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2380",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:12.939032",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 45432,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9314",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:17.947322",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 46918,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5120",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:28.184418",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 48404,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_968",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:43.879740",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 49890,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9328",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:51.729990",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 51376,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3503",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:32:59.554310",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 52862,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9389",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:08.326248",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 54348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7930",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:14.637030",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 55834,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2655",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:18.267722",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 57320,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2737",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:21.783148",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 58806,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6599",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:29.011660",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 60292,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4348",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:45.923347",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 61778,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7237",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:54.797234",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 63264,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6355",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:33:59.703242",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 64750,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3444",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:34:08.731328",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 66236,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9537",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:34:14.512889",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 67722,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5183",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:34:20.539615",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 69208,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8244",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:34:26.274005",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 70694,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1605",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:34:41.851133",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 72180,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6947",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:35:02.032834",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 73432,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2797",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:35:16.313740",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 74918,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5790",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:35:56.261009",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 76404,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1154",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:36:03.341227",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 77890,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5585",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:36:08.419456",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 79376,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1281",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:36:18.650312",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 80862,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_464",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:36:46.274230",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 82348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7746",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:36:52.255157",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 83834,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8994",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:37:47.929754",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 85320,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2278",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:37:53.907256",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 86806,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2385",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:38:04.061446",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 88292,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4007",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:38:50.565126",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 89778,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9949",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:38:55.541118",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 91264,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3617",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:39:29.252337",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 92750,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9145",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:39:53.678003",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 94236,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7421",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:40:04.776555",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 95722,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8041",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:40:25.021190",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 97208,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7347",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:41:26.082923",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 98460,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9827",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:42:08.078000",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 99946,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3196",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:43:10.255156",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 101432,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8879",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:45:42.317699",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 102684,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4973",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:46:43.923180",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 103936,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_692",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:46:55.688586",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 105188,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1642",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:47:05.904292",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 106440,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6544",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:47:20.241408",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 107692,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_628",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:48:22.503713",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 108944,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1705",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:48:45.409571",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 110196,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2287",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:48:52.136270",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 111448,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6608",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:49:44.008664",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 112700,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6932",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:49:55.480398",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 113952,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3625",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:51:18.834758",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 115204,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1252",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:52:20.894379",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 116456,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6521",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:53:23.406140",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 117708,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4932",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:54:20.744237",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 118960,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_992",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:54:27.468450",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 120212,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7146",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:55:40.582418",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 121464,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_299",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:55:47.651262",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 122716,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1088",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:56:59.774844",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 123968,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_65",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:57:20.652189",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 125220,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3682",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:58:35.478672",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 126472,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1224",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T17:59:51.730994",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 127724,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8388",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:00:55.085157",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 128976,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4527",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:01:43.714760",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 130228,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8112",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:02:05.988163",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 131480,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5873",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:02:10.908579",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 132732,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5007",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:07:52.533537",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 133984,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4895",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:08:15.604971",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 135236,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2895",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:09:06.976400",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 136488,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8862",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:10:20.840028",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 137740,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2366",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:21:25.511150",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 138992,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6145",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:21:50.468960",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 140244,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2764",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:22:54.287697",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 141496,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6797",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:24:20.578480",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 142748,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7830",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:26:48.074531",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 144000,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7987",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:26:56.496102",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 145252,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6172",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:27:05.379921",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 146504,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1637",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:32:34.105349",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 147756,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2412",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:38:08.549472",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 149008,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7550",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:43:35.059525",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 150260,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3329",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:54:11.531978",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 151512,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9579",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:54:21.966106",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 152764,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6601",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:54:50.167442",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 154016,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_793",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:55:01.142055",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 155268,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5165",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:58:47.656550",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 156520,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3014",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T18:59:30.037440",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 157772,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_293",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:00:02.042719",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 159024,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7527",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:00:42.176995",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 160276,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6208",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:02:17.137157",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 161528,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7015",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:02:30.150112",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 162780,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6155",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:02:43.512745",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 164032,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2168",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:02:56.780729",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 165284,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6811",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:08:26.649787",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 166536,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1785",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:08:40.919297",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 167788,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7519",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:08:55.608834",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 169040,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_92",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:14:27.002939",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 170292,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5265",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:15:00.188861",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 171544,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_551",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:15:33.664735",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 172796,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2258",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:15:50.331360",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 174048,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3897",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:16:23.688563",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 175300,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3241",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:16:40.157839",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 176552,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1841",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:22:13.766327",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 177804,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3153",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:22:31.785284",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 179056,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9293",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:22:49.286277",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 180308,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7635",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:23:07.448065",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 181560,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3275",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:23:25.915642",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 182812,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8204",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:24:02.307269",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 184064,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1442",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:24:39.132599",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 185316,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_472",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:24:58.802457",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 186568,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_255",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:25:18.459833",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 187820,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6887",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:30:40.104255",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 189072,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6254",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:31:01.313547",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 190324,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2616",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:31:40.078255",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 191576,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_9011",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:32:01.656255",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 193062,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_542",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:32:41.514718",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 194314,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_433",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:33:03.647914",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 195566,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1636",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:33:44.177495",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 196818,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3969",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:39:06.057359",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 198070,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4936",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:39:29.840084",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 199316,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7997",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:39:53.361389",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 200568,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5569",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:40:43.053437",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 201820,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8148",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:41:07.608443",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 203072,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7401",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:41:32.781318",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 204324,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6423",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:41:58.132399",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 205576,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8282",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:42:23.966343",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 206828,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4506",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:42:50.073105",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 208080,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6897",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:43:16.777799",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 209332,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8183",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:43:43.535432",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 210584,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4956",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:44:28.384274",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 211836,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4824",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:44:57.084790",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 213088,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4330",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:45:25.725570",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 214340,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5944",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:46:12.108062",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 215592,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6307",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:46:41.113555",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 216844,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6726",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:47:10.415578",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 218096,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_829",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:47:58.282164",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 219348,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_671",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:48:29.013641",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 220600,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6229",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:49:00.044617",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 221852,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2500",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:49:31.894398",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 223104,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8558",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:50:04.062342",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 224356,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5779",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:50:36.426977",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 225608,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_1456",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:51:09.036493",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 226860,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5983",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:51:42.236722",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 228112,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5496",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:52:33.578230",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 229364,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_943",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:53:07.701992",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 230616,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5673",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:53:42.931233",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 231868,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4439",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:54:18.189106",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 233120,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_451",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:54:53.532332",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 234372,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_887",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:55:29.838915",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 235624,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_7508",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:56:06.222207",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 236876,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6001",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:57:00.892750",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 238128,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6952",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:57:38.062413",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 239380,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2644",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:58:17.705076",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 240632,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5995",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:58:56.113189",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 241884,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_5282",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T19:59:36.154831",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 243136,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_678",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:00:15.664457",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 244388,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6281",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:00:55.705156",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 245640,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6990",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:01:35.774198",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 246892,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_3164",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:02:16.522508",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 248144,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_2689",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:02:57.677456",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 249396,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_231",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:03:39.713859",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 250648,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4088",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:04:21.619278",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 251900,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_132",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:05:04.914423",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 253152,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_4093",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:06:05.833708",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 254404,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_8330",
+    "analysis_type": "stock_analysis"
+  },
+  {
+    "timestamp": "2025-11-03T20:06:51.251326",
+    "provider": "dashscope",
+    "model_name": "qwen-plus",
+    "input_tokens": 255656,
+    "output_tokens": 77,
+    "cost": 0.0,
+    "session_id": "dashscope_openai_6463",
+    "analysis_type": "stock_analysis"
+  }
+]

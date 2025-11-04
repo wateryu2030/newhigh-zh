@@ -18,8 +18,8 @@ from backend.utils.db_utils import get_engine, read_sql
 
 stock_router = APIRouter()
 
-# 获取数据库URL（使用data_engine的配置）
-DB_URL = f"sqlite:///{project_root / 'data' / 'stock_database.db'}"
+# 获取数据库URL（使用MySQL）
+DB_URL = "mysql+pymysql://root:password@localhost:3306/stock_db?charset=utf8mb4"
 
 # 获取基础信息的API
 @stock_router.get("/stock/basic")
@@ -39,9 +39,12 @@ async def run_data_sync():
     """触发A股数据同步"""
     try:
         data_engine_script = project_root / "data_engine" / "update_all.py"
+        env = os.environ.copy()
+        env['DB_TYPE'] = 'mysql'  # 强制使用MySQL
         result = subprocess.run(
             [sys.executable, str(data_engine_script)],
             cwd=str(project_root),
+            env=env,
             capture_output=True,
             text=True,
             timeout=600
