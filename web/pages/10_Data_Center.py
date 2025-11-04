@@ -720,10 +720,19 @@ if df is not None and not df.empty:
                     # 显示价格分布作为替代
                     if 'price' in display_df.columns and display_df['price'].notna().any():
                         price_data = display_df.dropna(subset=['price']).copy()
-                        # 确保没有重复列
+                        # 确保没有重复列（在dropna后立即清理）
                         price_data = clean_duplicate_columns(price_data, keep_first=False)
                         
+                        # 双重验证：确保绝对没有重复列（在传递给Plotly之前）
+                        if price_data.columns.duplicated().any():
+                            unique_cols = list(dict.fromkeys(price_data.columns))
+                            price_data = pd.DataFrame(price_data.values[:, :len(unique_cols)], columns=unique_cols)
+                        
                         price_data = price_data.nlargest(20, 'price')
+                        
+                        # 再次验证：确保nlargest后没有重复列
+                        price_data = clean_duplicate_columns(price_data, keep_first=False)
+                        
                         if PLOTLY_AVAILABLE:
                             fig_price_top = px.bar(
                                 price_data,
