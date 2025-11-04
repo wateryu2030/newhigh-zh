@@ -18,27 +18,19 @@ try:
 except ImportError:
     PLOTLY_AVAILABLE = False
 
+# 导入数据清洗模块
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from web.utils.data_cleaner import safe_dataframe as clean_dataframe, clean_duplicate_columns
+
 def safe_dataframe(df, **kwargs):
     """安全的st.dataframe包装函数，确保没有重复列"""
     if df is None or df.empty:
         st.dataframe(df, **kwargs)
         return
     
-    # 强制去重：使用dict.fromkeys确保列名唯一
-    unique_cols = list(dict.fromkeys(df.columns))
-    if len(unique_cols) != len(df.columns):
-        # 如果有重复列，重建DataFrame
-        df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-    else:
-        # 即使没有重复，也使用唯一列名确保安全
-        df = df[unique_cols]
-    
-    # 最后一次检查
-    if df.columns.duplicated().any():
-        unique_cols = list(dict.fromkeys(df.columns))
-        df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-    
-    st.dataframe(df, **kwargs)
+    # 使用数据清洗模块清理DataFrame
+    df_clean = clean_dataframe(df, normalize=False)
+    st.dataframe(df_clean, **kwargs)
 
 # 设置页面配置
 st.set_page_config(
@@ -169,12 +161,8 @@ if data_engine_db_exists:
                 df = df.merge(df_fin, on='ts_code', how='left')
                 df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
                 
-                # 最终确保：使用dict.fromkeys强制去重（保持顺序）
-                unique_cols = list(dict.fromkeys(df.columns))
-                if len(unique_cols) != len(df.columns):
-                    df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-                else:
-                    df = df[unique_cols]
+                # 最终确保：使用数据清洗模块去重
+                df = clean_duplicate_columns(df, keep_first=False)
             else:
                 df = df_basic.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
             
@@ -204,9 +192,8 @@ if df is None or df.empty:
         try:
             df = pd.read_csv(DATA_PATH, encoding="utf-8-sig")
             if not df.empty:
-                # 确保CSV数据也没有重复列（使用dict.fromkeys强制去重）
-                unique_cols = list(dict.fromkeys(df.columns))
-                df = df[unique_cols]
+                # 确保CSV数据也没有重复列（使用数据清洗模块）
+                df = clean_duplicate_columns(df, keep_first=False)
                 data_source = "CSV文件"
                 st.success(f"✅ 从CSV文件读取: {len(df)} 条记录")
             else:
@@ -453,9 +440,8 @@ if 'df' not in locals():
     df = None
 
 if df is not None and not df.empty:
-    # 确保df本身没有重复列（在显示前再次检查，使用dict.fromkeys确保绝对没有重复）
-    unique_cols = list(dict.fromkeys(df.columns))
-    df = df[unique_cols]
+    # 确保df本身没有重复列（在显示前再次检查，使用数据清洗模块）
+    df = clean_duplicate_columns(df, keep_first=False)
     
     st.subheader("📊 完整数据列表")
     st.info(f"💡 共 {len(df)} 条股票数据，以下为完整列表（可滚动查看）")
@@ -585,9 +571,8 @@ if df is not None and not df.empty:
         # 应用筛选
         display_df = df.copy()
         
-        # 立即去除重复列（在筛选前确保数据干净，使用dict.fromkeys强制去重）
-        unique_cols = list(dict.fromkeys(display_df.columns))
-        display_df = display_df[unique_cols]
+        # 立即去除重复列（在筛选前确保数据干净，使用数据清洗模块）
+        display_df = clean_duplicate_columns(display_df, keep_first=False)
         
         # 市值筛选（BaoStock不提供市值数据，暂时跳过）
         if has_mv and 'total_mv' in display_df.columns and display_df['total_mv'].notna().any():
@@ -622,16 +607,14 @@ if df is not None and not df.empty:
             display_df = display_df[display_df['industry'] == selected_industry]
         
         # 所有筛选操作完成后，再次去重（防止筛选过程中产生重复列）
-        unique_cols = list(dict.fromkeys(display_df.columns))
-        display_df = display_df[unique_cols]
+        display_df = clean_duplicate_columns(display_df, keep_first=False)
         
         st.success(f"✅ 筛选结果: 找到 {len(display_df)} 只符合条件的股票（共 {len(df)} 只）")
         
         # ========== 可视化展示 ==========
         if len(display_df) > 0:
             # 在可视化前确保display_df没有重复列
-            unique_cols = list(dict.fromkeys(display_df.columns))
-            display_df = display_df[unique_cols]
+            display_df = clean_duplicate_columns(display_df, keep_first=False)
             
             st.markdown("---")
             st.subheader("📊 数据可视化")
@@ -643,8 +626,7 @@ if df is not None and not df.empty:
                     if PLOTLY_AVAILABLE:
                         # 确保传递给Plotly的DataFrame没有重复列
                         plot_df = display_df.dropna(subset=['pe', 'pb']).copy()
-                        unique_cols = list(dict.fromkeys(plot_df.columns))
-                        plot_df = plot_df[unique_cols]
+                        plot_df = clean_duplicate_columns(plot_df, keep_first=False)
                         
                         fig = px.scatter(
                             plot_df,
@@ -663,8 +645,7 @@ if df is not None and not df.empty:
                         if PLOTLY_AVAILABLE:
                             # 确保传递给Plotly的DataFrame没有重复列
                             plot_df_pe = display_df.dropna(subset=['pe']).copy()
-                            unique_cols = list(dict.fromkeys(plot_df_pe.columns))
-                            plot_df_pe = plot_df_pe[unique_cols]
+                            plot_df_pe = clean_duplicate_columns(plot_df_pe, keep_first=False)
                             
                             fig_pe = px.histogram(plot_df_pe, x='pe', nbins=30, title='PE分布直方图')
                             st.plotly_chart(fig_pe, use_container_width=True)
@@ -675,8 +656,7 @@ if df is not None and not df.empty:
                         if PLOTLY_AVAILABLE:
                             # 确保传递给Plotly的DataFrame没有重复列
                             plot_df_pb = display_df.dropna(subset=['pb']).copy()
-                            unique_cols = list(dict.fromkeys(plot_df_pb.columns))
-                            plot_df_pb = plot_df_pb[unique_cols]
+                            plot_df_pb = clean_duplicate_columns(plot_df_pb, keep_first=False)
                             
                             fig_pb = px.histogram(plot_df_pb, x='pb', nbins=30, title='PB分布直方图')
                             st.plotly_chart(fig_pb, use_container_width=True)
@@ -689,8 +669,7 @@ if df is not None and not df.empty:
                 if has_mv and 'total_mv' in display_df.columns and display_df['total_mv'].notna().any():
                     mv_data = display_df.dropna(subset=['total_mv']).copy()
                     # 确保没有重复列
-                    unique_cols = list(dict.fromkeys(mv_data.columns))
-                    mv_data = mv_data[unique_cols]
+                    mv_data = clean_duplicate_columns(mv_data, keep_first=False)
                     
                     mv_data['total_mv_billion'] = mv_data['total_mv'] / 1e8
                     top_mv = mv_data.nlargest(20, 'total_mv_billion')
@@ -715,8 +694,7 @@ if df is not None and not df.empty:
                     if 'price' in display_df.columns and display_df['price'].notna().any():
                         price_data = display_df.dropna(subset=['price']).copy()
                         # 确保没有重复列
-                        unique_cols = list(dict.fromkeys(price_data.columns))
-                        price_data = price_data[unique_cols]
+                        price_data = clean_duplicate_columns(price_data, keep_first=False)
                         
                         price_data = price_data.nlargest(20, 'price')
                         if PLOTLY_AVAILABLE:
@@ -734,8 +712,7 @@ if df is not None and not df.empty:
                 if has_price and 'price' in display_df.columns:
                     price_data = display_df.dropna(subset=['price']).copy()
                     # 确保没有重复列
-                    unique_cols = list(dict.fromkeys(price_data.columns))
-                    price_data = price_data[unique_cols]
+                    price_data = clean_duplicate_columns(price_data, keep_first=False)
                     
                     if PLOTLY_AVAILABLE:
                         fig_price = px.histogram(price_data, x='price', nbins=50, title='股价分布直方图')
@@ -745,8 +722,7 @@ if df is not None and not df.empty:
                         if 'total_mv' in price_data.columns:
                             price_mv = price_data.dropna(subset=['total_mv']).copy()
                             # 确保没有重复列
-                            unique_cols = list(dict.fromkeys(price_mv.columns))
-                            price_mv = price_mv[unique_cols]
+                            price_mv = clean_duplicate_columns(price_mv, keep_first=False)
                             
                             price_mv['total_mv_billion'] = price_mv['total_mv'] / 1e8
                             fig_scatter = px.scatter(
@@ -783,9 +759,8 @@ if df is not None and not df.empty:
                 display_df[name_col].astype(str).str.contains(search_keyword, case=False, na=False)
             )
             display_df = display_df[mask]
-            # 搜索后再次去重（使用dict.fromkeys强制去重）
-            unique_cols = list(dict.fromkeys(display_df.columns))
-            display_df = display_df[unique_cols]
+            # 搜索后再次去重（使用数据清洗模块）
+            display_df = clean_duplicate_columns(display_df, keep_first=False)
             st.info(f"🔍 搜索后找到 {len(display_df)} 条匹配记录")
         
         # 显示数据完整性提示
@@ -807,9 +782,8 @@ if df is not None and not df.empty:
         # 显示数据（确保至少显示代码和名称）
         # 选择要显示的列（优先显示有数据的列）
         
-        # 确保display_df没有重复列（一次性处理，避免重复检查，强制去重）
-        unique_cols = list(dict.fromkeys(display_df.columns))
-        display_df = display_df[unique_cols]
+        # 确保display_df没有重复列（一次性处理，避免重复检查，使用数据清洗模块）
+        display_df = clean_duplicate_columns(display_df, keep_first=False)
         
         display_columns = []
         
@@ -845,29 +819,13 @@ if df is not None and not df.empty:
         
         # 创建最终的数据框（确保没有重复列）
         # 先确保display_df本身没有重复列
-        unique_cols_df = list(dict.fromkeys(display_df.columns))
-        if len(unique_cols_df) != len(display_df.columns):
-            display_df = pd.DataFrame(display_df.values[:, :len(unique_cols_df)], columns=unique_cols_df)
-        else:
-            display_df = display_df[unique_cols_df]
+        display_df = clean_duplicate_columns(display_df, keep_first=False)
         
         # 然后创建final_df
         final_df = display_df[display_columns] if display_columns else display_df
         
-        # 最终确保没有重复列（使用dict.fromkeys，最快最可靠）
-        # 强制重建DataFrame，确保绝对没有重复列
-        unique_cols = list(dict.fromkeys(final_df.columns))
-        if len(unique_cols) != len(final_df.columns):
-            # 如果有重复，重新创建DataFrame
-            final_df = pd.DataFrame(final_df[unique_cols].values, columns=unique_cols)
-        else:
-            # 即使没有重复，也确保列名唯一
-            final_df = final_df[unique_cols]
-        
-        # 最后一次检查：如果还有问题，直接重建（使用values和唯一列名）
-        if final_df.columns.duplicated().any():
-            unique_cols = list(dict.fromkeys(final_df.columns))
-            final_df = pd.DataFrame(final_df.values[:, :len(unique_cols)], columns=unique_cols)
+        # 最终确保没有重复列（使用数据清洗模块）
+        final_df = clean_duplicate_columns(final_df, keep_first=False)
         
         # 显示完整数据列表（移除head限制，显示全部）
         safe_dataframe(
@@ -879,9 +837,8 @@ if df is not None and not df.empty:
         
         # 数据统计
         with st.expander("📈 数据统计信息"):
-            # 确保统计时也没有重复列（使用dict.fromkeys强制去重）
-            unique_cols = list(dict.fromkeys(display_df.columns))
-            stats_df = display_df[unique_cols]
+            # 确保统计时也没有重复列（使用数据清洗模块）
+            stats_df = clean_duplicate_columns(display_df, keep_first=False)
             safe_dataframe(stats_df.describe(), use_container_width=True)
         
         # 导出功能
@@ -890,10 +847,9 @@ if df is not None and not df.empty:
         
         col1, col2 = st.columns(2)
         with col1:
-            # 确保导出时也没有重复列（使用dict.fromkeys强制去重）
+            # 确保导出时也没有重复列（使用数据清洗模块）
             export_df = display_df[display_columns] if display_columns else display_df
-            unique_cols = list(dict.fromkeys(export_df.columns))
-            export_df = export_df[unique_cols]
+            export_df = clean_duplicate_columns(export_df, keep_first=False)
             csv_data = export_df.to_csv(index=False, encoding="utf-8-sig")
             st.download_button(
                 "📥 导出为 CSV",
