@@ -695,11 +695,19 @@ if df is not None and not df.empty:
             with viz_tab2:
                 if has_mv and 'total_mv' in display_df.columns and display_df['total_mv'].notna().any():
                     mv_data = display_df.dropna(subset=['total_mv']).copy()
-                    # 确保没有重复列
+                    # 确保没有重复列（在dropna后立即清理）
                     mv_data = clean_duplicate_columns(mv_data, keep_first=False)
+                    
+                    # 双重验证：确保绝对没有重复列
+                    if mv_data.columns.duplicated().any():
+                        unique_cols = list(dict.fromkeys(mv_data.columns))
+                        mv_data = pd.DataFrame(mv_data.values[:, :len(unique_cols)], columns=unique_cols)
                     
                     mv_data['total_mv_billion'] = mv_data['total_mv'] / 1e8
                     top_mv = mv_data.nlargest(20, 'total_mv_billion')
+                    
+                    # 再次验证：确保nlargest后没有重复列
+                    top_mv = clean_duplicate_columns(top_mv, keep_first=False)
                     
                     if PLOTLY_AVAILABLE:
                         fig_mv = px.bar(
