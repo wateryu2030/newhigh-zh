@@ -475,10 +475,90 @@ if df is not None and not df.empty:
         
         # ========== 股票筛选功能 ==========
         st.markdown("---")
-        st.subheader("🔍 股票筛选")
+        st.subheader("🔍 综合股票筛选")
         
-        with st.expander("📊 筛选条件", expanded=True):
-            filter_col1, filter_col2, filter_col3 = st.columns(3)
+        # 筛选模式选择
+        filter_mode = st.radio(
+            "筛选模式",
+            ["📊 快速筛选", "🎯 高级筛选", "📋 预设模板"],
+            horizontal=True,
+            key="filter_mode"
+        )
+        
+        if filter_mode == "📋 预设模板":
+            # 预设模板筛选
+            template_col1, template_col2 = st.columns([2, 1])
+            with template_col1:
+                template = st.selectbox(
+                    "选择预设模板",
+                    [
+                        "全部股票",
+                        "💰 价值股（低PE低PB）",
+                        "🚀 成长股（高ROE高增长）",
+                        "💎 优质股（ROE>15%，PE<30）",
+                        "📈 小盘股（市值<100亿）",
+                        "🏢 大盘股（市值>500亿）",
+                        "💹 活跃股（换手率>3%）",
+                        "📊 低波动股（波动率<20%）",
+                        "🎯 高股息股（PB<2，ROE>10%）",
+                        "🔥 热门股（涨幅>5%）"
+                    ],
+                    key="template_selector"
+                )
+            with template_col2:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("应用模板", use_container_width=True, type="primary"):
+                    st.session_state.apply_template = True
+            
+            # 应用预设模板
+            if st.session_state.get("apply_template", False):
+                display_df = df.copy()
+                display_df = clean_duplicate_columns(display_df, keep_first=False)
+                
+                if template == "💰 价值股（低PE低PB）":
+                    if 'pe' in display_df.columns:
+                        display_df = display_df[(display_df['pe'] > 0) & (display_df['pe'] < 20)]
+                    if 'pb' in display_df.columns:
+                        display_df = display_df[(display_df['pb'] > 0) & (display_df['pb'] < 2)]
+                elif template == "🚀 成长股（高ROE高增长）":
+                    if 'roe' in display_df.columns:
+                        display_df = display_df[(display_df['roe'] > 15)]
+                    if 'revenue_yoy' in display_df.columns:
+                        display_df = display_df[(display_df['revenue_yoy'] > 20)]
+                elif template == "💎 优质股（ROE>15%，PE<30）":
+                    if 'roe' in display_df.columns:
+                        display_df = display_df[(display_df['roe'] > 15)]
+                    if 'pe' in display_df.columns:
+                        display_df = display_df[(display_df['pe'] > 0) & (display_df['pe'] < 30)]
+                elif template == "📈 小盘股（市值<100亿）":
+                    if 'total_mv' in display_df.columns:
+                        display_df = display_df[(display_df['total_mv'] / 1e8 < 100)]
+                elif template == "🏢 大盘股（市值>500亿）":
+                    if 'total_mv' in display_df.columns:
+                        display_df = display_df[(display_df['total_mv'] / 1e8 > 500)]
+                elif template == "💹 活跃股（换手率>3%）":
+                    if 'turnover_rate' in display_df.columns:
+                        display_df = display_df[(display_df['turnover_rate'] > 3)]
+                elif template == "📊 低波动股（波动率<20%）":
+                    if 'amplitude' in display_df.columns:
+                        display_df = display_df[(display_df['amplitude'] < 20)]
+                elif template == "🎯 高股息股（PB<2，ROE>10%）":
+                    if 'pb' in display_df.columns:
+                        display_df = display_df[(display_df['pb'] > 0) & (display_df['pb'] < 2)]
+                    if 'roe' in display_df.columns:
+                        display_df = display_df[(display_df['roe'] > 10)]
+                elif template == "🔥 热门股（涨幅>5%）":
+                    if 'change_pct' in display_df.columns:
+                        display_df = display_df[(display_df['change_pct'] > 5)]
+                
+                st.session_state.apply_template = False
+                st.success(f"✅ 应用模板「{template}」，找到 {len(display_df)} 只股票")
+        elif filter_mode == "📊 快速筛选":
+            # 快速筛选模式（原有功能）
+            with st.expander("📊 筛选条件", expanded=True):
+                st.info("💡 快速筛选模式：使用简单的滑块和下拉框进行筛选")
+                
+                filter_col1, filter_col2, filter_col3 = st.columns(3)
             
             # 市值筛选（注意：BaoStock不提供市值数据，此功能暂时不可用）
             with filter_col1:
@@ -574,54 +654,58 @@ if df is not None and not df.empty:
                     )
                 else:
                     selected_industry = '全部'
+            
+            # 应用快速筛选
+            display_df = df.copy()
+            display_df = clean_duplicate_columns(display_df, keep_first=False)
+            
+            # 市值筛选
+            if has_mv and 'total_mv' in display_df.columns and display_df['total_mv'].notna().any():
+                display_df = display_df[
+                    (display_df['total_mv'] / 1e8 >= mv_range[0]) &
+                    (display_df['total_mv'] / 1e8 <= mv_range[1])
+                ]
+            
+            # PE筛选
+            if has_pe and 'pe' in display_df.columns:
+                display_df = display_df[
+                    ((display_df['pe'] >= pe_range[0]) & (display_df['pe'] <= pe_range[1])) |
+                    (display_df['pe'].isna())
+                ]
+            
+            # PB筛选
+            if has_pb and 'pb' in display_df.columns:
+                display_df = display_df[
+                    ((display_df['pb'] >= pb_range[0]) & (display_df['pb'] <= pb_range[1])) |
+                    (display_df['pb'].isna())
+                ]
+            
+            # 价格筛选
+            if has_price and 'price' in display_df.columns:
+                display_df = display_df[
+                    ((display_df['price'] >= price_range[0]) & (display_df['price'] <= price_range[1])) |
+                    (display_df['price'].isna())
+                ]
+            
+            # 行业筛选
+            if selected_industry != '全部' and 'industry' in display_df.columns:
+                display_df = display_df[display_df['industry'] == selected_industry]
+            
+            display_df = clean_duplicate_columns(display_df, keep_first=False)
+            st.success(f"✅ 快速筛选结果: 找到 {len(display_df)} 只符合条件的股票（共 {len(df)} 只）")
         
-        # 应用筛选
-        display_df = df.copy()
-        
-        # 立即去除重复列（在筛选前确保数据干净，使用数据清洗模块）
-        display_df = clean_duplicate_columns(display_df, keep_first=False)
-        
-        # 双重验证：确保绝对没有重复列
-        if display_df.columns.duplicated().any():
-            unique_cols = list(dict.fromkeys(display_df.columns))
-            display_df = pd.DataFrame(display_df.values[:, :len(unique_cols)], columns=unique_cols)
-        
-        # 市值筛选（BaoStock不提供市值数据，暂时跳过）
-        if has_mv and 'total_mv' in display_df.columns and display_df['total_mv'].notna().any():
-            display_df = display_df[
-                (display_df['total_mv'] / 1e8 >= mv_range[0]) &
-                (display_df['total_mv'] / 1e8 <= mv_range[1])
-            ]
-        
-        # PE筛选（包含空值，避免过滤掉缺失数据的股票）
-        if has_pe and 'pe' in display_df.columns:
-            display_df = display_df[
-                ((display_df['pe'] >= pe_range[0]) & (display_df['pe'] <= pe_range[1])) |
-                (display_df['pe'].isna())
-            ]
-        
-        # PB筛选
-        if has_pb and 'pb' in display_df.columns:
-            display_df = display_df[
-                ((display_df['pb'] >= pb_range[0]) & (display_df['pb'] <= pb_range[1])) |
-                (display_df['pb'].isna())
-            ]
-        
-        # 价格筛选
-        if has_price and 'price' in display_df.columns:
-            display_df = display_df[
-                ((display_df['price'] >= price_range[0]) & (display_df['price'] <= price_range[1])) |
-                (display_df['price'].isna())
-            ]
-        
-        # 行业筛选
-        if selected_industry != '全部' and 'industry' in display_df.columns:
-            display_df = display_df[display_df['industry'] == selected_industry]
+        # 如果display_df未定义，使用原始df
+        if 'display_df' not in locals():
+            display_df = df.copy()
+            display_df = clean_duplicate_columns(display_df, keep_first=False)
         
         # 所有筛选操作完成后，再次去重（防止筛选过程中产生重复列）
         display_df = clean_duplicate_columns(display_df, keep_first=False)
         
-        st.success(f"✅ 筛选结果: 找到 {len(display_df)} 只符合条件的股票（共 {len(df)} 只）")
+        # 如果没有任何筛选结果，显示提示
+        if len(display_df) == 0:
+            st.warning("⚠️ 没有找到符合条件的股票，请调整筛选条件")
+            st.stop()
         
         # ========== 可视化展示 ==========
         if len(display_df) > 0:

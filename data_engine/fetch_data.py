@@ -103,6 +103,10 @@ def fetch_market_daily(ts_codes: pd.Series):
     fields = "date,code,open,high,low,close,preclose,volume,amount,turn,pctChg,peTTM,pbMRQ,psTTM"
     
     total = 0
+    success_count = 0
+    failed_count = 0
+    failed_codes = []
+    
     for i, row in ts_codes.reset_index(drop=True).iterrows():
         ts_code = row['ts_code']
         # 转baostock代码风格
@@ -111,84 +115,103 @@ def fetch_market_daily(ts_codes: pd.Series):
         else:
             code = "sz." + ts_code.split('.')[0]
         
-        # 获取K线数据和财务指标
-        rs = bs.query_history_k_data_plus(
-            code,
-            fields,
-            start_date=START_DATE,
-            end_date=END_DATE,
-            frequency="d",
-            adjustflag="3"
-        )
-        
-        rows = []
-        while rs.error_code == '0' and rs.next():
-            rows.append(rs.get_row_data())
-        
-        if rows:
-            df = pd.DataFrame(rows, columns=rs.fields)
-            # 标准列名映射
-            df.rename(columns={
-                "date": "trade_date",
-                "pctChg": "pct_chg",
-                "turn": "turnover_rate"
-            }, inplace=True)
-            df["ts_code"] = ts_code
+        try:
+            # 获取K线数据和财务指标
+            rs = bs.query_history_k_data_plus(
+                code,
+                fields,
+                start_date=START_DATE,
+                end_date=END_DATE,
+                frequency="d",
+                adjustflag="3"
+            )
             
-            # 删除code列
-            if 'code' in df.columns:
-                df = df.drop(columns=['code'])
+            # 检查是否有错误
+            if rs.error_code != '0':
+                logger.warning(f"  ⚠️ {ts_code} ({code}) 查询失败: {rs.error_msg}")
+                failed_count += 1
+                failed_codes.append(ts_code)
+                time.sleep(SLEEP_SEC_WEB)
+                continue
             
-            # 确保所有数值列为数值类型
-            numeric_cols = ['open', 'high', 'low', 'close', 'preclose', 'pct_chg', 'volume', 
-                          'amount', 'turnover_rate', 'peTTM', 'pbMRQ', 'psTTM']
-            for col in numeric_cols:
-                if col in df.columns:
-                    df[col] = pd.to_numeric(df[col], errors='coerce')
+            rows = []
+            while rs.error_code == '0' and rs.next():
+                rows.append(rs.get_row_data())
             
-            # 计算振幅
-            df['amplitude'] = ((df['high'] - df['low']) / df['preclose'] * 100).round(2)
-            
-            # 确保列顺序（匹配数据库）
-            expected_fields = ['ts_code', 'trade_date', 'open', 'high', 'low', 'close', 'preclose',
-                             'pct_chg', 'volume', 'amount', 'turnover_rate', 'amplitude', 
-                             'peTTM', 'pbMRQ', 'psTTM']
-            for field in expected_fields:
-                if field not in df.columns:
-                    df[field] = None
-            df = df[expected_fields]
-            
-            upsert_df(df, "stock_market_daily", engine, if_exists="append")
-            total += len(df)
-            
-            # 同时将PE/PB/PS数据写入财务表
-            if 'peTTM' in df.columns or 'pbMRQ' in df.columns:
-                df_fin = df[['ts_code', 'trade_date']].copy()
-                if 'peTTM' in df.columns:
-                    df_fin['pe'] = df['peTTM']
-                if 'pbMRQ' in df.columns:
-                    df_fin['pb'] = df['pbMRQ']
-                if 'psTTM' in df.columns:
-                    df_fin['ps'] = df['psTTM']
+            if rows:
+                df = pd.DataFrame(rows, columns=rs.fields)
+                # 标准列名映射
+                df.rename(columns={
+                    "date": "trade_date",
+                    "pctChg": "pct_chg",
+                    "turn": "turnover_rate"
+                }, inplace=True)
+                df["ts_code"] = ts_code
                 
-                # 补充其他字段
-                for col in ['pcf', 'roe', 'roa', 'eps', 'bps', 'total_mv', 'circ_mv', 
-                          'revenue_yoy', 'net_profit_yoy', 'gross_profit_margin']:
-                    df_fin[col] = None
+                # 删除code列
+                if 'code' in df.columns:
+                    df = df.drop(columns=['code'])
                 
-                df_fin = df_fin.dropna(subset=['pe', 'pb'], how='all')
-                if not df_fin.empty:
-                    upsert_df(df_fin, "stock_financials", engine, if_exists="append")
-        else:
-            logger.warning(f"  ⚠️ {ts_code} 无数据")
+                # 确保所有数值列为数值类型
+                numeric_cols = ['open', 'high', 'low', 'close', 'preclose', 'pct_chg', 'volume', 
+                              'amount', 'turnover_rate', 'peTTM', 'pbMRQ', 'psTTM']
+                for col in numeric_cols:
+                    if col in df.columns:
+                        df[col] = pd.to_numeric(df[col], errors='coerce')
+                
+                # 计算振幅
+                df['amplitude'] = ((df['high'] - df['low']) / df['preclose'] * 100).round(2)
+                
+                # 确保列顺序（匹配数据库）
+                expected_fields = ['ts_code', 'trade_date', 'open', 'high', 'low', 'close', 'preclose',
+                                 'pct_chg', 'volume', 'amount', 'turnover_rate', 'amplitude', 
+                                 'peTTM', 'pbMRQ', 'psTTM']
+                for field in expected_fields:
+                    if field not in df.columns:
+                        df[field] = None
+                df = df[expected_fields]
+                
+                upsert_df(df, "stock_market_daily", engine, if_exists="append")
+                total += len(df)
+                
+                # 同时将PE/PB/PS数据写入财务表
+                if 'peTTM' in df.columns or 'pbMRQ' in df.columns:
+                    df_fin = df[['ts_code', 'trade_date']].copy()
+                    if 'peTTM' in df.columns:
+                        df_fin['pe'] = df['peTTM']
+                    if 'pbMRQ' in df.columns:
+                        df_fin['pb'] = df['pbMRQ']
+                    if 'psTTM' in df.columns:
+                        df_fin['ps'] = df['psTTM']
+                    
+                    # 补充其他字段
+                    for col in ['pcf', 'roe', 'roa', 'eps', 'bps', 'total_mv', 'circ_mv', 
+                              'revenue_yoy', 'net_profit_yoy', 'gross_profit_margin']:
+                        df_fin[col] = None
+                    
+                    df_fin = df_fin.dropna(subset=['pe', 'pb'], how='all')
+                    if not df_fin.empty:
+                        upsert_df(df_fin, "stock_financials", engine, if_exists="append")
+                success_count += 1
+            else:
+                logger.warning(f"  ⚠️ {ts_code} ({code}) 无数据返回")
+                failed_count += 1
+                failed_codes.append(ts_code)
+        except Exception as e:
+            logger.error(f"  ❌ {ts_code} ({code}) 下载出错: {e}")
+            failed_count += 1
+            failed_codes.append(ts_code)
         
-        if (i+1) % 20 == 0:
-            logger.info(f"日K进度 {i+1}/{len(ts_codes)}")
+        if (i+1) % 50 == 0:
+            logger.info(f"日K进度 {i+1}/{len(ts_codes)} | 成功: {success_count} | 失败: {failed_count}")
         
         time.sleep(SLEEP_SEC_WEB)
     
     bs.logout()
     logger.info(f"stock_market_daily 共写入 {total} 行")
+    logger.info(f"✅ 下载完成: 成功 {success_count} 只，失败 {failed_count} 只")
+    if failed_codes:
+        logger.warning(f"失败的股票代码（前20个）: {failed_codes[:20]}")
     return total
 
 
@@ -200,22 +223,62 @@ def main():
     # 1. 获取基础信息（静态数据，全量更新）
     codes_df = fetch_stock_basic_info()
     
-    # 2. 下载日K行情（增量更新，支持多次运行）
-    # BATCH_SIZE=400表示限制400只，设置为none/full表示全量
-    batch_size = os.getenv("BATCH_SIZE", "400")
-    if batch_size and batch_size.lower() not in ["none", "null", "full"]:
-        try:
-            limit = int(batch_size)
-            head_codes = codes_df.head(limit)
-            logger.info(f"限制批量大小: {limit}只股票")
-        except ValueError:
-            logger.warning(f"BATCH_SIZE值无效: {batch_size}，使用默认400")
-            head_codes = codes_df.head(400)
-    else:
-        head_codes = codes_df
-        logger.info(f"全量下载所有股票日K数据（共{len(codes_df)}只）")
-    
-    fetch_market_daily(head_codes)
+    # 2. 下载日K行情（智能增量更新：优先下载缺失的数据）
+    # 检查数据库中已有的股票，只下载缺失的数据
+    try:
+        import sqlite3
+        from pathlib import Path
+        db_path = Path(__file__).parent.parent / "data" / "stock_database.db"
+        if db_path.exists():
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+            # 获取已有最新日期的股票列表
+            cursor.execute("""
+                SELECT DISTINCT ts_code 
+                FROM stock_market_daily 
+                WHERE trade_date = (SELECT MAX(trade_date) FROM stock_market_daily)
+            """)
+            existing_codes = set([row[0] for row in cursor.fetchall()])
+            conn.close()
+            
+            # 找出缺失的股票
+            all_codes = set(codes_df['ts_code'].tolist())
+            missing_codes = all_codes - existing_codes
+            
+            if missing_codes:
+                logger.info(f"发现 {len(missing_codes)} 只股票缺少市场数据，将优先下载")
+                missing_df = codes_df[codes_df['ts_code'].isin(missing_codes)]
+                fetch_market_daily(missing_df)
+            
+            # 检查是否还需要更新已有股票的最新数据
+            batch_size = os.getenv("BATCH_SIZE", "full")
+            if batch_size.lower() in ["none", "null", "full"]:
+                logger.info(f"全量更新所有股票数据（共{len(codes_df)}只）")
+                fetch_market_daily(codes_df)
+            else:
+                try:
+                    limit = int(batch_size)
+                    update_codes = codes_df.head(limit)
+                    logger.info(f"更新前{limit}只股票的数据")
+                    fetch_market_daily(update_codes)
+                except ValueError:
+                    logger.warning(f"BATCH_SIZE值无效: {batch_size}，使用全量下载")
+                    fetch_market_daily(codes_df)
+        else:
+            # 数据库不存在，全量下载
+            logger.info(f"数据库不存在，全量下载所有股票日K数据（共{len(codes_df)}只）")
+            fetch_market_daily(codes_df)
+    except Exception as e:
+        logger.warning(f"检查已有数据时出错: {e}，将全量下载")
+        batch_size = os.getenv("BATCH_SIZE", "full")
+        if batch_size.lower() in ["none", "null", "full"]:
+            fetch_market_daily(codes_df)
+        else:
+            try:
+                limit = int(batch_size)
+                fetch_market_daily(codes_df.head(limit))
+            except ValueError:
+                fetch_market_daily(codes_df)
     
     logger.info("✅ 全部完成")
 
