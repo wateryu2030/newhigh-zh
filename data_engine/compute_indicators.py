@@ -59,7 +59,10 @@ def compute_for_stock(ts_code: str):
     return len(df)
 
 def main(limit=400):
-    codes = read_sql("SELECT ts_code FROM stock_basic_info LIMIT {}".format(limit), engine)
+    if limit is None:
+        codes = read_sql("SELECT ts_code FROM stock_basic_info", engine)
+    else:
+        codes = read_sql(f"SELECT ts_code FROM stock_basic_info LIMIT {limit}", engine)
     total = 0
     for ts_code in codes['ts_code']:
         total += compute_for_stock(ts_code)

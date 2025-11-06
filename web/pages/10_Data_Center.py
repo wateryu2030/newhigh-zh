@@ -24,6 +24,8 @@ sys.path.insert(0, str(project_root))
 
 # 导入数据清洗模块
 from web.utils.data_cleaner import safe_dataframe as clean_dataframe, clean_duplicate_columns
+import logging
+logger = logging.getLogger(__name__)
 
 def safe_dataframe(df, **kwargs):
     """安全的st.dataframe包装函数，确保没有重复列"""
@@ -54,147 +56,263 @@ st.info("📊 **数据源**: BaoStock（免费、稳定、无需注册）")
 
 st.markdown("---")
 
-# 检查数据库（只使用新数据库）
-DATA_ENGINE_DB_PATH = project_root / "data" / "stock_database.db"  # data_engine数据库（唯一数据源）
+# 检查数据库（使用MySQL或SQLite，根据配置）
 DATA_PATH = project_root / "data" / "stock_basic.csv"  # CSV备份（已废弃）
-
-data_engine_db_exists = DATA_ENGINE_DB_PATH.exists()
 csv_exists = DATA_PATH.exists()
 
-# 尝试从数据库读取数据（只使用新数据库）
+# 尝试从数据库读取数据（优先使用MySQL）
 df = None
 data_source = None
 
-# 读取data_engine数据库（唯一数据源）
-if data_engine_db_exists:
-    try:
-        import sqlite3
-        conn = sqlite3.connect(str(DATA_ENGINE_DB_PATH))
-        cursor = conn.cursor()
+# 读取数据库（支持MySQL和SQLite）
+try:
+    # 导入数据库工具
+    data_engine_path = str(project_root / "data_engine")
+    if data_engine_path not in sys.path:
+        sys.path.insert(0, data_engine_path)
+    from config import DB_URL
+    from utils.db_utils import get_engine
+    from sqlalchemy import text, inspect
+    
+    engine = get_engine(DB_URL)
+    
+    # 检查表是否存在
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    
+    # 优先读取stock_basic_info + 聚合日K数据
+    if 'stock_basic_info' in tables and 'stock_market_daily' in tables:
+        # 读取基础信息（先去重，只保留每个ts_code的第一条记录）
+        # 使用子查询 + ROW_NUMBER() 或直接读取后去重
+        df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
         
-        # 检查表
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        tables = [row[0] for row in cursor.fetchall()]
+        # 在Python层面去重（保留每个ts_code的第一条记录）
+        if 'ts_code' in df_basic.columns:
+            original_count = len(df_basic)
+            df_basic = df_basic.drop_duplicates(subset=['ts_code'], keep='first')
+            if len(df_basic) < original_count:
+                st.info(f"ℹ️ 基础信息去重: {original_count:,} → {len(df_basic):,} 条记录")
         
-        # 优先读取stock_basic_info + 聚合日K数据
-        if 'stock_basic_info' in tables and 'stock_market_daily' in tables:
-            # 读取基础信息
-            df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", conn)
-            
-            # 读取最新的市场价格和财务数据
-            # 获取最新的交易日期
-            cursor.execute("SELECT MAX(trade_date) FROM stock_market_daily")
-            latest_date = cursor.fetchone()[0]
-            
-            if latest_date:
-                # 读取市场数据（为每个股票获取最新有数据的日期）
-                # 使用LEFT JOIN确保所有基础信息股票都能显示，即使没有市场数据
-                query_market = """
+        # 读取最新的市场价格和财务数据
+        # 获取最新的交易日期
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
+            latest_date = result.fetchone()[0]
+        
+        if latest_date:
+            # 读取市场数据（为每个股票获取最新有数据的日期）
+            # 使用LEFT JOIN确保所有基础信息股票都能显示，即使没有市场数据
+            query_market = """
+                SELECT 
+                    b.ts_code,
+                    m.close as price,
+                    m.volume,
+                    m.amount as turnover,
+                    m.pct_chg as change_pct,
+                    m.peTTM as pe,
+                    m.pbMRQ as pb,
+                    m.psTTM as ps,
+                    m.trade_date
+                FROM (
+                    SELECT DISTINCT ts_code FROM stock_basic_info
+                ) b
+                LEFT JOIN (
                     SELECT 
-                        b.ts_code,
-                        m.close as price,
-                        m.volume,
-                        m.amount as turnover,
-                        m.pct_chg as change_pct,
-                        m.peTTM as pe,
-                        m.pbMRQ as pb,
-                        m.psTTM as ps
-                    FROM stock_basic_info b
-                    LEFT JOIN (
-                        SELECT 
-                            m1.ts_code,
-                            m1.close,
-                            m1.volume,
-                            m1.amount,
-                            m1.pct_chg,
-                            m1.peTTM,
-                            m1.pbMRQ,
-                            m1.psTTM
-                        FROM stock_market_daily m1
-                        INNER JOIN (
-                            SELECT ts_code, MAX(trade_date) as max_date
-                            FROM stock_market_daily
-                            GROUP BY ts_code
-                        ) latest ON m1.ts_code = latest.ts_code AND m1.trade_date = latest.max_date
-                    ) m ON b.ts_code = m.ts_code
-                    ORDER BY b.ts_code
-                """
-                df_market = pd.read_sql_query(query_market, conn)
-                
-                # 读取财务数据（为每个股票获取最新有数据的日期）
-                query_fin = """
+                        m1.ts_code,
+                        m1.close,
+                        m1.volume,
+                        m1.amount,
+                        m1.pct_chg,
+                        m1.peTTM,
+                        m1.pbMRQ,
+                        m1.psTTM,
+                        m1.trade_date
+                    FROM stock_market_daily m1
+                    INNER JOIN (
+                        SELECT ts_code, MAX(trade_date) as max_date
+                        FROM stock_market_daily
+                        GROUP BY ts_code
+                    ) latest ON m1.ts_code = latest.ts_code AND m1.trade_date = latest.max_date
+                ) m ON b.ts_code = m.ts_code
+                ORDER BY b.ts_code
+            """
+            df_market = pd.read_sql_query(query_market, engine)
+            
+            # 读取财务数据（为每个股票获取最新有数据的日期）
+            query_fin = """
+                SELECT 
+                    b.ts_code,
+                    f.total_mv,
+                    f.circ_mv,
+                    f.revenue_yoy,
+                    f.net_profit_yoy,
+                    f.gross_profit_margin,
+                    f.roe,
+                    f.roa
+                FROM (
+                    SELECT DISTINCT ts_code FROM stock_basic_info
+                ) b
+                LEFT JOIN (
                     SELECT 
-                        b.ts_code,
-                        f.total_mv,
-                        f.circ_mv,
-                        f.revenue_yoy,
-                        f.net_profit_yoy,
-                        f.gross_profit_margin,
-                        f.roe,
-                        f.roa
-                    FROM stock_basic_info b
-                    LEFT JOIN (
-                        SELECT 
-                            f1.ts_code,
-                            f1.total_mv,
-                            f1.circ_mv,
-                            f1.revenue_yoy,
-                            f1.net_profit_yoy,
-                            f1.gross_profit_margin,
-                            f1.roe,
-                            f1.roa
-                        FROM stock_financials f1
-                        INNER JOIN (
-                            SELECT ts_code, MAX(trade_date) as max_date
-                            FROM stock_financials
-                            GROUP BY ts_code
-                        ) latest ON f1.ts_code = latest.ts_code AND f1.trade_date = latest.max_date
-                    ) f ON b.ts_code = f.ts_code
-                    ORDER BY b.ts_code
-                """
-                df_fin = pd.read_sql_query(query_fin, conn)
-                
-                # 合并数据：基础信息 + 市场数据 + 财务数据
-                # 使用merge确保按ts_code正确合并
-                df = df_basic.merge(df_market, on='ts_code', how='left')
-                df = df.merge(df_fin, on='ts_code', how='left')
+                        f1.ts_code,
+                        f1.total_mv,
+                        f1.circ_mv,
+                        f1.revenue_yoy,
+                        f1.net_profit_yoy,
+                        f1.gross_profit_margin,
+                        f1.roe,
+                        f1.roa
+                    FROM stock_financials f1
+                    INNER JOIN (
+                        SELECT ts_code, MAX(trade_date) as max_date
+                        FROM stock_financials
+                        GROUP BY ts_code
+                    ) latest ON f1.ts_code = latest.ts_code AND f1.trade_date = latest.max_date
+                ) f ON b.ts_code = f.ts_code
+                ORDER BY b.ts_code
+            """
+            df_fin = pd.read_sql_query(query_fin, engine)
+            
+            # 合并数据：基础信息 + 市场数据 + 财务数据
+            # 使用merge确保按ts_code正确合并
+            df = df_basic.merge(df_market, on='ts_code', how='left')
+            df = df.merge(df_fin, on='ts_code', how='left')
+            
+            # 适配表结构：使用code_name字段（实际表结构）
+            if 'code_name' in df.columns:
+                df = df.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
+            elif 'name' in df.columns:
                 df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
-                
-                # 立即清理重复列（在合并后立即处理，防止后续操作产生问题）
+            else:
+                df = df.rename(columns={'ts_code': 'stock_code'})
+            
+            # 将trade_date重命名为update_time（如果存在）
+            if 'trade_date' in df.columns:
+                df = df.rename(columns={'trade_date': 'update_time'})
+            
+            # 立即清理重复列（在合并后立即处理，防止后续操作产生问题）
+            try:
                 df = clean_duplicate_columns(df, keep_first=False)
-                
-                # 双重验证：确保绝对没有重复列
+            except Exception as e:
+                # 如果清理函数失败，手动去重
                 if df.columns.duplicated().any():
                     unique_cols = list(dict.fromkeys(df.columns))
                     df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-                
-                # 最终确保：使用数据清洗模块去重（最后一次确认）
-                df = clean_duplicate_columns(df, keep_first=False)
-            else:
-                df = df_basic.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
             
-            conn.close()
+            # 双重验证：确保绝对没有重复列
+            if df.columns.duplicated().any():
+                unique_cols = list(dict.fromkeys(df.columns))
+                df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+            
+            # 最终确保：使用数据清洗模块去重（最后一次确认）
+            try:
+                df = clean_duplicate_columns(df, keep_first=False)
+            except:
+                # 如果失败，使用手动方法
+                if df.columns.duplicated().any():
+                    unique_cols = list(dict.fromkeys(df.columns))
+                    df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+            
+            # 设置数据源标记（确保df在全局作用域和session_state中）
             if df is not None and not df.empty:
-                data_source = "data_engine数据库"
-                st.success(f"✅ 从data_engine数据库读取: {len(df)} 条记录")
-        elif 'stock_basic_info' in tables:
-            # 只有基础信息
-            df = pd.read_sql_query("SELECT * FROM stock_basic_info", conn)
+                data_source = "数据库（MySQL/SQLite）"
+                # 立即保存到session_state和globals（关键！）
+                globals()['df'] = df
+                st.session_state['df'] = df
+                st.session_state['data_source'] = data_source
+                # 显示成功消息
+                st.success(f"✅ 从数据库读取: {len(df):,} 条记录")
+                # 调试信息（可选）
+                # st.info(f"ℹ️ 数据包含: {len(df)} 条记录，{df['stock_code'].nunique() if 'stock_code' in df.columns else 0} 只唯一股票")
+        else:
+            # 没有最新交易日期，只使用基础信息
+            if 'code_name' in df_basic.columns:
+                df = df_basic.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
+            elif 'name' in df_basic.columns:
+                df = df_basic.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
+            else:
+                df = df_basic.rename(columns={'ts_code': 'stock_code'})
+            
+            # 确保df被设置（即使没有市场数据，也要显示基础信息）
+            if df is not None and not df.empty:
+                data_source = "数据库（仅基础信息，无市场数据）"
+                # 立即保存到session_state和globals（关键！）
+                globals()['df'] = df
+                st.session_state['df'] = df
+                st.session_state['data_source'] = data_source
+                # 显示成功消息
+                st.success(f"✅ 从数据库读取基础信息: {len(df):,} 条记录")
+                st.info("ℹ️ 提示：市场数据尚未下载，请点击下方按钮下载完整数据")
+    elif 'stock_basic_info' in tables:
+        # 只有基础信息
+        df = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
+        # 适配表结构：code_name可能是name字段
+        if 'code_name' in df.columns:
+            df = df.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
+        elif 'name' in df.columns:
             df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
-            conn.close()
-            if df is not None and not df.empty:
-                data_source = "data_engine数据库(仅基础)"
-                st.success(f"✅ 从data_engine数据库读取: {len(df)} 条记录")
-        conn.close()
-    except Exception as e:
-        st.warning(f"⚠️ 读取data_engine数据库失败: {e}")
+        else:
+            df = df.rename(columns={'ts_code': 'stock_code'})
+        if df is not None and not df.empty:
+            data_source = "数据库（仅基础信息）"
+            # 立即保存到session_state和globals（关键！）
+            globals()['df'] = df
+            st.session_state['df'] = df
+            st.session_state['data_source'] = data_source
+            # 显示成功消息
+            st.success(f"✅ 从数据库读取: {len(df):,} 条记录")
+except Exception as e:
+    st.error(f"❌ 读取数据库失败: {e}")
+    import traceback
+    error_trace = traceback.format_exc()
+    with st.expander("查看详细错误信息", expanded=True):
+        st.code(error_trace)
+    # 确保df被初始化（但不要覆盖已有的df）
+    if 'df' not in locals() or df is None:
+        df = None
+    # 打印到控制台（用于调试）
+    print(f"❌ 数据库读取异常: {e}")
+    print(error_trace)
 
+# 检查df变量（确保在全局作用域中）
 # 如果data_engine数据库读取失败，提示用户下载数据
-if (df is None or df.empty):
-    st.warning("⚠️ 未找到数据，请先下载数据。")
+# 注意：在Streamlit中，变量应该在页面级别可用，但需要确保在try块外也能访问
+# 先尝试从session_state恢复
+if 'df' not in locals() or df is None or (hasattr(df, 'empty') and df.empty):
+    if 'df' in st.session_state and st.session_state['df'] is not None and not st.session_state['df'].empty:
+        df = st.session_state['df']
+        data_source = st.session_state.get('data_source', data_source)
+    
+    # 如果仍然为空，尝试检查是否有数据但df变量作用域问题
+    if df is None or (hasattr(df, 'empty') and df.empty):
+        try:
+            # 重新尝试读取（可能是异常导致没有正确设置df）
+            data_engine_path = str(project_root / "data_engine")
+            if data_engine_path not in sys.path:
+                sys.path.insert(0, data_engine_path)
+            from config import DB_URL
+            from utils.db_utils import get_engine
+            from sqlalchemy import text, inspect
+            
+            engine_check = get_engine(DB_URL)
+            inspector_check = inspect(engine_check)
+            tables_check = inspector_check.get_table_names()
+            
+            if 'stock_basic_info' in tables_check:
+                # 快速检查是否有数据
+                df_check = pd.read_sql_query("SELECT COUNT(*) as cnt FROM stock_basic_info", engine_check)
+                if df_check.iloc[0]['cnt'] > 0:
+                    st.warning("⚠️ 数据库中有数据，但读取时出现异常，请刷新页面重试。")
+                    st.info(f"ℹ️ 数据库中有 {df_check.iloc[0]['cnt']} 条基础信息记录")
+        except:
+            pass  # 忽略检查时的异常
+        
+        # 只有在确认df真的为空时才显示警告
+        if df is None or (hasattr(df, 'empty') and df.empty):
+            st.warning("⚠️ 未找到数据，请先下载数据。")
 
 # 如果数据库读取失败，尝试从CSV读取
-if df is None or df.empty:
+if df is None or (hasattr(df, 'empty') and df.empty):
     if csv_exists:
         try:
             df = pd.read_csv(DATA_PATH, encoding="utf-8-sig")
@@ -214,9 +332,31 @@ with col1:
     if df is not None and not df.empty:
         # 显示最后更新时间
         if 'update_time' in df.columns:
-            latest_time = df['update_time'].max() if df['update_time'].notna().any() else None
-            if latest_time:
-                st.caption(f"📅 最后更新时间: {latest_time}")
+            try:
+                # 安全地获取最新时间：只处理日期类型的数据，忽略NaN和float
+                update_times = df['update_time'].dropna()
+                if len(update_times) > 0:
+                    # 过滤掉非日期类型的数据（只保留datetime.date或datetime.datetime）
+                    from datetime import date, datetime
+                    date_times = [
+                        dt for dt in update_times 
+                        if isinstance(dt, (date, datetime))
+                    ]
+                    if date_times:
+                        latest_time = max(date_times)
+                        st.caption(f"📅 最后更新时间: {latest_time}")
+                    else:
+                        # 如果都是字符串，尝试转换
+                        try:
+                            date_times = pd.to_datetime(update_times, errors='coerce').dropna()
+                            if len(date_times) > 0:
+                                latest_time = date_times.max()
+                                st.caption(f"📅 最后更新时间: {latest_time}")
+                        except:
+                            pass
+            except Exception as e:
+                # 如果获取时间失败，忽略（不影响功能）
+                pass
         elif csv_exists:
             import time
             mtime = os.path.getmtime(DATA_PATH)
@@ -441,17 +581,70 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
 
 st.markdown("---")
 
-# 数据展示（即使数据不完整也显示，至少显示代码和名称）
-# 添加调试信息
-if 'df' not in locals():
-    df = None
+# ========== 数据展示部分 ==========
+# 关键：优先从session_state恢复df（这是最可靠的方式）
+if 'df' in st.session_state and st.session_state['df'] is not None and not st.session_state['df'].empty:
+    df = st.session_state['df']
+    data_source = st.session_state.get('data_source', data_source)
+elif 'df' in globals() and globals()['df'] is not None and not globals()['df'].empty:
+    df = globals()['df']
+    data_source = globals().get('data_source', data_source)
+elif df is None or (hasattr(df, 'empty') and df.empty):
+    # 如果df仍然为空，尝试从session_state恢复（即使之前检查过）
+    if 'df' in st.session_state:
+        df = st.session_state.get('df')
+        data_source = st.session_state.get('data_source', data_source)
+
+# 添加调试信息（临时启用，帮助诊断问题）
+with st.expander("🔍 调试信息（诊断用）", expanded=True):
+    st.write(f"**df变量状态:**")
+    st.write(f"- df is None: {df is None}")
+    st.write(f"- df.empty: {df.empty if df is not None else 'N/A'}")
+    st.write(f"- df类型: {type(df)}")
+    if df is not None:
+        st.write(f"- df长度: {len(df)}")
+        st.write(f"- df列数: {len(df.columns)}")
+        st.write(f"- df列名: {list(df.columns)[:10]}")
+        if 'stock_code' in df.columns:
+            st.write(f"- 唯一股票数: {df['stock_code'].nunique()}")
+        # 显示前5条数据
+        if len(df) > 0:
+            st.write(f"**前5条数据:**")
+            display_cols = ['stock_code', 'stock_name'] if 'stock_code' in df.columns and 'stock_name' in df.columns else list(df.columns)[:5]
+            st.dataframe(df[display_cols].head() if len(display_cols) > 0 else df.head())
+    st.write(f"**data_source:** {data_source}")
+    try:
+        st.write(f"**数据库连接:** {DB_URL if 'DB_URL' in locals() else 'N/A'}")
+    except:
+        st.write(f"**数据库连接:** 无法获取")
+
+# 在显示数据表格前，再次确认df变量可用
+if df is None or df.empty:
+    # 如果df仍然是None或empty，尝试从session_state恢复
+    if 'df' in st.session_state and st.session_state['df'] is not None and not st.session_state['df'].empty:
+        df = st.session_state['df']
+        data_source = st.session_state.get('data_source', data_source)
+        st.info("ℹ️ 从缓存恢复数据")
 
 if df is not None and not df.empty:
-    # 确保df本身没有重复列（在显示前再次检查，使用数据清洗模块）
-    df = clean_duplicate_columns(df, keep_first=False)
+    try:
+        # 确保df本身没有重复列（在显示前再次检查，使用数据清洗模块）
+        df = clean_duplicate_columns(df, keep_first=False)
+    except Exception as e:
+        # 如果清理失败，手动去重
+        if df.columns.duplicated().any():
+            unique_cols = list(dict.fromkeys(df.columns))
+            df = df[unique_cols]
+        # 记录错误但不阻止显示
+        st.warning(f"⚠️ 数据清理时出现警告（不影响显示）: {e}")
+    
+    # 保存到session_state，确保在页面刷新时能访问
+    st.session_state['df'] = df
+    st.session_state['data_source'] = data_source
     
     st.subheader("📊 完整数据列表")
-    st.info(f"💡 共 {len(df)} 条股票数据，以下为完整列表（可滚动查看）")
+    st.success(f"✅ 成功加载 {len(df):,} 条股票数据")
+    st.info(f"💡 以下为完整列表（可滚动查看）")
     
     try:
         # 使用之前读取的df（来自数据库或CSV），不再重新读取
@@ -991,12 +1184,18 @@ if df is not None and not df.empty:
         final_df = clean_duplicate_columns(final_df, keep_first=False)
         
         # 显示完整数据列表（移除head限制，显示全部）
-        safe_dataframe(
-            final_df,
-            use_container_width=True,
-            height=600,  # 设置固定高度，支持滚动
-            hide_index=True
-        )
+        # 直接使用st.dataframe，确保能显示
+        try:
+            st.dataframe(
+                final_df,
+                use_container_width=True,
+                height=600,  # 设置固定高度，支持滚动
+                hide_index=True
+            )
+        except Exception as e:
+            # 如果失败，尝试不带参数的版本
+            st.dataframe(final_df, use_container_width=True)
+            st.warning(f"⚠️ 显示数据时出现警告: {e}")
         
         # 数据统计
         with st.expander("📈 数据统计信息"):
@@ -1022,23 +1221,26 @@ if df is not None and not df.empty:
                 use_container_width=True
             )
         with col2:
-            if st.button("🗑️ 删除数据库数据", use_container_width=True):
+            if st.button("🗑️ 清空数据库数据", use_container_width=True):
                 if st.session_state.get("confirm_delete"):
                     try:
-                        # 删除data_engine数据库
-                        if DATA_ENGINE_DB_PATH.exists():
-                            DATA_ENGINE_DB_PATH.unlink()
+                        # 清空数据库表（MySQL/SQLite通用）
+                        from sqlalchemy import text
+                        with engine.begin() as conn:
+                            conn.execute(text("DELETE FROM stock_market_daily"))
+                            conn.execute(text("DELETE FROM stock_financials"))
+                            conn.execute(text("DELETE FROM stock_basic_info"))
                         # 同时删除CSV备份（如果存在）
                         if DATA_PATH.exists():
                             DATA_PATH.unlink()
-                        st.success("✅ 数据已删除（data_engine数据库和CSV备份）")
+                        st.success("✅ 数据已清空（数据库表和CSV备份）")
                         st.session_state.confirm_delete = False
                         st.rerun()
                     except Exception as e:
-                        st.error(f"❌ 删除失败: {e}")
+                        st.error(f"❌ 清空失败: {e}")
                 else:
                     st.session_state.confirm_delete = True
-                    st.warning("⚠️ 确认删除数据库和CSV？请再次点击按钮")
+                    st.warning("⚠️ 确认清空所有数据库数据？请再次点击按钮")
 
     except Exception as e:
         st.error(f"❌ 读取数据失败: {e}")

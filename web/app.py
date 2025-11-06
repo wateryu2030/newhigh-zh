@@ -17,6 +17,76 @@ from dotenv import load_dotenv
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# 依赖检查和自动安装功能
+def check_and_install_dependencies():
+    """检查并自动安装缺失的核心依赖"""
+    import subprocess
+    
+    # 核心依赖包列表（模块名 -> 包名）
+    core_packages = {
+        'langchain': 'langchain',
+        'langchain_core': 'langchain-core',
+        'langchain_openai': 'langchain-openai',
+        'langchain_anthropic': 'langchain-anthropic',
+        'langchain_dashscope': 'langchain-dashscope',
+        'langchain_community': 'langchain-community',
+        'langchain_experimental': 'langchain-experimental',
+        'langchain_google_genai': 'langchain-google-genai',
+        'langgraph': 'langgraph',
+        'dashscope': 'dashscope',
+    }
+    
+    missing_packages = []
+    
+    # 检查依赖
+    for module_name, package_name in core_packages.items():
+        try:
+            __import__(module_name)
+        except ImportError:
+            missing_packages.append(package_name)
+    
+    # 自动安装缺失的依赖
+    if missing_packages:
+        print(f"⚠️ 发现 {len(missing_packages)} 个缺失的依赖包，正在自动安装...")
+        print(f"缺失的包: {', '.join(missing_packages)}")
+        
+        install_cmd = [
+            sys.executable, "-m", "pip", "install",
+            "--trusted-host", "pypi.org",
+            "--trusted-host", "pypi.python.org",
+            "--trusted-host", "files.pythonhosted.org",
+            "--quiet"
+        ] + missing_packages
+        
+        try:
+            subprocess.run(install_cmd, check=True)
+            print("✅ 依赖包安装成功")
+            
+            # 验证安装
+            all_installed = True
+            for module_name, package_name in core_packages.items():
+                try:
+                    __import__(module_name)
+                except ImportError:
+                    print(f"❌ {package_name} 安装失败，请手动安装")
+                    all_installed = False
+            
+            if not all_installed:
+                # 这些是可选依赖，不影响数据展示功能，只在控制台提示，不显示在页面上
+                print("ℹ️ 部分可选依赖包（langchain相关）未安装，不影响数据展示功能")
+                print(f"如需使用AI功能，请手动安装: pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org {' '.join(missing_packages)}")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ 依赖包安装失败: {e}")
+            print(f"请手动运行: pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org {' '.join(missing_packages)}")
+    
+    # 返回True（即使有可选依赖缺失，也不阻止应用运行）
+    # langchain相关包是可选依赖，只影响AI功能，不影响数据展示
+    return True
+
+# 启动时检查依赖（可选依赖缺失不会阻止应用运行）
+check_and_install_dependencies()
+# 移除st.error和st.stop()，因为langchain相关包是可选依赖
+
 # 导入日志模块
 try:
     from tradingagents.utils.logging_manager import get_logger

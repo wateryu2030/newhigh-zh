@@ -36,18 +36,77 @@ def main():
         print("   Linux/macOS: source env/bin/activate")
         print()
     
-    # 检查streamlit是否安装
-    try:
-        import streamlit
-        print("✅ Streamlit已安装")
-    except ImportError:
-        print("❌ Streamlit未安装，正在安装...")
+    # 检查并安装核心依赖
+    print("🔍 检查依赖包...")
+    
+    # 核心依赖包列表（按重要性排序）
+    core_packages = {
+        'streamlit': 'streamlit',
+        'plotly': 'plotly',
+        'altair': 'altair',
+        'langchain': 'langchain',
+        'langchain_core': 'langchain-core',
+        'langchain_openai': 'langchain-openai',
+        'langchain_anthropic': 'langchain-anthropic',
+        'langchain_dashscope': 'langchain-dashscope',
+        'langchain_community': 'langchain-community',
+        'langchain_experimental': 'langchain-experimental',
+        'langchain_google_genai': 'langchain-google-genai',
+        'langgraph': 'langgraph',
+        'dashscope': 'dashscope',
+        'openai': 'openai',
+    }
+    
+    missing_packages = []
+    
+    # 检查依赖
+    for module_name, package_name in core_packages.items():
         try:
-            subprocess.run([sys.executable, "-m", "pip", "install", "streamlit", "plotly"], check=True)
-            print("✅ Streamlit安装成功")
-        except subprocess.CalledProcessError:
-            print("❌ Streamlit安装失败，请手动安装: pip install streamlit plotly")
+            __import__(module_name)
+            print(f"✅ {package_name} 已安装")
+        except ImportError:
+            missing_packages.append(package_name)
+            print(f"⚠️ {package_name} 未安装")
+    
+    # 自动安装缺失的依赖
+    if missing_packages:
+        print(f"\n📦 发现 {len(missing_packages)} 个缺失的依赖包，正在自动安装...")
+        print(f"缺失的包: {', '.join(missing_packages)}")
+        
+        # 使用可信主机安装（解决SSL证书问题）
+        install_cmd = [
+            sys.executable, "-m", "pip", "install",
+            "--trusted-host", "pypi.org",
+            "--trusted-host", "pypi.python.org",
+            "--trusted-host", "files.pythonhosted.org"
+        ] + missing_packages
+        
+        try:
+            result = subprocess.run(install_cmd, check=True, capture_output=True, text=True)
+            print("✅ 依赖包安装成功")
+            
+            # 验证安装
+            print("\n🔍 验证安装...")
+            all_installed = True
+            for module_name, package_name in core_packages.items():
+                try:
+                    __import__(module_name)
+                    print(f"✅ {package_name} 验证通过")
+                except ImportError:
+                    print(f"❌ {package_name} 安装失败")
+                    all_installed = False
+            
+            if not all_installed:
+                print("\n⚠️ 部分依赖包安装失败，请手动安装:")
+                print(f"pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org {' '.join(missing_packages)}")
+                return
+        except subprocess.CalledProcessError as e:
+            print(f"\n❌ 依赖包安装失败: {e}")
+            print(f"请手动运行以下命令安装:")
+            print(f"pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org {' '.join(missing_packages)}")
             return
+    else:
+        print("\n✅ 所有核心依赖包已安装")
     
     # 设置环境变量，添加项目根目录到Python路径
     env = os.environ.copy()

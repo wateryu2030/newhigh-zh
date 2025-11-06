@@ -7,7 +7,7 @@
 
 import streamlit as st
 import pandas as pd
-import sqlite3
+import sqlite3  # 保留用于向后兼容检查
 from pathlib import Path
 import sys
 import subprocess
@@ -24,7 +24,8 @@ st.set_page_config(page_title="股票搜索", page_icon="🔍", layout="wide")
 st.title("🔍 A股股票搜索")
 
 # 数据库路径
-DATA_ENGINE_DB_PATH = project_root / "data" / "stock_database.db"
+# 使用MySQL或SQLite（根据配置）
+# DATA_ENGINE_DB_PATH已废弃，改用data_engine的配置
 
 # 侧边栏：数据管理
 with st.sidebar:
@@ -172,32 +173,33 @@ with st.sidebar:
     st.markdown("---")
     
     # 数据统计
-    if DATA_ENGINE_DB_PATH.exists():
-        try:
-            conn = sqlite3.connect(str(DATA_ENGINE_DB_PATH))
-            
+    try:
+        # 使用MySQL或SQLite（根据配置）
+        sys.path.insert(0, str(project_root / "data_engine"))
+        from config import DB_URL
+        from utils.db_utils import get_engine
+        from sqlalchemy import text
+        
+        engine = get_engine(DB_URL)
+        
+        with engine.connect() as conn:
             # 股票总数
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM stock_basic_info")
-            total_count = cursor.fetchone()[0]
+            result = conn.execute(text("SELECT COUNT(*) FROM stock_basic_info"))
+            total_count = result.fetchone()[0]
             st.metric("数据库股票总数", f"{total_count:,}")
             
             # 行业数量
-            cursor.execute("SELECT COUNT(DISTINCT industry) FROM stock_basic_info WHERE industry IS NOT NULL AND industry != ''")
-            industry_count = cursor.fetchone()[0]
+            result = conn.execute(text("SELECT COUNT(DISTINCT industry) FROM stock_basic_info WHERE industry IS NOT NULL AND industry != ''"))
+            industry_count = result.fetchone()[0]
             st.metric("行业数量", industry_count)
             
             # 最新数据日期
-            cursor.execute("SELECT MAX(trade_date) FROM stock_market_daily")
-            latest_date = cursor.fetchone()[0]
+            result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
+            latest_date = result.fetchone()[0]
             if latest_date:
                 st.metric("最新数据日期", latest_date)
-            
-            conn.close()
-        except Exception as e:
-            st.warning(f"⚠️ 无法连接数据库: {e}")
-    else:
-        st.warning("⚠️ 数据库不存在，请先下载数据")
+    except Exception as e:
+        st.warning(f"⚠️ 无法连接数据库: {e}")
 
 # 主搜索区域
 col1, col2, col3 = st.columns(3)
@@ -223,21 +225,22 @@ with col5:
 limit = st.slider("返回数量", min_value=10, max_value=500, value=100)
 
 if st.button("🔍 搜索", type="primary", use_container_width=True):
-    if not DATA_ENGINE_DB_PATH.exists():
-        st.error("❌ 数据库不存在，请先到 Data Center 页面下载数据")
-        st.stop()
-    
     try:
-        conn = sqlite3.connect(str(DATA_ENGINE_DB_PATH))
+        # 使用MySQL或SQLite（根据配置）
+        sys.path.insert(0, str(project_root / "data_engine"))
+        from config import DB_URL
+        from utils.db_utils import get_engine
+        from sqlalchemy import text
+        
+        engine = get_engine(DB_URL)
         
         # 获取最新交易日期
-        cursor = conn.cursor()
-        cursor.execute("SELECT MAX(trade_date) FROM stock_market_daily")
-        latest_date = cursor.fetchone()[0]
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
+            latest_date = result.fetchone()[0]
         
         if not latest_date:
             st.error("❌ 数据库中没有市场数据，请先下载数据")
-            conn.close()
             st.stop()
         
         # 构建查询（使用参数化查询，避免SQL注入和性能问题）
@@ -245,7 +248,7 @@ if st.button("🔍 搜索", type="primary", use_container_width=True):
             SELECT 
                 b.ts_code,
                 SUBSTR(b.ts_code, 1, 6) as symbol,
-                b.name,
+                COALESCE(b.code_name, b.name) as name,
                 b.industry,
                 b.area,
                 b.market,
@@ -260,44 +263,45 @@ if st.button("🔍 搜索", type="primary", use_container_width=True):
                 m.trade_date as update_time
             FROM stock_basic_info b
             INNER JOIN stock_market_daily m ON b.ts_code = m.ts_code
-            WHERE m.trade_date = ?
+            WHERE m.trade_date = :latest_date
         """
         
-        params = [latest_date]
+        params = {"latest_date": latest_date}
         
         # 关键字筛选（使用参数化查询）
         if keyword:
             keyword_clean = keyword.strip()
-            query += " AND (SUBSTR(b.ts_code, 1, 6) LIKE ? OR b.name LIKE ?)"
-            params.extend([f"%{keyword_clean}%", f"%{keyword_clean}%"])
+            query += " AND (SUBSTR(b.ts_code, 1, 6) LIKE :keyword1 OR COALESCE(b.code_name, b.name) LIKE :keyword2)"
+            params["keyword1"] = f"%{keyword_clean}%"
+            params["keyword2"] = f"%{keyword_clean}%"
         
         # 行业筛选
         if industry:
             industry_clean = industry.strip()
-            query += " AND b.industry LIKE ?"
-            params.append(f"%{industry_clean}%")
+            query += " AND b.industry LIKE :industry"
+            params["industry"] = f"%{industry_clean}%"
         
         # PE筛选
         if max_pe and max_pe < 1000:
-            query += " AND (m.peTTM <= ? OR m.peTTM IS NULL)"
-            params.append(max_pe)
+            query += " AND (m.peTTM <= :max_pe OR m.peTTM IS NULL)"
+            params["max_pe"] = max_pe
         
         # PB筛选
         if max_pb and max_pb < 1000:
-            query += " AND (m.pbMRQ <= ? OR m.pbMRQ IS NULL)"
-            params.append(max_pb)
+            query += " AND (m.pbMRQ <= :max_pb OR m.pbMRQ IS NULL)"
+            params["max_pb"] = max_pb
         
-        query += " ORDER BY b.ts_code LIMIT ?"
-        params.append(limit)
+        query += " ORDER BY b.ts_code LIMIT :limit"
+        params["limit"] = limit
         
         # 执行查询（添加错误处理）
         try:
-            result = pd.read_sql_query(query, conn, params=params)
-        except sqlite3.OperationalError as e:
+            result = pd.read_sql_query(query, engine, params=params)
+        except Exception as e:
             st.error(f"❌ 查询执行失败: {e}")
+            import traceback
+            st.code(traceback.format_exc())
             result = pd.DataFrame()
-        finally:
-            conn.close()
         
         if result.empty:
             st.warning("⚠️ 未找到符合条件的股票")
@@ -368,12 +372,14 @@ st.subheader("📋 查看股票详细信息")
 symbol_input = st.text_input("输入股票代码", placeholder="如：000001 或 600000")
 
 if symbol_input:
-    if not DATA_ENGINE_DB_PATH.exists():
-        st.error("❌ 数据库不存在，请先到 Data Center 页面下载数据")
-        st.stop()
-    
     try:
-        conn = sqlite3.connect(str(DATA_ENGINE_DB_PATH))
+        # 使用MySQL或SQLite（根据配置）
+        sys.path.insert(0, str(project_root / "data_engine"))
+        from config import DB_URL
+        from utils.db_utils import get_engine
+        from sqlalchemy import text
+        
+        engine = get_engine(DB_URL)
         
         # 清理输入：支持6位代码或完整代码
         symbol_clean = symbol_input.strip()
@@ -385,16 +391,20 @@ if symbol_input:
                 symbol_clean = symbol_clean + '.SZ'
         
         # 获取最新日期
-        cursor = conn.cursor()
-        cursor.execute("SELECT MAX(trade_date) FROM stock_market_daily")
-        latest_date = cursor.fetchone()[0]
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
+            latest_date = result.fetchone()[0]
+        
+        if not latest_date:
+            st.error("❌ 数据库中没有市场数据，请先下载数据")
+            st.stop()
         
         # 使用参数化查询
         query = """
             SELECT 
                 b.ts_code,
                 SUBSTR(b.ts_code, 1, 6) as symbol,
-                b.name,
+                COALESCE(b.code_name, b.name) as name,
                 b.industry,
                 b.area,
                 b.market,
@@ -409,19 +419,24 @@ if symbol_input:
                 m.trade_date as update_time
             FROM stock_basic_info b
             INNER JOIN stock_market_daily m ON b.ts_code = m.ts_code
-            WHERE (b.ts_code = ? OR SUBSTR(b.ts_code, 1, 6) = ?)
-                AND m.trade_date = ?
+            WHERE (b.ts_code = :symbol_clean OR SUBSTR(b.ts_code, 1, 6) = :symbol_input)
+                AND m.trade_date = :latest_date
             LIMIT 1
         """
         
-        params = [symbol_clean, symbol_input.strip(), latest_date]
+        params = {
+            "symbol_clean": symbol_clean,
+            "symbol_input": symbol_input.strip(),
+            "latest_date": latest_date
+        }
+        
         try:
-            info_df = pd.read_sql_query(query, conn, params=params)
-        except sqlite3.OperationalError as e:
+            info_df = pd.read_sql_query(query, engine, params=params)
+        except Exception as e:
             st.error(f"❌ 查询执行失败: {e}")
+            import traceback
+            st.code(traceback.format_exc())
             info_df = pd.DataFrame()
-        finally:
-            conn.close()
         
         if not info_df.empty:
             info = info_df.iloc[0]

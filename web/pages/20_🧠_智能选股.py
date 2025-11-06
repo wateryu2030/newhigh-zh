@@ -6,7 +6,6 @@
 import os
 import streamlit as st
 import pandas as pd
-import sqlite3
 from pathlib import Path
 import sys
 from typing import List, Dict
@@ -24,61 +23,31 @@ st.set_page_config(
     layout="wide"
 )
 
-# 使用新数据库
-DATA_ENGINE_DB_PATH = project_root / "data" / "stock_database.db"
-
 st.title("🧠 智能选股（基于本地基础资料 + LLM）")
 
-# 检查数据库（使用绝对路径，添加详细诊断）
-db_path_absolute = DATA_ENGINE_DB_PATH.resolve()
-
-if not db_path_absolute.exists():
-    # 显示调试信息（帮助诊断问题）
-    st.error("❌ 数据库文件不存在")
-    with st.expander("🔍 调试信息（点击展开）", expanded=True):
-        st.write(f"**项目根目录**: `{project_root}`")
-        st.write(f"**数据库相对路径**: `{DATA_ENGINE_DB_PATH}`")
-        st.write(f"**数据库绝对路径**: `{db_path_absolute}`")
-        st.write(f"**路径存在**: {db_path_absolute.exists()}")
-        
-        # 检查父目录
-        data_dir = db_path_absolute.parent
-        st.write(f"**data目录**: `{data_dir}`")
-        st.write(f"**data目录存在**: {data_dir.exists()}")
-        
-        if data_dir.exists():
-            st.write(f"**data目录内容**: {list(data_dir.iterdir())[:10]}")
-    
-    st.warning("⚠️ 未找到本地基础资料，请先到「Data Center」页面下载。")
-    st.info("""
-    💡 **使用步骤**:
-    1. 点击左侧导航栏中的「Data Center」
-    2. 点击「下载/更新 A股基础资料」按钮
-    3. 等待下载完成后返回本页面
-    """)
-    
-    # 建议重启Streamlit
-    st.info("💡 **如果数据库存在但仍显示此错误，请尝试重启Streamlit服务**")
-    st.stop()
-
-# 从数据库加载数据
+# 从数据库加载数据（使用MySQL或SQLite，根据配置）
 df = None
 try:
-    # 使用绝对路径确保正确连接
-    conn = sqlite3.connect(str(db_path_absolute))
-    cursor = conn.cursor()
+    # 使用MySQL或SQLite（根据配置）
+    sys.path.insert(0, str(project_root / "data_engine"))
+    from config import DB_URL
+    from utils.db_utils import get_engine
+    from sqlalchemy import text, inspect
+    
+    engine = get_engine(DB_URL)
     
     # 检查表
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    tables = [row[0] for row in cursor.fetchall()]
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
     
     if 'stock_basic_info' in tables and 'stock_market_daily' in tables:
         # 读取基础信息
-        df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", conn)
+        df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
         
         # 获取最新的交易日期
-        cursor.execute("SELECT MAX(trade_date) FROM stock_market_daily")
-        latest_date = cursor.fetchone()[0]
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
+            latest_date = result.fetchone()[0]
         
         if latest_date:
             # 读取最新日期的市场数据
