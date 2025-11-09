@@ -29,5 +29,7 @@ primaryColor = "#1f77b4"
 backgroundColor = "#ffffff"
 secondaryBackgroundColor = "#f0f2f6"
 textColor = "#262730"
-# 注意：Streamlit某些版本可能不支持theme.sidebar配置
-# 颜色错误通常来自代码中设置的空字符串，不影响功能
+# 注意：
+# 1. Streamlit 1.51.0 不支持 [theme.sidebar] 配置，如果看到 "Invalid color passed for widgetBackgroundColor" 警告，可以忽略
+# 2. 这些警告来自Streamlit内部尝试读取不支持的配置项，不影响功能
+# 3. 404错误 (_stcore/host-config, _stcore/health) 是Streamlit的内部资源请求，可以忽略

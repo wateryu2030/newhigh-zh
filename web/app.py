@@ -12,6 +12,8 @@ from pathlib import Path
 import datetime
 import time
 from dotenv import load_dotenv
+import pandas as pd
+from sqlalchemy import text
 
 # 添加项目根目录到Python路径
 project_root = Path(__file__).parent.parent
@@ -107,14 +109,16 @@ from components.analysis_form import render_analysis_form
 from components.results_display import render_results
 from components.login import render_login_form, check_authentication, render_user_info, render_sidebar_user_info, render_sidebar_logout, require_permission
 from components.user_activity_dashboard import render_user_activity_dashboard, render_activity_summary_widget
-from utils.api_checker import check_api_keys
-from utils.analysis_runner import run_stock_analysis, validate_analysis_params, format_analysis_results
-from utils.progress_tracker import SmartStreamlitProgressDisplay, create_smart_progress_callback
-from utils.async_progress_tracker import AsyncProgressTracker
+from web.utils.api_checker import check_api_keys
+from web.utils.analysis_runner import run_stock_analysis, validate_analysis_params, format_analysis_results
+from web.utils.progress_tracker import SmartStreamlitProgressDisplay, create_smart_progress_callback
+from web.utils.async_progress_tracker import AsyncProgressTracker
 from components.async_progress_display import display_unified_progress
-from utils.smart_session_manager import get_persistent_analysis_id, set_persistent_analysis_id
-from utils.auth_manager import auth_manager
-from utils.user_activity_logger import user_activity_logger
+from web.utils.smart_session_manager import get_persistent_analysis_id, set_persistent_analysis_id
+from web.utils.auth_manager import auth_manager
+from web.utils.user_activity_logger import user_activity_logger
+from data_engine.config import DB_URL
+from data_engine.utils.db_utils import get_engine
 
 # 设置页面配置
 st.set_page_config(
@@ -411,8 +415,8 @@ def initialize_session_state():
     # 尝试从最新完成的分析中恢复结果
     if not st.session_state.analysis_results:
         try:
-            from utils.async_progress_tracker import get_latest_analysis_id, get_progress_by_id
-            from utils.analysis_runner import format_analysis_results
+            from web.utils.async_progress_tracker import get_latest_analysis_id, get_progress_by_id
+            from web.utils.analysis_runner import format_analysis_results
 
             latest_id = get_latest_analysis_id()
             if latest_id:
@@ -446,7 +450,7 @@ def initialize_session_state():
         persistent_analysis_id = get_persistent_analysis_id()
         if persistent_analysis_id:
             # 使用线程检测来检查分析状态
-            from utils.thread_tracker import check_analysis_status
+            from web.utils.thread_tracker import check_analysis_status
             actual_status = check_analysis_status(persistent_analysis_id)
 
             # 只在状态变化时记录日志，避免重复
@@ -473,7 +477,7 @@ def initialize_session_state():
 
     # 恢复表单配置
     try:
-        from utils.smart_session_manager import smart_session_manager
+        from web.utils.smart_session_manager import smart_session_manager
         session_data = smart_session_manager.load_analysis_state()
 
         if session_data and 'form_config' in session_data:
@@ -486,7 +490,7 @@ def initialize_session_state():
 
 def check_frontend_auth_cache():
     """检查前端缓存并尝试恢复登录状态"""
-    from utils.auth_manager import auth_manager
+    from web.utils.auth_manager import auth_manager
     
     logger.info("🔍 开始检查前端缓存恢复")
     logger.info(f"📊 当前认证状态: {st.session_state.get('authenticated', False)}")
@@ -716,6 +720,57 @@ def inject_frontend_cache_check():
     """
     
     st.components.v1.html(cache_check_js, height=0)
+
+def render_sync_status_panel():
+    """显示数据同步状态面板"""
+    try:
+        engine = get_engine(DB_URL)
+        query = text(
+            """
+            SELECT
+                dataset,
+                last_run_at,
+                last_success_at,
+                last_status,
+                last_message,
+                success_count,
+                failure_count,
+                last_duration_sec
+            FROM data_sync_status
+            ORDER BY last_run_at DESC
+            """
+        )
+        with engine.connect() as conn:
+            df = pd.read_sql_query(query, conn)
+    except Exception as e:
+        st.warning(f"⚠️ 数据同步状态加载失败: {e}")
+        return
+
+    if df.empty:
+        st.info("ℹ️ 暂无同步任务记录")
+        return
+
+    st.markdown("### 🗂 数据同步状态")
+    cols = st.columns(3)
+    for idx, row in df.iterrows():
+        with cols[idx % 3]:
+            status_color = "#48bb78" if (row.last_status or "").lower() == "success" else "#ed8936"
+            last_run_display = row.last_run_at if pd.notna(row.last_run_at) else "--"
+            last_success_display = row.last_success_at if pd.notna(row.last_success_at) else "--"
+            duration_display = f"{row.last_duration_sec:.1f}s" if pd.notna(row.last_duration_sec) else "--"
+            message = row.last_message or "--"
+            st.markdown(
+                f"""
+                <div style="background: rgba(255,255,255,0.9); border-radius: 12px; padding: 1rem; margin-bottom: 0.8rem; border-left: 5px solid {status_color}; box-shadow: 0 10px 30px rgba(0,0,0,0.09);">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #2d3748;">{row.dataset}</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: #4a5568;">{message}</p>
+                    <p style="margin: 0.4rem 0 0; font-size: 0.75rem; color: #718096;">最近运行: {last_run_display}</p>
+                    <p style="margin: 0.2rem 0 0; font-size: 0.75rem; color: #718096;">最近成功: {last_success_display} · 时长: {duration_display}</p>
+                    <p style="margin: 0.2rem 0 0; font-size: 0.75rem; color: #718096;">成功: {row.success_count} 次 · 失败: {row.failure_count} 次</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 def main():
     """主应用程序"""
@@ -1495,7 +1550,7 @@ def main():
             del st.session_state[key]
 
         # 清理死亡线程
-        from utils.thread_tracker import cleanup_dead_analysis_threads
+        from web.utils.thread_tracker import cleanup_dead_analysis_threads
         cleanup_dead_analysis_threads()
 
         st.sidebar.success("✅ 分析状态已清理")
@@ -1512,6 +1567,7 @@ def main():
         col2 = None
     
     with col1:
+        render_sync_status_panel()
         # 1. 分析配置区域
 
         st.header("⚙️ 分析配置")
@@ -1698,7 +1754,7 @@ def main():
 
                     finally:
                         # 分析结束后注销线程
-                        from utils.thread_tracker import unregister_analysis_thread
+                        from web.utils.thread_tracker import unregister_analysis_thread
                         unregister_analysis_thread(analysis_id)
                         logger.info(f"🧵 [线程清理] 分析线程已注销: {analysis_id}")
 
@@ -1708,7 +1764,7 @@ def main():
                 analysis_thread.start()
 
                 # 注册线程到跟踪器
-                from utils.thread_tracker import register_analysis_thread
+                from web.utils.thread_tracker import register_analysis_thread
                 register_analysis_thread(analysis_id, analysis_thread)
 
                 logger.info(f"🧵 [后台分析] 分析线程已启动: {analysis_id}")
@@ -1731,7 +1787,7 @@ def main():
             st.header("📊 股票分析")
 
             # 使用线程检测来获取真实状态
-            from utils.thread_tracker import check_analysis_status
+            from web.utils.thread_tracker import check_analysis_status
             actual_status = check_analysis_status(current_analysis_id)
             is_running = (actual_status == 'running')
 
@@ -1741,7 +1797,7 @@ def main():
                 logger.info(f"🔄 [状态同步] 更新分析状态: {is_running} (基于线程检测: {actual_status})")
 
             # 获取进度数据用于显示
-            from utils.async_progress_tracker import get_progress_by_id
+            from web.utils.async_progress_tracker import get_progress_by_id
             progress_data = get_progress_by_id(current_analysis_id)
 
             # 显示分析信息
@@ -1771,7 +1827,7 @@ def main():
             if is_completed and not st.session_state.get('analysis_results') and progress_data:
                 if 'raw_results' in progress_data:
                     try:
-                        from utils.analysis_runner import format_analysis_results
+                        from web.utils.analysis_runner import format_analysis_results
                         raw_results = progress_data['raw_results']
                         formatted_results = format_analysis_results(raw_results)
                         if formatted_results:

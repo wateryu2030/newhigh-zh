@@ -176,7 +176,7 @@ def render_stock_screening():
         with st.spinner("🔍 正在筛选股票，请稍候..."):
             try:
                 # 使用工具函数运行筛选
-                from utils.model_runner import run_stock_screening
+                from web.utils.model_runner import run_stock_screening
                 
                 result = run_stock_screening(
                     stock_list=stock_list,

@@ -151,7 +151,7 @@ def render_operation_logs():
         import sys
         import os
         sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-        from utils.auth_manager import auth_manager
+        from web.utils.auth_manager import auth_manager
         
         if not auth_manager or not auth_manager.check_permission("admin"):
             st.error("❌ 您没有权限访问操作日志")

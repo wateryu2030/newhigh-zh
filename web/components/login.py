@@ -3,72 +3,17 @@
 提供用户登录界面
 """
 
-import streamlit as st
-import time
-import sys
-from pathlib import Path
 import base64
+import sys
+import time
+from pathlib import Path
 
-# 添加项目根目录到Python路径
+import streamlit as st
+
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-# 导入认证管理器 - 使用全局变量确保在整个模块中可用
-auth_manager = None
-
-# 尝试多种导入路径
-try:
-    # 尝试相对导入（从 web 目录运行时）
-    from ..utils.auth_manager import AuthManager, auth_manager as imported_auth_manager
-    auth_manager = imported_auth_manager
-except ImportError:
-    try:
-        # 尝试从 web.utils 导入（从项目根目录运行时）
-        from web.utils.auth_manager import AuthManager, auth_manager as imported_auth_manager
-        auth_manager = imported_auth_manager
-    except ImportError:
-        try:
-            # 尝试直接从 utils 导入
-            from utils.auth_manager import AuthManager, auth_manager as imported_auth_manager
-            auth_manager = imported_auth_manager
-        except ImportError:
-            try:
-                # 尝试绝对路径导入
-                import sys
-                from pathlib import Path
-                web_utils_path = Path(__file__).parent.parent / "utils"
-                sys.path.insert(0, str(web_utils_path))
-                from auth_manager import AuthManager, auth_manager as imported_auth_manager
-                auth_manager = imported_auth_manager
-            except ImportError:
-                # 如果都失败了，创建一个简单的认证管理器
-                class SimpleAuthManager:
-                    def __init__(self):
-                        self.authenticated = False
-                        self.current_user = None
-                    
-                    def is_authenticated(self):
-                        return st.session_state.get('authenticated', False)
-                    
-                    def authenticate(self, username, password):
-                        # 简单的认证逻辑
-                        if username == "admin" and password == "admin123":
-                            return True, {"username": username, "role": "admin"}
-                        elif username == "user" and password == "user123":
-                            return True, {"username": username, "role": "user"}
-                        return False, None
-                    
-                    def logout(self):
-                        st.session_state.authenticated = False
-                        st.session_state.user_info = None
-                    
-                    def get_current_user(self):
-                        return st.session_state.get('user_info')
-                    
-                    def require_permission(self, permission):
-                        return self.is_authenticated()
-                
-                auth_manager = SimpleAuthManager()
+from web.utils.auth_manager import auth_manager  # noqa: E402
 
 def get_base64_image(image_path):
     """将图片转换为base64编码"""
@@ -233,35 +178,69 @@ def render_login_form():
         
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.markdown("### 🔐 用户登录")
+            tab_login, tab_register = st.tabs(["🔐 登录", "🆕 注册"])
 
-            username = st.text_input(
-                "用户名",
-                placeholder="请输入您的用户名（首次使用：admin）",
-                key="username_input",
-                label_visibility="collapsed"
-            )
-            password = st.text_input(
-                "密码",
-                type="password",
-                placeholder="请输入您的密码（首次使用：admin123）",
-                key="password_input",
-                label_visibility="collapsed"
-            )
+            with tab_login:
+                st.markdown("### 🔐 用户登录")
+                username = st.text_input(
+                    "用户名",
+                    placeholder="请输入您的用户名（首次使用：admin）",
+                    key="username_input",
+                    label_visibility="collapsed",
+                )
+                password = st.text_input(
+                    "密码",
+                    type="password",
+                    placeholder="请输入您的密码（首次使用：admin123）",
+                    key="password_input",
+                    label_visibility="collapsed",
+                )
 
-            st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.button("🚀 立即登录", use_container_width=True, key="login_button"):
-                if username and password:
-                    # 使用auth_manager.login()方法来确保前端缓存被正确保存
-                    if auth_manager.login(username, password):
-                        st.success("✅ 登录成功！正在为您跳转...")
-                        time.sleep(1)
-                        st.rerun()
+                if st.button("🚀 立即登录", use_container_width=True, key="login_button"):
+                    if username and password:
+                        if auth_manager.login(username, password):
+                            st.success("✅ 登录成功！正在为您跳转...")
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error("❌ 用户名或密码错误，请重试")
                     else:
-                        st.error("❌ 用户名或密码错误，请重试")
-                else:
-                    st.warning("⚠️ 请输入完整的登录信息")
+                        st.warning("⚠️ 请输入完整的登录信息")
+
+            with tab_register:
+                st.markdown("### 🆕 注册新用户")
+                new_username = st.text_input(
+                    "新的用户名",
+                    placeholder="请输入新的用户名",
+                    key="register_username_input",
+                )
+                new_password = st.text_input(
+                    "新的密码",
+                    type="password",
+                    placeholder="请输入登录密码",
+                    key="register_password_input",
+                )
+                confirm_password = st.text_input(
+                    "确认密码",
+                    type="password",
+                    placeholder="请再次输入密码",
+                    key="register_confirm_password_input",
+                )
+                st.caption("默认注册为普通用户，如需管理员权限请联系系统管理员。")
+
+                if st.button("🆕 注册账号", use_container_width=True, key="register_button"):
+                    if not new_username or not new_password:
+                        st.warning("⚠️ 请填写完整的注册信息")
+                    elif new_password != confirm_password:
+                        st.warning("⚠️ 两次输入的密码不一致")
+                    else:
+                        success, message = auth_manager.register_user(new_username, new_password, role="user")
+                        if success:
+                            st.success(message)
+                        else:
+                            st.error(message)
         
         st.markdown('</div>', unsafe_allow_html=True)
     

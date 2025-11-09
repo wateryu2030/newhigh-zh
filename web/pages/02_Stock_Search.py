@@ -176,8 +176,8 @@ with st.sidebar:
     try:
         # 使用MySQL或SQLite（根据配置）
         sys.path.insert(0, str(project_root / "data_engine"))
-        from config import DB_URL
-        from utils.db_utils import get_engine
+        from data_engine.config import DB_URL
+        from data_engine.utils.db_utils import get_engine
         from sqlalchemy import text
         
         engine = get_engine(DB_URL)
@@ -228,8 +228,8 @@ if st.button("🔍 搜索", type="primary", use_container_width=True):
     try:
         # 使用MySQL或SQLite（根据配置）
         sys.path.insert(0, str(project_root / "data_engine"))
-        from config import DB_URL
-        from utils.db_utils import get_engine
+        from data_engine.config import DB_URL
+        from data_engine.utils.db_utils import get_engine
         from sqlalchemy import text
         
         engine = get_engine(DB_URL)
@@ -375,8 +375,8 @@ if symbol_input:
     try:
         # 使用MySQL或SQLite（根据配置）
         sys.path.insert(0, str(project_root / "data_engine"))
-        from config import DB_URL
-        from utils.db_utils import get_engine
+        from data_engine.config import DB_URL
+        from data_engine.utils.db_utils import get_engine
         from sqlalchemy import text
         
         engine = get_engine(DB_URL)

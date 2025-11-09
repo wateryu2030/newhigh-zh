@@ -120,3 +120,26 @@ CREATE INDEX idx_market_daily_ts_date ON stock_market_daily(ts_code, trade_date)
 CREATE INDEX idx_technical_ts_date ON stock_technical_indicators(ts_code, trade_date);
 CREATE INDEX idx_moneyflow_ts_date ON stock_moneyflow(ts_code, trade_date);
 CREATE INDEX idx_index_daily_code_date ON market_index_daily(index_code, trade_date);
+
+CREATE TABLE IF NOT EXISTS stock_industry_classified (
+    ts_code VARCHAR(20) PRIMARY KEY,
+    industry VARCHAR(128) NULL,
+    industry_classification VARCHAR(128) NULL,
+    update_date DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE stock_basic_info
+    ADD COLUMN IF NOT EXISTS industry VARCHAR(128) NULL AFTER status;
+
+ALTER TABLE stock_market_daily
+    ADD COLUMN IF NOT EXISTS turnover_rate DOUBLE NULL,
+    ADD COLUMN IF NOT EXISTS total_mv DOUBLE NULL,
+    ADD COLUMN IF NOT EXISTS float_mv DOUBLE NULL,
+    ADD COLUMN IF NOT EXISTS capitalization DOUBLE NULL,
+    ADD COLUMN IF NOT EXISTS circulating_cap DOUBLE NULL;
+
+ALTER TABLE stock_financials
+    ADD COLUMN IF NOT EXISTS total_mv DOUBLE NULL,
+    ADD COLUMN IF NOT EXISTS circ_mv DOUBLE NULL;

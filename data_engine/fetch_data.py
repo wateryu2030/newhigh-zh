@@ -32,21 +32,37 @@ engine = get_engine(DB_URL)
 def fetch_stock_basic_info():
     """获取股票基础信息，只保留type=1的股票，排除指数"""
     logger.info("开始获取股票基础信息...")
-    lg = bs.login()
-    if lg.error_code != '0':
+    NETWORK_ERROR_KEYWORDS = ["网络接收错误", "服务器连接失败", "Socket is not connected"]
+    max_login_retries = 5
+    delay_seconds = 1.0
+    for attempt in range(1, max_login_retries + 1):
+        lg = bs.login()
+        if lg.error_code == '0':
+            break
+        if any(keyword in lg.error_msg for keyword in NETWORK_ERROR_KEYWORDS):
+            wait = min(delay_seconds * (2 ** (attempt - 1)), 10)
+            logger.warning(
+                "BaoStock 登录失败（网络问题）[%d/%d]: %s，%.2f秒后重试",
+                attempt,
+                max_login_retries,
+                lg.error_msg,
+                wait,
+            )
+            time.sleep(wait)
+            continue
         raise RuntimeError(f"baostock 登录失败: {lg.error_msg}")
-    
-    rs = bs.query_stock_basic()
-    rows = []
-    while rs.error_code == '0' and rs.next():
-        rows.append(rs.get_row_data())
-    
-    if not rows:
+    else:
+        raise RuntimeError(f"baostock 登录失败: {lg.error_msg}")
+    try:
+        rs = bs.query_stock_basic()
+        rows = []
+        while rs.error_code == '0' and rs.next():
+            rows.append(rs.get_row_data())
+    finally:
         bs.logout()
+    if not rows:
         raise RuntimeError("未获取到股票基础信息")
-    
     df = pd.DataFrame(rows, columns=rs.fields)
-    bs.logout()
     
     # 过滤：只保留股票（type=1），排除指数（type=2）
     if 'type' in df.columns:
@@ -79,7 +95,7 @@ def fetch_market_daily(ts_codes: pd.Series):
     logger.info(f"开始下载日K行情数据，共{len(ts_codes)}只股票")
     
     # BaoStock标准字段列表
-    fields = "date,code,open,high,low,close,preclose,volume,amount,turn,pctChg,peTTM,pbMRQ,psTTM"
+    fields = "date,code,open,high,low,close,preclose,volume,amount,turn,peTTM,pbMRQ,psTTM,capitalization,circulatingCap"
     
     total = 0
     success_count = 0
@@ -256,9 +272,16 @@ def fetch_market_daily(ts_codes: pd.Series):
                 df.rename(columns={
                     "date": "trade_date",
                     "pctChg": "pct_chg",
-                    "turn": "turnover_rate"
+                    "turn": "turnover",
+                    "capitalization": "capitalization",
+                    "circulatingCap": "circulating_cap"
                 }, inplace=True)
                 df["ts_code"] = ts_code
+                
+                if 'turnover' in df.columns:
+                    df['turnover_rate'] = df['turnover']
+                else:
+                    df['turnover_rate'] = None
                 
                 # 删除code列
                 if 'code' in df.columns:
@@ -266,18 +289,32 @@ def fetch_market_daily(ts_codes: pd.Series):
                 
                 # 确保所有数值列为数值类型
                 numeric_cols = ['open', 'high', 'low', 'close', 'preclose', 'pct_chg', 'volume', 
-                              'amount', 'turnover_rate', 'peTTM', 'pbMRQ', 'psTTM']
+                              'amount', 'turnover', 'turnover_rate', 'peTTM', 'pbMRQ', 'psTTM',
+                              'capitalization', 'circulating_cap']
                 for col in numeric_cols:
                     if col in df.columns:
                         df[col] = pd.to_numeric(df[col], errors='coerce')
                 
                 # 计算振幅
-                df['amplitude'] = ((df['high'] - df['low']) / df['preclose'] * 100).round(2)
+                if 'high' in df.columns and 'low' in df.columns and 'preclose' in df.columns:
+                    df['amplitude'] = ((df['high'] - df['low']) / df['preclose'] * 100).round(2)
+                else:
+                    df['amplitude'] = None
+                
+                # 计算市值
+                if 'capitalization' in df.columns and df['capitalization'].notna().any():
+                    df['total_mv'] = df['close'] * df['capitalization'] * 10000
+                else:
+                    df['total_mv'] = None
+                if 'circulating_cap' in df.columns and df['circulating_cap'].notna().any():
+                    df['float_mv'] = df['close'] * df['circulating_cap'] * 10000
+                else:
+                    df['float_mv'] = None
                 
                 # 确保列顺序（匹配数据库）
                 expected_fields = ['ts_code', 'trade_date', 'open', 'high', 'low', 'close', 'preclose',
-                                 'pct_chg', 'volume', 'amount', 'turnover_rate', 'amplitude', 
-                                 'peTTM', 'pbMRQ', 'psTTM']
+                                 'pct_chg', 'volume', 'amount', 'turnover', 'turnover_rate', 'amplitude', 
+                                 'peTTM', 'pbMRQ', 'psTTM', 'capitalization', 'circulating_cap', 'total_mv', 'float_mv']
                 for field in expected_fields:
                     if field not in df.columns:
                         df[field] = None
@@ -287,23 +324,17 @@ def fetch_market_daily(ts_codes: pd.Series):
                 market_daily_writer.append(df)
                 
                 # 同时准备财务数据
-                if 'peTTM' in df.columns or 'pbMRQ' in df.columns:
-                    df_fin = df[['ts_code', 'trade_date']].copy()
-                    if 'peTTM' in df.columns:
-                        df_fin['pe'] = df['peTTM']
-                    if 'pbMRQ' in df.columns:
-                        df_fin['pb'] = df['pbMRQ']
-                    if 'psTTM' in df.columns:
-                        df_fin['ps'] = df['psTTM']
-                    
-                    # 补充其他字段
-                    for col in ['pcf', 'roe', 'roa', 'eps', 'bps', 'total_mv', 'circ_mv', 
-                              'revenue_yoy', 'net_profit_yoy', 'gross_profit_margin']:
-                        df_fin[col] = None
-                    
-                    df_fin = df_fin.dropna(subset=['pe', 'pb'], how='all')
-                    if not df_fin.empty:
-                        financials_writer.append(df_fin)
+                df_fin = df[['ts_code', 'trade_date']].copy()
+                df_fin['pe'] = df['peTTM']
+                df_fin['pb'] = df['pbMRQ']
+                df_fin['ps'] = df['psTTM']
+                df_fin['total_mv'] = df['total_mv']
+                df_fin['circ_mv'] = df['float_mv']
+                for col in ['pcf', 'roe', 'roa', 'eps', 'bps', 'revenue_yoy', 'net_profit_yoy', 'gross_profit_margin']:
+                    df_fin[col] = None
+                df_fin = df_fin.dropna(subset=['pe', 'pb', 'ps', 'total_mv', 'circ_mv'], how='all')
+                if not df_fin.empty:
+                    financials_writer.append(df_fin)
                 
                 total += len(df)
                 
@@ -370,6 +401,22 @@ def main():
     
     # 1. 获取基础信息（静态数据，全量更新）
     codes_df = fetch_stock_basic_info()
+    
+    # 同步行业信息
+    try:
+        rs_industry = bs.query_stock_industry()
+        industry_rows = []
+        while rs_industry.error_code == '0' and rs_industry.next():
+            industry_rows.append(rs_industry.get_row_data())
+        if industry_rows:
+            df_industry = pd.DataFrame(industry_rows, columns=rs_industry.fields)
+            df_industry = df_industry.rename(columns={'code': 'bao_code'})
+            df_industry['ts_code'] = df_industry['bao_code'].apply(lambda c: f"{c.split('.')[1].upper()}.{c.split('.')[0].upper()}")
+            df_industry = df_industry[['ts_code', 'industry', 'industryClassification', 'updateDate']]
+            fast_upsert_df(df_industry, "stock_industry_classified", engine, if_exists="append")
+            logger.info(f"stock_industry_classified 写入 {len(df_industry)} 条")
+    except Exception as industry_error:
+        logger.warning(f"同步行业数据失败: {industry_error}")
     
     # 2. 下载日K行情（智能增量更新：优先下载缺失的数据）
     # 检查数据库中已有的股票，只下载缺失的数据

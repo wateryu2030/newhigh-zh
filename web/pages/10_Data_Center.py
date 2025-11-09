@@ -19,11 +19,18 @@ except ImportError:
     PLOTLY_AVAILABLE = False
 
 # 添加项目根目录到路径（先添加，确保导入路径正确）
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+DATA_ENGINE_ROOT = project_root / "data_engine"
+if str(DATA_ENGINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(DATA_ENGINE_ROOT))
 
 # 导入数据清洗模块
 from web.utils.data_cleaner import safe_dataframe as clean_dataframe, clean_duplicate_columns
+from data_engine.config import DB_URL
+from data_engine.utils.db_utils import get_engine
+from sqlalchemy import text, inspect
 import logging
 logger = logging.getLogger(__name__)
 
@@ -60,49 +67,60 @@ st.markdown("---")
 DATA_PATH = project_root / "data" / "stock_basic.csv"  # CSV备份（已废弃）
 csv_exists = DATA_PATH.exists()
 
+# ========== 按照OpenAI建议：简化数据检查逻辑 ==========
+def check_stock_data_exists():
+    """检查数据库中是否有股票数据（简化版）"""
+    try:
+        engine = get_engine(DB_URL)
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT COUNT(*) FROM stock_basic_info"))
+            count = result.scalar()
+            return count > 0
+    except Exception as e:
+        logger.error(f"检查数据失败: {e}")
+        return False
+
 # 尝试从数据库读取数据（优先使用MySQL）
 df = None
 data_source = None
 
 # 读取数据库（支持MySQL和SQLite）
 try:
-    # 导入数据库工具
-    data_engine_path = str(project_root / "data_engine")
-    if data_engine_path not in sys.path:
-        sys.path.insert(0, data_engine_path)
-    from config import DB_URL
-    from utils.db_utils import get_engine
-    from sqlalchemy import text, inspect
-    
     engine = get_engine(DB_URL)
     
     # 检查表是否存在
     inspector = inspect(engine)
     tables = inspector.get_table_names()
     
-    # 优先读取stock_basic_info + 聚合日K数据
-    if 'stock_basic_info' in tables and 'stock_market_daily' in tables:
-        # 读取基础信息（先去重，只保留每个ts_code的第一条记录）
-        # 使用子查询 + ROW_NUMBER() 或直接读取后去重
-        df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
-        
-        # 在Python层面去重（保留每个ts_code的第一条记录）
-        if 'ts_code' in df_basic.columns:
-            original_count = len(df_basic)
-            df_basic = df_basic.drop_duplicates(subset=['ts_code'], keep='first')
-            if len(df_basic) < original_count:
-                st.info(f"ℹ️ 基础信息去重: {original_count:,} → {len(df_basic):,} 条记录")
-        
-        # 读取最新的市场价格和财务数据
-        # 获取最新的交易日期
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
-            latest_date = result.fetchone()[0]
-        
-        if latest_date:
-            # 读取市场数据（为每个股票获取最新有数据的日期）
-            # 使用LEFT JOIN确保所有基础信息股票都能显示，即使没有市场数据
-            query_market = """
+    # 按照OpenAI建议：首先检查是否有数据
+    if not check_stock_data_exists():
+        st.warning("⚠️ 数据库中没有股票数据，请先下载数据")
+        # 不继续执行，等待用户点击下载按钮
+        df = None  # 明确设置为None
+    else:
+        # 优先读取stock_basic_info + 聚合日K数据
+        if 'stock_basic_info' in tables and 'stock_market_daily' in tables:
+            # 读取基础信息（先去重，只保留每个ts_code的第一条记录）
+            # 使用子查询 + ROW_NUMBER() 或直接读取后去重
+            df_basic = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
+            
+            # 在Python层面去重（保留每个ts_code的第一条记录）
+            if 'ts_code' in df_basic.columns:
+                original_count = len(df_basic)
+                df_basic = df_basic.drop_duplicates(subset=['ts_code'], keep='first')
+                if len(df_basic) < original_count:
+                    st.info(f"ℹ️ 基础信息去重: {original_count:,} → {len(df_basic):,} 条记录")
+            
+            # 读取最新的市场价格和财务数据
+            # 获取最新的交易日期
+            with engine.connect() as conn:
+                result = conn.execute(text("SELECT MAX(trade_date) FROM stock_market_daily"))
+                latest_date = result.fetchone()[0]
+            
+            if latest_date:
+                # 读取市场数据（为每个股票获取最新有数据的日期）
+                # 使用LEFT JOIN确保所有基础信息股票都能显示，即使没有市场数据
+                query_market = """
                 SELECT 
                     b.ts_code,
                     m.close as price,
@@ -135,11 +153,11 @@ try:
                     ) latest ON m1.ts_code = latest.ts_code AND m1.trade_date = latest.max_date
                 ) m ON b.ts_code = m.ts_code
                 ORDER BY b.ts_code
-            """
-            df_market = pd.read_sql_query(query_market, engine)
-            
-            # 读取财务数据（为每个股票获取最新有数据的日期）
-            query_fin = """
+                """
+                df_market = pd.read_sql_query(query_market, engine)
+                
+                # 读取财务数据（为每个股票获取最新有数据的日期）
+                query_fin = """
                 SELECT 
                     b.ts_code,
                     f.total_mv,
@@ -170,97 +188,96 @@ try:
                     ) latest ON f1.ts_code = latest.ts_code AND f1.trade_date = latest.max_date
                 ) f ON b.ts_code = f.ts_code
                 ORDER BY b.ts_code
-            """
-            df_fin = pd.read_sql_query(query_fin, engine)
-            
-            # 合并数据：基础信息 + 市场数据 + 财务数据
-            # 使用merge确保按ts_code正确合并
-            df = df_basic.merge(df_market, on='ts_code', how='left')
-            df = df.merge(df_fin, on='ts_code', how='left')
-            
-            # 适配表结构：使用code_name字段（实际表结构）
+                """
+                df_fin = pd.read_sql_query(query_fin, engine)
+                
+                # 合并数据：基础信息 + 市场数据 + 财务数据
+                # 使用merge确保按ts_code正确合并
+                df = df_basic.merge(df_market, on='ts_code', how='left')
+                df = df.merge(df_fin, on='ts_code', how='left')
+                
+                # 适配表结构：使用code_name字段（实际表结构）
+                if 'code_name' in df.columns:
+                    df = df.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
+                elif 'name' in df.columns:
+                    df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
+                else:
+                    df = df.rename(columns={'ts_code': 'stock_code'})
+                
+                # 将trade_date重命名为update_time（如果存在）
+                if 'trade_date' in df.columns:
+                    df = df.rename(columns={'trade_date': 'update_time'})
+                
+                # 立即清理重复列（在合并后立即处理，防止后续操作产生问题）
+                try:
+                    df = clean_duplicate_columns(df, keep_first=False)
+                except Exception as e:
+                    # 如果清理函数失败，手动去重
+                    if df.columns.duplicated().any():
+                        unique_cols = list(dict.fromkeys(df.columns))
+                        df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+                
+                # 双重验证：确保绝对没有重复列
+                if df.columns.duplicated().any():
+                    unique_cols = list(dict.fromkeys(df.columns))
+                    df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+                
+                # 最终确保：使用数据清洗模块去重（最后一次确认）
+                try:
+                    df = clean_duplicate_columns(df, keep_first=False)
+                except:
+                    # 如果失败，使用手动方法
+                    if df.columns.duplicated().any():
+                        unique_cols = list(dict.fromkeys(df.columns))
+                        df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
+                
+                # 设置数据源标记（按照OpenAI建议：简化逻辑）
+                if df is not None and not df.empty:
+                    data_source = "数据库（MySQL/SQLite）"
+                    # 保存到session_state（简化版）
+                    st.session_state['df'] = df
+                    st.session_state['data_source'] = data_source
+                    # 显示成功消息
+                    st.success(f"✅ 从数据库读取: {len(df):,} 条记录")
+                    # 调试信息（可选）
+                    # st.info(f"ℹ️ 数据包含: {len(df)} 条记录，{df['stock_code'].nunique() if 'stock_code' in df.columns else 0} 只唯一股票")
+            else:
+                # 没有最新交易日期，只使用基础信息
+                if 'code_name' in df_basic.columns:
+                    df = df_basic.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
+                elif 'name' in df_basic.columns:
+                    df = df_basic.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
+                else:
+                    df = df_basic.rename(columns={'ts_code': 'stock_code'})
+                
+                # 确保df被设置（即使没有市场数据，也要显示基础信息）
+                if df is not None and not df.empty:
+                    data_source = "数据库（仅基础信息，无市场数据）"
+                    # 立即保存到session_state和globals（关键！）
+                    globals()['df'] = df
+                    st.session_state['df'] = df
+                    st.session_state['data_source'] = data_source
+                    # 显示成功消息
+                    st.success(f"✅ 从数据库读取基础信息: {len(df):,} 条记录")
+                    st.info("ℹ️ 提示：市场数据尚未下载，请点击下方按钮下载完整数据")
+        elif 'stock_basic_info' in tables:
+            # 只有基础信息
+            df = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
+            # 适配表结构：code_name可能是name字段
             if 'code_name' in df.columns:
                 df = df.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
             elif 'name' in df.columns:
                 df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
             else:
                 df = df.rename(columns={'ts_code': 'stock_code'})
-            
-            # 将trade_date重命名为update_time（如果存在）
-            if 'trade_date' in df.columns:
-                df = df.rename(columns={'trade_date': 'update_time'})
-            
-            # 立即清理重复列（在合并后立即处理，防止后续操作产生问题）
-            try:
-                df = clean_duplicate_columns(df, keep_first=False)
-            except Exception as e:
-                # 如果清理函数失败，手动去重
-                if df.columns.duplicated().any():
-                    unique_cols = list(dict.fromkeys(df.columns))
-                    df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-            
-            # 双重验证：确保绝对没有重复列
-            if df.columns.duplicated().any():
-                unique_cols = list(dict.fromkeys(df.columns))
-                df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-            
-            # 最终确保：使用数据清洗模块去重（最后一次确认）
-            try:
-                df = clean_duplicate_columns(df, keep_first=False)
-            except:
-                # 如果失败，使用手动方法
-                if df.columns.duplicated().any():
-                    unique_cols = list(dict.fromkeys(df.columns))
-                    df = pd.DataFrame(df.values[:, :len(unique_cols)], columns=unique_cols)
-            
-            # 设置数据源标记（确保df在全局作用域和session_state中）
             if df is not None and not df.empty:
-                data_source = "数据库（MySQL/SQLite）"
+                data_source = "数据库（仅基础信息）"
                 # 立即保存到session_state和globals（关键！）
                 globals()['df'] = df
                 st.session_state['df'] = df
                 st.session_state['data_source'] = data_source
                 # 显示成功消息
                 st.success(f"✅ 从数据库读取: {len(df):,} 条记录")
-                # 调试信息（可选）
-                # st.info(f"ℹ️ 数据包含: {len(df)} 条记录，{df['stock_code'].nunique() if 'stock_code' in df.columns else 0} 只唯一股票")
-        else:
-            # 没有最新交易日期，只使用基础信息
-            if 'code_name' in df_basic.columns:
-                df = df_basic.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
-            elif 'name' in df_basic.columns:
-                df = df_basic.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
-            else:
-                df = df_basic.rename(columns={'ts_code': 'stock_code'})
-            
-            # 确保df被设置（即使没有市场数据，也要显示基础信息）
-            if df is not None and not df.empty:
-                data_source = "数据库（仅基础信息，无市场数据）"
-                # 立即保存到session_state和globals（关键！）
-                globals()['df'] = df
-                st.session_state['df'] = df
-                st.session_state['data_source'] = data_source
-                # 显示成功消息
-                st.success(f"✅ 从数据库读取基础信息: {len(df):,} 条记录")
-                st.info("ℹ️ 提示：市场数据尚未下载，请点击下方按钮下载完整数据")
-    elif 'stock_basic_info' in tables:
-        # 只有基础信息
-        df = pd.read_sql_query("SELECT * FROM stock_basic_info", engine)
-        # 适配表结构：code_name可能是name字段
-        if 'code_name' in df.columns:
-            df = df.rename(columns={'ts_code': 'stock_code', 'code_name': 'stock_name'})
-        elif 'name' in df.columns:
-            df = df.rename(columns={'ts_code': 'stock_code', 'name': 'stock_name'})
-        else:
-            df = df.rename(columns={'ts_code': 'stock_code'})
-        if df is not None and not df.empty:
-            data_source = "数据库（仅基础信息）"
-            # 立即保存到session_state和globals（关键！）
-            globals()['df'] = df
-            st.session_state['df'] = df
-            st.session_state['data_source'] = data_source
-            # 显示成功消息
-            st.success(f"✅ 从数据库读取: {len(df):,} 条记录")
 except Exception as e:
     st.error(f"❌ 读取数据库失败: {e}")
     import traceback
@@ -290,8 +307,8 @@ if 'df' not in locals() or df is None or (hasattr(df, 'empty') and df.empty):
             data_engine_path = str(project_root / "data_engine")
             if data_engine_path not in sys.path:
                 sys.path.insert(0, data_engine_path)
-            from config import DB_URL
-            from utils.db_utils import get_engine
+            from data_engine.config import DB_URL
+            from data_engine.utils.db_utils import get_engine
             from sqlalchemy import text, inspect
             
             engine_check = get_engine(DB_URL)
@@ -406,178 +423,178 @@ if st.button("🚀 下载/更新 A股基础资料", type="primary", use_containe
         status_text = st.empty()
         log_output = st.empty()
     
-    try:
-        if not script_path.exists():
-            st.error(f"❌ 未找到下载脚本: {script_path}")
-            st.stop()
-        
-        # 确定正确的Python可执行文件
-        # 优先使用当前Streamlit进程的Python
-        python_exe = sys.executable
-        # 备用方案：尝试多个可能的位置
-        if not os.path.exists(python_exe):
-            for alt_python in [
-                '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3',
-                '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12',
-                '/usr/local/bin/python3'
-            ]:
-                if os.path.exists(alt_python):
-                    python_exe = alt_python
+        try:
+            if not script_path.exists():
+                st.error(f"❌ 未找到下载脚本: {script_path}")
+                st.stop()
+            
+            # 确定正确的Python可执行文件
+            # 优先使用当前Streamlit进程的Python
+            python_exe = sys.executable
+            # 备用方案：尝试多个可能的位置
+            if not os.path.exists(python_exe):
+                for alt_python in [
+                    '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3',
+                    '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12',
+                    '/usr/local/bin/python3'
+                ]:
+                    if os.path.exists(alt_python):
+                        python_exe = alt_python
+                        break
+            
+            # 使用Popen实时读取输出
+            process = subprocess.Popen(
+                [python_exe, str(script_path)],
+                cwd=str(project_root),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
+            
+            # 实时读取输出
+            output_lines = []
+            last_progress = 0
+            current_status = "初始化中..."
+            
+            status_text.info(f"🔄 **状态**: {current_status}")
+            
+            for line in iter(process.stdout.readline, ''):
+                if not line:
                     break
-        
-        # 使用Popen实时读取输出
-        process = subprocess.Popen(
-            [python_exe, str(script_path)],
-            cwd=str(project_root),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            universal_newlines=True
-        )
-        
-        # 实时读取输出
-        output_lines = []
-        last_progress = 0
-        current_status = "初始化中..."
-        
-        status_text.info(f"🔄 **状态**: {current_status}")
-        
-        for line in iter(process.stdout.readline, ''):
-            if not line:
-                break
+                
+                line = line.strip()
+                if line:
+                    output_lines.append(line)
+                    
+                    # 解析进度信息
+                    progress_match = re.search(r'进度:\s*(\d+)/(\d+)\s*\(([\d.]+)%\)', line)
+                    if progress_match:
+                        processed = int(progress_match.group(1))
+                        total = int(progress_match.group(2))
+                        percentage = float(progress_match.group(3))
+                        last_progress = percentage / 100.0
+                        progress_bar.progress(min(last_progress, 1.0))
+                        current_status = f"已处理 {processed}/{total} 只股票 ({percentage:.1f}%)"
+                        status_text.info(f"🔄 **状态**: {current_status}")
+                    
+                    # 更新状态文本
+                    elif "✅" in line or "完成" in line:
+                        if "获取到" in line and "只股票" in line:
+                            status_text.success(f"✅ {line}")
+                        elif "下载完成" in line or "数据整理完成" in line:
+                            status_text.success(f"✅ {line}")
+                            progress_bar.progress(1.0)
+                            current_status = "下载完成"
+                    elif "❌" in line or "失败" in line:
+                        status_text.error(f"❌ {line}")
+                    elif "⏳" in line:
+                        status_text.info(f"⏳ {line}")
+                
+                    # 显示最后几行日志
+                    if len(output_lines) > 10:
+                        log_output.text_area(
+                            "下载日志",
+                            "\n".join(output_lines[-10:]),
+                            height=150,
+                            disabled=True
+                        )
+                    else:
+                        log_output.text_area(
+                            "下载日志",
+                            "\n".join(output_lines),
+                            height=150,
+                            disabled=True
+                        )
             
-            line = line.strip()
-            if line:
-                output_lines.append(line)
-                
-                # 解析进度信息
-                progress_match = re.search(r'进度:\s*(\d+)/(\d+)\s*\(([\d.]+)%\)', line)
-                if progress_match:
-                    processed = int(progress_match.group(1))
-                    total = int(progress_match.group(2))
-                    percentage = float(progress_match.group(3))
-                    last_progress = percentage / 100.0
-                    progress_bar.progress(min(last_progress, 1.0))
-                    current_status = f"已处理 {processed}/{total} 只股票 ({percentage:.1f}%)"
-                    status_text.info(f"🔄 **状态**: {current_status}")
-                
-                # 更新状态文本
-                elif "✅" in line or "完成" in line:
-                    if "获取到" in line and "只股票" in line:
-                        status_text.success(f"✅ {line}")
-                    elif "下载完成" in line or "数据整理完成" in line:
-                        status_text.success(f"✅ {line}")
-                        progress_bar.progress(1.0)
-                        current_status = "下载完成"
-                elif "❌" in line or "失败" in line:
-                    status_text.error(f"❌ {line}")
-                elif "⏳" in line:
-                    status_text.info(f"⏳ {line}")
-                
-                # 显示最后几行日志
-                if len(output_lines) > 10:
-                    log_output.text_area(
-                        "下载日志",
-                        "\n".join(output_lines[-10:]),
-                        height=150,
-                        disabled=True
-                    )
-                else:
-                    log_output.text_area(
-                        "下载日志",
-                        "\n".join(output_lines),
-                        height=150,
-                        disabled=True
-                    )
-        
-        # 等待进程完成
-        process.wait()
-        
-        # 获取最终输出
-        final_output = "\n".join(output_lines)
-        
-        # 检查是否成功
-        if process.returncode == 0:
-            st.success("✅ 下载完成！正在刷新数据...")
-            status_text.success(f"✅ 下载成功完成！")
-            progress_bar.progress(1.0)
+            # 等待进程完成
+            process.wait()
             
-            # 刷新页面以显示新数据
-            time.sleep(1)
-            st.rerun()
-        else:
-            st.error(f"❌ 下载失败")
+            # 获取最终输出
+            final_output = "\n".join(output_lines)
             
-            # 分析错误类型并给出友好提示
-            error_output = final_output
-            if "proxy" in error_output.lower() or "ProxyError" in error_output:
-                st.warning("🔧 **代理配置问题**")
-                st.info("""
-                **问题诊断**: 系统检测到代理连接错误
+            # 检查是否成功
+            if process.returncode == 0:
+                st.success("✅ 下载完成！正在刷新数据...")
+                status_text.success(f"✅ 下载成功完成！")
+                progress_bar.progress(1.0)
                 
-                **可能的解决方案：**
-                1. 系统已自动尝试禁用代理，请重试
-                2. 如果仍有问题，检查系统代理设置：
-                   - macOS: 系统设置 → 网络 → 代理
-                   - 检查是否有无效的代理配置
-                3. 临时禁用代理环境变量：
-                   ```bash
-                   unset HTTP_PROXY
-                   unset HTTPS_PROXY
-                   unset http_proxy
-                   unset https_proxy
-                   ```
-                4. 如果确实需要代理，请确保代理服务器正常运行
-                """)
-                st.success("💡 **提示**: 下载脚本已自动禁用代理，请点击按钮重试")
-            elif "connection" in error_output.lower() or "Connection" in error_output:
-                st.warning("🌐 **网络连接问题**")
-                st.info("""
-                **可能的解决方案：**
-                1. 检查网络连接是否稳定
-                2. 检查是否需要配置代理/VPN
-                3. 稍后重试（数据源服务器可能临时不可用）
-                4. 尝试在网络较好的环境下重试
-                """)
-            elif "timeout" in error_output.lower():
-                st.warning("⏱️ **请求超时**")
-                st.info("""
-                **可能的解决方案：**
-                1. 数据源服务器响应较慢，请稍后重试
-                2. 检查网络连接速度
-                3. 如果是首次下载，数据量较大，可能需要更长时间
-                """)
-            elif "rate limit" in error_output.lower() or "频率" in error_output:
-                st.warning("🚦 **请求频率过高**")
-                st.info("""
-                **可能的解决方案：**
-                1. 等待 1-2 分钟后重试
-                2. 数据源可能有访问频率限制
-                """)
-            elif "token" in error_output.lower() or "权限" in error_output.lower() or "积分" in error_output.lower():
-                st.warning("🔑 **数据源权限问题**")
-                st.info("""
-                **问题分析**: 数据源可能有限制或网络问题
+                # 刷新页面以显示新数据
+                time.sleep(1)
+                st.rerun()
+            else:
+                st.error(f"❌ 下载失败")
                 
-                **解决方案：**
-                1. **检查网络连接**: 确保能访问BaoStock数据源
-                2. **稍后重试**: 可能是临时网络问题
-                3. **查看日志**: 点击下方展开查看详细错误信息
+                # 分析错误类型并给出友好提示
+                error_output = final_output
+                if "proxy" in error_output.lower() or "ProxyError" in error_output:
+                    st.warning("🔧 **代理配置问题**")
+                    st.info("""
+                    **问题诊断**: 系统检测到代理连接错误
+                    
+                    **可能的解决方案：**
+                    1. 系统已自动尝试禁用代理，请重试
+                    2. 如果仍有问题，检查系统代理设置：
+                       - macOS: 系统设置 → 网络 → 代理
+                       - 检查是否有无效的代理配置
+                    3. 临时禁用代理环境变量：
+                       ```bash
+                       unset HTTP_PROXY
+                       unset HTTPS_PROXY
+                       unset http_proxy
+                       unset https_proxy
+                       ```
+                    4. 如果确实需要代理，请确保代理服务器正常运行
+                    """)
+                    st.success("💡 **提示**: 下载脚本已自动禁用代理，请点击按钮重试")
+                elif "connection" in error_output.lower() or "Connection" in error_output:
+                    st.warning("🌐 **网络连接问题**")
+                    st.info("""
+                    **可能的解决方案：**
+                    1. 检查网络连接是否稳定
+                    2. 检查是否需要配置代理/VPN
+                    3. 稍后重试（数据源服务器可能临时不可用）
+                    4. 尝试在网络较好的环境下重试
+                    """)
+                elif "timeout" in error_output.lower():
+                    st.warning("⏱️ **请求超时**")
+                    st.info("""
+                    **可能的解决方案：**
+                    1. 数据源服务器响应较慢，请稍后重试
+                    2. 检查网络连接速度
+                    3. 如果是首次下载，数据量较大，可能需要更长时间
+                    """)
+                elif "rate limit" in error_output.lower() or "频率" in error_output:
+                    st.warning("🚦 **请求频率过高**")
+                    st.info("""
+                    **可能的解决方案：**
+                    1. 等待 1-2 分钟后重试
+                    2. 数据源可能有访问频率限制
+                    """)
+                elif "token" in error_output.lower() or "权限" in error_output.lower() or "积分" in error_output.lower():
+                    st.warning("🔑 **数据源权限问题**")
+                    st.info("""
+                    **问题分析**: 数据源可能有限制或网络问题
+                    
+                    **解决方案：**
+                    1. **检查网络连接**: 确保能访问BaoStock数据源
+                    2. **稍后重试**: 可能是临时网络问题
+                    3. **查看日志**: 点击下方展开查看详细错误信息
+                    
+                    **注意**: BaoStock是免费数据源，通常不需要特殊权限
+                        """)
                 
-                **注意**: BaoStock是免费数据源，通常不需要特殊权限
-                """)
-            
-            # 显示详细错误信息（可折叠）
-            with st.expander("🔍 查看详细错误信息"):
-                st.code(error_output, language="bash")
+                # 显示详细错误信息（可折叠）
+                with st.expander("🔍 查看详细错误信息"):
+                    st.code(error_output, language="bash")
                 
-    except subprocess.TimeoutExpired:
-        st.error("❌ 下载超时（超过5分钟），请检查网络连接或稍后重试")
-    except Exception as e:
-        st.error(f"❌ 下载过程出错: {e}")
-        import traceback
-        st.code(traceback.format_exc(), language="python")
+        except subprocess.TimeoutExpired:
+            st.error("❌ 下载超时（超过5分钟），请检查网络连接或稍后重试")
+        except Exception as e:
+            st.error(f"❌ 下载过程出错: {e}")
+            import traceback
+            st.code(traceback.format_exc(), language="python")
 
 st.markdown("---")
 
@@ -644,29 +661,71 @@ if df is not None and not df.empty:
     
     st.subheader("📊 完整数据列表")
     st.success(f"✅ 成功加载 {len(df):,} 条股票数据")
+    
+    # ========== 关键修复：直接显示数据表格（最简化版本）==========
+    # 按照OpenAI建议：先简单显示数据，确保能看到
     st.info(f"💡 以下为完整列表（可滚动查看）")
     
+    # 显示统计信息
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("总记录数", len(df))
+    with col2:
+        code_col = 'stock_code' if 'stock_code' in df.columns else 'code'
+        if code_col in df.columns:
+            st.metric("股票代码数", df[code_col].nunique())
+    with col3:
+        if "price" in df.columns:
+            avg_price = df["price"].mean()
+            st.metric("平均价格", f"￥{avg_price:.2f}" if not pd.isna(avg_price) else "N/A")
+    with col4:
+        if "total_mv" in df.columns:
+            total_mcap = df["total_mv"].sum() / 1e12 if df["total_mv"].notna().any() else 0  # 转换为万亿元
+            st.metric("总市值", f"{total_mcap:.2f}万亿" if total_mcap > 0 else "N/A")
+    
+    # ========== 直接显示数据表格（简化版，确保能显示）==========
     try:
-        # 使用之前读取的df（来自数据库或CSV），不再重新读取
+        # 选择要显示的列（至少包含股票代码和名称）
+        display_cols = []
+        if 'stock_code' in df.columns:
+            display_cols.append('stock_code')
+        if 'stock_name' in df.columns:
+            display_cols.append('stock_name')
+        if 'code' in df.columns:
+            display_cols.append('code')
+        if 'code_name' in df.columns:
+            display_cols.append('code_name')
         
-        # 显示统计信息
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("总记录数", len(df))
-        with col2:
-            code_col = 'stock_code' if 'stock_code' in df.columns else 'code'
-            if code_col in df.columns:
-                st.metric("股票代码数", df[code_col].nunique())
-        with col3:
-            if "price" in df.columns:
-                avg_price = df["price"].mean()
-                st.metric("平均价格", f"￥{avg_price:.2f}" if not pd.isna(avg_price) else "N/A")
-        with col4:
-            if "total_mv" in df.columns:
-                total_mcap = df["total_mv"].sum() / 1e12 if df["total_mv"].notna().any() else 0  # 转换为万亿元
-                st.metric("总市值", f"{total_mcap:.2f}万亿" if total_mcap > 0 else "N/A")
+        # 添加其他重要列
+        for col in ['price', 'pe', 'pb', 'ps', 'total_mv', 'circ_mv', 'update_time']:
+            if col in df.columns and col not in display_cols:
+                display_cols.append(col)
         
-        # ========== 股票筛选功能 ==========
+        # 如果display_cols为空，显示所有列
+        if not display_cols:
+            display_cols = list(df.columns)
+        
+        # 去除重复列
+        display_cols = list(dict.fromkeys(display_cols))
+        
+        # 创建要显示的DataFrame
+        display_df = df[display_cols].copy() if display_cols else df.copy()
+        
+        # 直接显示数据表格（最简化，确保能显示）
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            height=600,
+            hide_index=True
+        )
+        st.success(f"✅ 数据表格已显示（共 {len(display_df):,} 条记录，{len(display_cols)} 列）")
+    except Exception as e:
+        st.error(f"❌ 显示数据表格时出错: {e}")
+        import traceback
+        st.code(traceback.format_exc(), language="python")
+    
+    # ========== 股票筛选功能（可选，不影响主表格显示）==========
+    try:
         st.markdown("---")
         st.subheader("🔍 综合股票筛选")
         
@@ -762,11 +821,13 @@ if df is not None and not df.empty:
                 if has_mv:
                     mv_min = float(df['total_mv'].min() / 1e8) if df['total_mv'].notna().any() else 0
                     mv_max = float(df['total_mv'].max() / 1e8) if df['total_mv'].notna().any() else 10000
+                    # 确保max_value是step的倍数，避免slider警告
+                    mv_max = round(mv_max / 10.0) * 10.0 if mv_max > 0 else 10000.0
                     mv_range = st.slider(
                         "市值范围",
                         min_value=0.0,
-                        max_value=float(mv_max),
-                        value=(0.0, float(mv_max)),
+                        max_value=mv_max,
+                        value=(0.0, mv_max),
                         step=10.0,
                         key="mv_filter",
                         label_visibility="collapsed"
@@ -782,11 +843,13 @@ if df is not None and not df.empty:
                 if has_pe:
                     pe_min = float(df['pe'].min()) if df['pe'].notna().any() else 0
                     pe_max = float(df['pe'].max()) if df['pe'].notna().any() else 100
+                    # 确保max_value是step的倍数，避免slider警告
+                    pe_max = round(pe_max) if pe_max > 0 else 100.0
                     pe_range = st.slider(
                         "PE范围",
                         min_value=0.0,
-                        max_value=float(pe_max),
-                        value=(0.0, float(pe_max)),
+                        max_value=pe_max,
+                        value=(0.0, pe_max),
                         step=1.0,
                         key="pe_filter",
                         label_visibility="collapsed"
@@ -802,11 +865,13 @@ if df is not None and not df.empty:
                 if has_pb:
                     pb_min = float(df['pb'].min()) if df['pb'].notna().any() else 0
                     pb_max = float(df['pb'].max()) if df['pb'].notna().any() else 10
+                    # 确保max_value是step的倍数，避免slider警告
+                    pb_max = round(pb_max * 10) / 10.0 if pb_max > 0 else 10.0
                     pb_range = st.slider(
                         "PB范围",
                         min_value=0.0,
-                        max_value=float(pb_max),
-                        value=(0.0, float(pb_max)),
+                        max_value=pb_max,
+                        value=(0.0, pb_max),
                         step=0.1,
                         key="pb_filter",
                         label_visibility="collapsed"
@@ -823,11 +888,13 @@ if df is not None and not df.empty:
                 if has_price:
                     price_min = float(df['price'].min()) if df['price'].notna().any() else 0
                     price_max = float(df['price'].max()) if df['price'].notna().any() else 500
+                    # 确保max_value是step的倍数，避免slider警告
+                    price_max = round(price_max) if price_max > 0 else 500.0
                     price_range = st.slider(
                         "价格范围",
                         min_value=0.0,
-                        max_value=float(price_max),
-                        value=(0.0, float(price_max)),
+                        max_value=price_max,
+                        value=(0.0, price_max),
                         step=1.0,
                         key="price_filter",
                         label_visibility="collapsed"
@@ -1241,11 +1308,12 @@ if df is not None and not df.empty:
                 else:
                     st.session_state.confirm_delete = True
                     st.warning("⚠️ 确认清空所有数据库数据？请再次点击按钮")
-
     except Exception as e:
-        st.error(f"❌ 读取数据失败: {e}")
+        # 筛选功能出错不影响主表格显示，只显示警告
+        st.warning(f"⚠️ 筛选功能出错（不影响数据查看）: {e}")
         import traceback
-        st.code(traceback.format_exc(), language="python")
+        with st.expander("查看详细错误信息"):
+            st.code(traceback.format_exc(), language="python")
 
 else:
     st.info("""

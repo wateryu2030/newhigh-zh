@@ -4,59 +4,90 @@
 支持前端缓存登录状态，10分钟无操作自动失效
 """
 
-import streamlit as st
-import hashlib
-import os
 import json
-from pathlib import Path
-from typing import Dict, Optional, Tuple
+import hashlib
 import time
+from typing import Dict, Optional, Tuple, List
 
-# 导入日志模块
+import streamlit as st
+from sqlalchemy import text
+
 from tradingagents.utils.logging_manager import get_logger
-logger = get_logger('auth')
 
-# 导入用户活动记录器
+from data_engine.config import DB_URL
+from data_engine.utils.db_utils import get_engine
+
 try:
     from .user_activity_logger import user_activity_logger
 except ImportError:
     user_activity_logger = None
-    logger.warning("⚠️ 用户活动记录器导入失败")
+
+logger = get_logger("auth")
 
 class AuthManager:
     """用户认证管理器"""
     
+    DEFAULT_ROLE_PERMISSIONS = {
+        "admin": ["analysis", "config", "admin"],
+        "user": ["analysis"],
+    }
+
     def __init__(self):
-        self.users_file = Path(__file__).parent.parent / "config" / "users.json"
-        self.session_timeout = 600000  
-        self._ensure_users_file()
+        self.session_timeout = 600000
+        self.engine = get_engine(DB_URL)
+        self._ensure_user_table()
     
-    def _ensure_users_file(self):
-        """确保用户配置文件存在"""
-        self.users_file.parent.mkdir(exist_ok=True)
-        
-        if not self.users_file.exists():
-            # 创建默认用户配置
-            default_users = {
-                "admin": {
-                    "password_hash": self._hash_password("admin123"),
-                    "role": "admin",
-                    "permissions": ["analysis", "config", "admin"],
-                    "created_at": time.time()
-                },
-                "user": {
-                    "password_hash": self._hash_password("user123"),
-                    "role": "user", 
-                    "permissions": ["analysis"],
-                    "created_at": time.time()
-                }
-            }
-            
-            with open(self.users_file, 'w', encoding='utf-8') as f:
-                json.dump(default_users, f, indent=2, ensure_ascii=False)
-            
-            logger.info(f"✅ 用户认证系统初始化完成")
-            logger.info(f"📁 用户配置文件: {self.users_file}")
+    def _ensure_user_table(self):
+        """确保用户表存在并初始化默认账户。"""
+        create_sql = text(
+            """
+            CREATE TABLE IF NOT EXISTS web_users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(64) NOT NULL UNIQUE,
+                password_hash VARCHAR(128) NOT NULL,
+                role VARCHAR(32) NOT NULL DEFAULT 'user',
+                permissions TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """
+        )
+        with self.engine.begin() as conn:
+            conn.execute(create_sql)
+
+            existing_admin = conn.execute(
+                text("SELECT COUNT(*) FROM web_users WHERE username = :username"),
+                {"username": "admin"},
+            ).scalar()
+            if existing_admin == 0:
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO web_users (username, password_hash, role, permissions)
+                        VALUES (:username, :password_hash, :role, :permissions)
+                        """
+                    ),
+                    {
+                        "username": "admin",
+                        "password_hash": self._hash_password("admin123"),
+                        "role": "admin",
+                        "permissions": json.dumps(self.DEFAULT_ROLE_PERMISSIONS["admin"], ensure_ascii=False),
+                    },
+                )
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO web_users (username, password_hash, role, permissions)
+                        VALUES (:username, :password_hash, :role, :permissions)
+                        """
+                    ),
+                    {
+                        "username": "user",
+                        "password_hash": self._hash_password("user123"),
+                        "role": "user",
+                        "permissions": json.dumps(self.DEFAULT_ROLE_PERMISSIONS["user"], ensure_ascii=False),
+                    },
+                )
+                logger.info("✅ 用户表初始化完成，已创建默认账户 admin / user")
     
     def _inject_auth_cache_js(self):
         """注入前端认证缓存JavaScript代码"""
@@ -152,14 +183,66 @@ class AuthManager:
         """密码哈希"""
         return hashlib.sha256(password.encode()).hexdigest()
     
-    def _load_users(self) -> Dict:
-        """加载用户配置"""
+    def _load_users(self) -> Dict[str, Dict]:
+        """从数据库加载用户配置。"""
+        users: Dict[str, Dict] = {}
+        with self.engine.connect() as conn:
+            rows = conn.execute(
+                text("SELECT username, password_hash, role, permissions FROM web_users")
+            ).fetchall()
+        for row in rows:
+            permissions = []
+            if row.permissions:
+                try:
+                    permissions = json.loads(row.permissions)
+                except json.JSONDecodeError:
+                    permissions = self.DEFAULT_ROLE_PERMISSIONS.get(row.role, [])
+            if not permissions:
+                permissions = self.DEFAULT_ROLE_PERMISSIONS.get(row.role, [])
+            users[row.username] = {
+                "password_hash": row.password_hash,
+                "role": row.role,
+                "permissions": permissions,
+            }
+        return users
+
+    def register_user(self, username: str, password: str, role: str = "user") -> Tuple[bool, str]:
+        """注册新用户写入数据库。"""
+        username = username.strip()
+        if not username or not password:
+            return False, "用户名和密码不能为空"
+        if role not in self.DEFAULT_ROLE_PERMISSIONS:
+            return False, "不支持的角色类型"
+
+        users = self._load_users()
+        if username in users:
+            return False, "用户名已存在，请更换一个"
+
+        permissions = json.dumps(
+            self.DEFAULT_ROLE_PERMISSIONS.get(role, []),
+            ensure_ascii=False,
+        )
         try:
-            with open(self.users_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"❌ 加载用户配置失败: {e}")
-            return {}
+            with self.engine.begin() as conn:
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO web_users (username, password_hash, role, permissions)
+                        VALUES (:username, :password_hash, :role, :permissions)
+                        """
+                    ),
+                    {
+                        "username": username,
+                        "password_hash": self._hash_password(password),
+                        "role": role,
+                        "permissions": permissions,
+                    },
+                )
+            logger.info("✅ 新用户注册成功: %s", username)
+            return True, "注册成功，请使用新账户登录"
+        except Exception as exc:
+            logger.error("❌ 注册用户失败: %s", exc)
+            return False, "注册失败，请稍后重试"
     
     def authenticate(self, username: str, password: str) -> Tuple[bool, Optional[Dict]]:
         """

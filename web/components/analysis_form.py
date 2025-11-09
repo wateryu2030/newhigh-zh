@@ -259,7 +259,7 @@ def render_analysis_form():
         if current_config != initial_config:
             st.session_state.form_config = current_config
             try:
-                from utils.smart_session_manager import smart_session_manager
+                from web.utils.smart_session_manager import smart_session_manager
                 current_analysis_id = st.session_state.get('current_analysis_id', 'form_config_only')
                 smart_session_manager.save_analysis_state(
                     analysis_id=current_analysis_id,
@@ -315,7 +315,7 @@ def render_analysis_form():
 
         # 保存到持久化存储
         try:
-            from utils.smart_session_manager import smart_session_manager
+            from web.utils.smart_session_manager import smart_session_manager
             # 获取当前分析ID（如果有的话）
             current_analysis_id = st.session_state.get('current_analysis_id', 'form_config_only')
             smart_session_manager.save_analysis_state(

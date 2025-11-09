@@ -9,7 +9,7 @@ import pandas as pd
 from datetime import datetime
 
 # 导入导出功能
-from utils.report_exporter import render_export_buttons
+from web.utils.report_exporter import render_export_buttons
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
@@ -63,7 +63,7 @@ def render_results(results):
         
         # 使用检查器获取详细信息
         try:
-            from utils.llm_provider_checker import LLMProviderChecker, get_current_provider_info
+            from web.utils.llm_provider_checker import LLMProviderChecker, get_current_provider_info
             current_info = get_current_provider_info()
             if current_info['provider'] != 'unknown':
                 current_provider = current_info['provider']

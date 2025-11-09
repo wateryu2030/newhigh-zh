@@ -52,6 +52,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 from openai import OpenAI
+from openai import NotFoundError, OpenAIError
 
 # 尝试导入yfinance，如果失败则设置为None
 try:
@@ -788,70 +789,98 @@ def get_stock_news_openai(ticker, curr_date):
     config = get_config()
     client = OpenAI(base_url=config["backend_url"])
 
-    response = client.responses.create(
-        model=config["quick_think_llm"],
-        input=[
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"Can you search Social Media for {ticker} from 7 days before {curr_date} to {curr_date}? Make sure you only get the data posted during that period.",
-                    }
-                ],
-            }
-        ],
-        text={"format": {"type": "text"}},
-        reasoning={},
-        tools=[
-            {
-                "type": "web_search_preview",
-                "user_location": {"type": "approximate"},
-                "search_context_size": "low",
-            }
-        ],
-        temperature=1,
-        max_output_tokens=4096,
-        top_p=1,
-        store=True,
-    )
+    try:
+        response = client.responses.create(
+            model=config["quick_think_llm"],
+            input=[
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": f"Can you search Social Media for {ticker} from 7 days before {curr_date} to {curr_date}? Make sure you only get the data posted during that period.",
+                        }
+                    ],
+                }
+            ],
+            text={"format": {"type": "text"}},
+            reasoning={},
+            tools=[
+                {
+                    "type": "web_search_preview",
+                    "user_location": {"type": "approximate"},
+                    "search_context_size": "low",
+                }
+            ],
+            temperature=1,
+            max_output_tokens=4096,
+            top_p=1,
+            store=True,
+        )
 
-    return response.output[1].content[0].text
+        if not response.output or len(response.output) < 2:
+            logger.warning("⚠️ [OpenAI] 未返回有效的新闻内容，使用空结果。")
+            return "未获取到相关新闻数据。"
+
+        return response.output[1].content[0].text
+    except NotFoundError as e:
+        logger.warning(f"⚠️ [OpenAI] 新闻接口返回404，跳过新闻工具: {e}")
+        return "未获取到相关新闻数据（新闻接口返回404）。"
+    except OpenAIError as e:
+        logger.error(f"❌ [OpenAI] 获取股票新闻失败: {e}")
+        return f"获取相关新闻失败: {e}"
+    except Exception as e:
+        logger.exception(f"❌ [OpenAI] 获取股票新闻出现异常: {e}")
+        return f"获取相关新闻失败: {e}"
 
 
 def get_global_news_openai(curr_date):
     config = get_config()
     client = OpenAI(base_url=config["backend_url"])
 
-    response = client.responses.create(
-        model=config["quick_think_llm"],
-        input=[
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"Can you search global or macroeconomics news from 7 days before {curr_date} to {curr_date} that would be informative for trading purposes? Make sure you only get the data posted during that period.",
-                    }
-                ],
-            }
-        ],
-        text={"format": {"type": "text"}},
-        reasoning={},
-        tools=[
-            {
-                "type": "web_search_preview",
-                "user_location": {"type": "approximate"},
-                "search_context_size": "low",
-            }
-        ],
-        temperature=1,
-        max_output_tokens=4096,
-        top_p=1,
-        store=True,
-    )
+    try:
+        response = client.responses.create(
+            model=config["quick_think_llm"],
+            input=[
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": f"Can you search global or macroeconomics news from 7 days before {curr_date} to {curr_date} that would be informative for trading purposes? Make sure you only get the data posted during that period.",
+                        }
+                    ],
+                }
+            ],
+            text={"format": {"type": "text"}},
+            reasoning={},
+            tools=[
+                {
+                    "type": "web_search_preview",
+                    "user_location": {"type": "approximate"},
+                    "search_context_size": "medium",
+                }
+            ],
+            temperature=1,
+            max_output_tokens=4096,
+            top_p=1,
+            store=True,
+        )
 
-    return response.output[1].content[0].text
+        if not response.output or len(response.output) < 2:
+            logger.warning("⚠️ [OpenAI] 宏观新闻接口未返回内容，使用空结果。")
+            return "未获取到宏观新闻数据。"
+
+        return response.output[1].content[0].text
+    except NotFoundError as e:
+        logger.warning(f"⚠️ [OpenAI] 宏观新闻接口返回404，跳过新闻工具: {e}")
+        return "未获取到宏观新闻数据（新闻接口返回404）。"
+    except OpenAIError as e:
+        logger.error(f"❌ [OpenAI] 获取宏观新闻失败: {e}")
+        return f"获取宏观新闻失败: {e}"
+    except Exception as e:
+        logger.exception(f"❌ [OpenAI] 获取宏观新闻出现异常: {e}")
+        return f"获取宏观新闻失败: {e}"
 
 
 def get_fundamentals_finnhub(ticker, curr_date):

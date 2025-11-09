@@ -17,7 +17,7 @@ sys.path.append(str(project_root))
 
 # 导入UI工具函数
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.ui_utils import apply_hide_deploy_button_css
+from web.utils.ui_utils import apply_hide_deploy_button_css
 
 try:
     from tradingagents.config.database_manager import get_database_manager
